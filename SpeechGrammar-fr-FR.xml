@@ -1,0 +1,32 @@
+﻿<grammar version="1.0" xml:lang="fr-FR" root="rootRule" tag-format="semantics/1.0-literals" xmlns="http://www.w3.org/2001/06/grammar">
+  <rule id="rootRule">
+    <one-of>
+      <item>
+        <tag>FORWARD</tag>
+        <one-of>
+          <item> avance </item>
+          <item> en avant </item>
+        </one-of>
+      </item>
+      <item>
+        <tag>BACKWARD</tag>
+        <one-of>
+          <item> recule </item>
+          <item> en bas </item>
+        </one-of>
+      </item>
+      <item>
+        <tag>LEFT</tag>
+        <one-of>
+          <item> tourne à gauche </item>
+        </one-of>
+      </item>
+      <item>
+        <tag>RIGHT</tag>
+        <one-of>
+          <item> tourne à droite </item>
+        </one-of>
+      </item>
+    </one-of>
+  </rule>
+</grammar>
