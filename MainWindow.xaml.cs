@@ -1,54 +1,31 @@
-﻿//------------------------------------------------------------------------------
-// <copyright file="MainWindow.xaml.cs" company="Microsoft">
-//     Copyright (c) Microsoft Corporation.  All rights reserved.
-// </copyright>
-//------------------------------------------------------------------------------
+﻿using System;
+using System.Xml;
+using System.Collections.Generic;    
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Linq;
+using System.Windows;
+using Microsoft.Kinect;    
+using Microsoft.Speech.AudioFormat;
+using Microsoft.Speech.Recognition;
+using Microsoft.Win32;
+using System.Collections;
 
-namespace Microsoft.Samples.Kinect.SpeechBasics
+namespace Kinect2Server
 {
-    using System;
-    using System.Xml;
-    using System.Collections.Generic;    
-    using System.ComponentModel;
-    using System.IO;
-    using System.Runtime.InteropServices;
-    using System.Text;    
-    using System.Windows;    
-    using System.Windows.Documents;
-    using System.Windows.Media;
-    using Microsoft.Kinect;    
-    using Microsoft.Speech.AudioFormat;
-    using Microsoft.Speech.Recognition;
-    using Microsoft.Win32;
-    using System.Collections;
-
- 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1001:TypesThatOwnDisposableFieldsShouldBeDisposable",
-        Justification = "In a full-fledged application, the SpeechRecognitionEngine object should be properly disposed. For the sake of simplicity, we're omitting that code in this sample.")]
-    public partial class MainWindow : Window
+     public partial class MainWindow : Window
     {
         private const string MediumGreyBrushKey = "MediumGreyBrush";
-
-        // Active Kinect sensor
         private KinectSensor kinectSensor = null;
-
-        // Stream for 32b-16b conversion
         private KinectAudioStream convertStream = null;
-
-        // Speech recognition engine using audio data from Kinect
+        private Grammar grammar = null;
         private SpeechRecognitionEngine speechEngine = null;
-
-        // XML File converted to string
-        private static string grammarText;
-
-        // Name of the current file loaded
-        private static string fileName = "SpeechGrammar-fr-FR";
-
-        // Location of the current file loaded
-        private static string location = "C:/Users/Yoan/Documents/Internship Lucas/SpeechBasics-WPF-Lucas/SpeechGrammar-fr-FR.xml";
-
-        // Current language recognized
-        private static string currentLanguage = "fr-FR";
+        private static string grammarText = null;
+        private static string fileName = null;
+        private static string location = "C:/Users/Yoan/Documents/Internship Lucas/SpeechBasics-WPF-Lucas/testGrammar.xml";
+        private static string currentLanguage = null;
 
 
         public MainWindow()
@@ -56,7 +33,7 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
             this.InitializeComponent();
         }
 
-        // Update the XML file when the user opens a new file
+        // Update the XML file when the user opens a file
         private void updateXMLGrammarFile(object sender, RoutedEventArgs e)
         {
             // Create OpenFileDialog
@@ -83,11 +60,11 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
             switch (currentLanguage)
                 {
                     case "en-US" :
-                        language.Text = "Current language : american English";
+                        this.language.Text = Properties.Resources.AmericanEnglish;
                         break;
 
                     case "fr-FR" :
-                        language.Text = "Current language : French";
+                        this.language.Text = Properties.Resources.French;
                         break;
                 }
         }
@@ -171,12 +148,12 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
 
                 // create the convert stream
                 this.convertStream = new KinectAudioStream(audioStream);
+                
             }
             else
             {
                 // on failure, set the status text
                 this.statusBarText.Text = Properties.Resources.NoKinectReady;
-                return;
             }
         }
 
@@ -186,14 +163,14 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
 
             if (null != ri)
             {
+                this.statusBarText.Text = "";
                 this.speechEngine = new SpeechRecognitionEngine(ri.Id);
 
                 // Create a grammar from grammar definition XML file.
-                setGrammarText(location);
-                using (var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(grammarText)))
+                using (var memoryStream = File.OpenRead(location))
                 {
-                    var g = new Grammar(memoryStream);
-                    this.speechEngine.LoadGrammar(g);
+                    this.grammar = new Grammar(memoryStream);
+                    this.speechEngine.LoadGrammar(this.grammar);
                 }
 
                 this.speechEngine.SpeechRecognized += this.SpeechRecognized;
@@ -250,25 +227,7 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
 
             if (e.Result.Confidence >= ConfidenceThreshold)
             {
-                switch (e.Result.Semantics.Value.ToString())
-                {
-                    case "FORWARD":
-                        this.lastWord.Text = "up";
-                        break;
-
-                    case "BACKWARD":
-                        this.lastWord.Text = "down";
-                        break;
-
-                    case "LEFT":
-                        this.lastWord.Text = "left";
-                        break;
-
-                    case "RIGHT":
-                        this.lastWord.Text = "right";
-                        break;
-
-                }
+                this.lastWord.Text = e.Result.Text;
             }
 
 
@@ -276,7 +235,7 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
      
         private void SpeechRejected(object sender, SpeechRecognitionRejectedEventArgs e)
         {
-            lastWord.Text = "Last word recognized : ...";
+            this.lastWord.Text = Properties.Resources.NoWordsRecognized;
         }
     }
 }

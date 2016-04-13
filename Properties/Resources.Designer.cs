@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.Samples.Kinect.SpeechBasics.Properties {
+namespace Kinect2Server.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Microsoft.Samples.Kinect.SpeechBasics.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.Samples.Kinect.SpeechBasics.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Kinect2Server.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,25 @@ namespace Microsoft.Samples.Kinect.SpeechBasics.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No ready Kinect found!.
+        ///   Looks up a localized string similar to Current language : american English.
+        /// </summary>
+        internal static string AmericanEnglish {
+            get {
+                return ResourceManager.GetString("AmericanEnglish", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current language : French.
+        /// </summary>
+        internal static string French {
+            get {
+                return ResourceManager.GetString("French", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to I can&apos;t find any Kinect connected through USB :( Closing in 10 sec....
         /// </summary>
         internal static string NoKinectReady {
             get {
@@ -70,11 +88,20 @@ namespace Microsoft.Samples.Kinect.SpeechBasics.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not find Kinect speech recognizer. Please refer to the sample requirements..
+        ///   Looks up a localized string similar to I can&apos;t find any Kinect speech recognizer..
         /// </summary>
         internal static string NoSpeechRecognizer {
             get {
                 return ResourceManager.GetString("NoSpeechRecognizer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Can you repeat ? I don&apos;t get it....
+        /// </summary>
+        internal static string NoWordsRecognized {
+            get {
+                return ResourceManager.GetString("NoWordsRecognized", resourceCulture);
             }
         }
     }

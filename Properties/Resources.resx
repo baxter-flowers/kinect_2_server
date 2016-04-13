@@ -117,10 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AmericanEnglish" xml:space="preserve">
+    <value>Current language : american English</value>
+  </data>
+  <data name="French" xml:space="preserve">
+    <value>Current language : French</value>
+  </data>
   <data name="NoKinectReady" xml:space="preserve">
-    <value>No ready Kinect found!</value>
+    <value>I can't find any Kinect connected through USB :( Closing in 10 sec...</value>
   </data>
   <data name="NoSpeechRecognizer" xml:space="preserve">
-    <value>Could not find Kinect speech recognizer. Please refer to the sample requirements.</value>
+    <value>I can't find any Kinect speech recognizer.</value>
+  </data>
+  <data name="NoWordsRecognized" xml:space="preserve">
+    <value>Can you repeat ? I don't get it...</value>
   </data>
 </root>

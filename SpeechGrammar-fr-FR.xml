@@ -27,6 +27,12 @@
           <item> droite </item>
         </one-of>
       </item>
+      <item>
+        <tag>HELLO</tag>
+        <one-of>
+          <item> bonjour je m'apelle Lucas</item>
+        </one-of>
+      </item>
     </one-of>
   </rule>
 </grammar>
