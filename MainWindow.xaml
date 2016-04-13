@@ -26,16 +26,16 @@
         </DockPanel>
         <Viewbox Grid.Row="1" Stretch="Uniform">
             <Canvas Name="playArea"  Width="600" Height="400">
-                <TextBlock Name="language" Canvas.Left="393" FontSize="16" TextWrapping="Wrap" Text="Current language : English" Canvas.Top="27"/>
+                <TextBlock Name="language" Canvas.Left="308" FontSize="16" TextWrapping="Wrap" Text="Current language " Canvas.Top="19"/>
             </Canvas>
         </Viewbox>
 
         <Button Content="Browse"
                 HorizontalAlignment="Left"
-                Margin="10,46.8,0,0"
+                Margin="10,30.8,0,0"
                 VerticalAlignment="Top"
                 Width="75"
-                Click="getXMLGrammarFile" 
+                Click="updateXMLGrammarFile" 
                 Grid.Row="1"/>
         <TextBlock Name="lastWord" Grid.Row="2" HorizontalAlignment="Center" FontSize="16" Margin="0 10 0 10" Foreground="{StaticResource MediumGreyBrush}">
             Last word recognized: ""

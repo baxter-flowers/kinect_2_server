@@ -28,11 +28,27 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
     public partial class MainWindow : Window
     {
         private const string MediumGreyBrushKey = "MediumGreyBrush";
+
+        // Active Kinect sensor
         private KinectSensor kinectSensor = null;
+
+        // Stream for 32b-16b conversion
         private KinectAudioStream convertStream = null;
+
+        // Speech recognition engine using audio data from Kinect
         private SpeechRecognitionEngine speechEngine = null;
-        private static string fileName = null;
-        private static string location = "C:/Users/Yoan/Documents/Internship Lucas/SpeechBasics-WPF-Lucas/SpeechGrammar-en-US.xml";
+
+        // XML File converted to string
+        private static string grammarText;
+
+        // Name of the current file loaded
+        private static string fileName = "SpeechGrammar-fr-FR";
+
+        // Location of the current file loaded
+        private static string location = "C:/Users/Yoan/Documents/Internship Lucas/SpeechBasics-WPF-Lucas/SpeechGrammar-fr-FR.xml";
+
+        // Current language recognized
+        private static string currentLanguage = "fr-FR";
 
 
         public MainWindow()
@@ -40,7 +56,8 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
             this.InitializeComponent();
         }
 
-        private void getXMLGrammarFile(object sender, RoutedEventArgs e)
+        // Update the XML file when the user opens a new file
+        private void updateXMLGrammarFile(object sender, RoutedEventArgs e)
         {
             // Create OpenFileDialog
             OpenFileDialog dlg = new OpenFileDialog();
@@ -52,25 +69,61 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
             // Display OpenFileDialog by calling ShowDialog method
             Nullable<bool> result = dlg.ShowDialog();
 
-            // Get the selected file path and set it in location
-            if (result == true)
+            // Get the selected file path and set it in location if it is different from the actual file
+            if (result == true && location!=dlg.FileName)
             {
                 location = dlg.FileName;
                 fileName = dlg.SafeFileName;
+                
+            }
+            setGrammarText(location);
+            createGrammar(sender, e);
+            setCurrentLanguage(grammarText);
 
-                switch(fileName)
+            switch (currentLanguage)
                 {
-                    case "SpeechGrammar-en-US.xml":
-                        language.Text = "Current language : English";
+                    case "en-US" :
+                        language.Text = "Current language : american English";
                         break;
-                    case "SpeechGrammar-fr-FR.xml":
+
+                    case "fr-FR" :
                         language.Text = "Current language : French";
                         break;
                 }
-            }
         }
 
        
+        private static void setGrammarText(string location) {
+            //Load the xml file 
+            XmlDocument grammar = new XmlDocument();
+            grammar.Load(location);
+
+            //Convert the xml file into string
+            StringWriter sw = new StringWriter();
+            XmlTextWriter tw = new XmlTextWriter(sw);
+            grammar.WriteTo(tw);
+            grammarText = sw.ToString();
+        }
+
+        private static void setCurrentLanguage(string grammarText)
+        {
+            //Create the XmlNamespaceManager.
+            NameTable nt = new NameTable();
+            XmlNamespaceManager nsmgr = new XmlNamespaceManager(nt);
+
+            //Create the XmlParserContext.
+            XmlParserContext context = new XmlParserContext(null, nsmgr, null, XmlSpace.None);
+
+            //Create the reader.
+            XmlTextReader reader = new XmlTextReader(grammarText, XmlNodeType.Element, context);
+            reader.WhitespaceHandling = WhitespaceHandling.None;
+
+            //Get the language
+            reader.Read();
+            currentLanguage = reader.XmlLang;
+            reader.Close();
+        }
+
         private static RecognizerInfo TryGetKinectRecognizer()
         {
             IEnumerable<RecognizerInfo> recognizers;
@@ -86,37 +139,14 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
                 return null;
             }
             
-            //Load the xml file 
-            XmlDocument grammar = new XmlDocument();
-            grammar.Load(location);
-
-            //Convert the xml file into string
-            StringWriter sw = new StringWriter();
-            XmlTextWriter tw = new XmlTextWriter(sw);
-            grammar.WriteTo(tw);
-            string grammarText = sw.ToString();
-            
-            //Create the XmlNamespaceManager.
-            NameTable nt = new NameTable();
-            XmlNamespaceManager nsmgr = new XmlNamespaceManager(nt);
-
-            //Create the XmlParserContext.
-            XmlParserContext context = new XmlParserContext(null, nsmgr, null, XmlSpace.None);
-
-            //Create the reader.
-            XmlTextReader reader = new XmlTextReader(grammarText, XmlNodeType.Element, context);
-            reader.WhitespaceHandling = WhitespaceHandling.None;
-            
-            //Get the language
-            reader.Read();
-            string language = reader.XmlLang;
-            reader.Close();
+            setGrammarText(location);
+            setCurrentLanguage(grammarText);
 
             foreach (RecognizerInfo recognizer in recognizers)
             {
                 string value;
                 recognizer.AdditionalInfo.TryGetValue("Kinect", out value);
-                if ("True".Equals(value, StringComparison.OrdinalIgnoreCase) && language.Equals(recognizer.Culture.Name, StringComparison.OrdinalIgnoreCase))
+                if ("True".Equals(value, StringComparison.OrdinalIgnoreCase) && currentLanguage.Equals(recognizer.Culture.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     return recognizer;
                 }
@@ -125,7 +155,7 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
             return null;
         }
 
-        private void WindowLoaded(object sender, RoutedEventArgs e)
+        private void setKinectSensor(object sender, RoutedEventArgs e)
         {
             // Only one sensor is supported
             this.kinectSensor = KinectSensor.GetDefault();
@@ -148,7 +178,10 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
                 this.statusBarText.Text = Properties.Resources.NoKinectReady;
                 return;
             }
+        }
 
+        private void createGrammar(object sender, RoutedEventArgs e)
+        {
             RecognizerInfo ri = TryGetKinectRecognizer();
 
             if (null != ri)
@@ -156,25 +189,16 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
                 this.speechEngine = new SpeechRecognitionEngine(ri.Id);
 
                 // Create a grammar from grammar definition XML file.
-
-                //Load the xml file 
-                XmlDocument grammar = new XmlDocument();
-                grammar.Load(location);
-
-                //Convert the xml file into string
-                StringWriter sw = new StringWriter();
-                XmlTextWriter tw = new XmlTextWriter(sw);
-                grammar.WriteTo(tw);
-                string grammarText = sw.ToString();
+                setGrammarText(location);
                 using (var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(grammarText)))
                 {
                     var g = new Grammar(memoryStream);
                     this.speechEngine.LoadGrammar(g);
                 }
 
-                //this.speechEngine.SpeechRecognized += this.SpeechRecognized;
+                this.speechEngine.SpeechRecognized += this.SpeechRecognized;
                 this.speechEngine.SpeechRecognitionRejected += this.SpeechRejected;
-        
+
                 // let the convertStream know speech is going active
                 this.convertStream.SpeechActive = true;
 
@@ -192,6 +216,12 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
             }
         }
 
+        private void WindowLoaded(object sender, RoutedEventArgs e)
+        {
+            setKinectSensor(sender, e);
+            createGrammar(sender, e);
+        }
+
         private void WindowClosing(object sender, CancelEventArgs e)
         {
             if (null != this.convertStream)
@@ -201,7 +231,7 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
 
             if (null != this.speechEngine)
             {
-                //this.speechEngine.SpeechRecognized -= this.SpeechRecognized;
+                this.speechEngine.SpeechRecognized -= this.SpeechRecognized;
                 this.speechEngine.SpeechRecognitionRejected -= this.SpeechRejected;
                 this.speechEngine.RecognizeAsyncStop();
             }
@@ -213,6 +243,36 @@ namespace Microsoft.Samples.Kinect.SpeechBasics
             }
         }
 
+        private void SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        {
+            // Speech utterance confidence below which we treat speech as if it hadn't been heard
+            const double ConfidenceThreshold = 0.3;
+
+            if (e.Result.Confidence >= ConfidenceThreshold)
+            {
+                switch (e.Result.Semantics.Value.ToString())
+                {
+                    case "FORWARD":
+                        this.lastWord.Text = "up";
+                        break;
+
+                    case "BACKWARD":
+                        this.lastWord.Text = "down";
+                        break;
+
+                    case "LEFT":
+                        this.lastWord.Text = "left";
+                        break;
+
+                    case "RIGHT":
+                        this.lastWord.Text = "right";
+                        break;
+
+                }
+            }
+
+
+        }
      
         private void SpeechRejected(object sender, SpeechRecognitionRejectedEventArgs e)
         {

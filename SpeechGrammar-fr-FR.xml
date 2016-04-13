@@ -18,13 +18,13 @@
       <item>
         <tag>LEFT</tag>
         <one-of>
-          <item> tourne à gauche </item>
+          <item> gauche </item>
         </one-of>
       </item>
       <item>
         <tag>RIGHT</tag>
         <one-of>
-          <item> tourne à droite </item>
+          <item> droite </item>
         </one-of>
       </item>
     </one-of>

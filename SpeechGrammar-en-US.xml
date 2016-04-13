@@ -21,13 +21,13 @@
       <item>
         <tag>LEFT</tag>
         <one-of>
-          <item> turn left </item>
+          <item> left </item>
         </one-of>
       </item>
       <item>
         <tag>RIGHT</tag>
         <one-of>
-          <item> turn right </item>
+          <item> right </item>
         </one-of>
       </item>
     </one-of>
