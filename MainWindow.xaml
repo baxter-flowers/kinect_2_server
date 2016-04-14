@@ -1,49 +1,177 @@
 ﻿<Window x:Class="Kinect2Server.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Speech Basics" Height="600" Width="640"
+        xmlns:winforms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+        xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+        xmlns:customName="xctk"
+        Title="Kinect Server" Height="600" Width="640"
         Loaded="WindowLoaded" Closing="WindowClosing">
-    <Window.Resources>
-        <SolidColorBrush x:Key="MediumGreyBrush" Color="#ff6e6e6e"/>
-        <SolidColorBrush x:Key="LightGreyBrush" Color="#ffd2d2d2"/>
-        <SolidColorBrush x:Key="KinectPurpleBrush" Color="#ff52318f"/>
-        <Style TargetType="{x:Type Image}">
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-    </Window.Resources>
+    <Grid>
+        <TabControl>
+            <TabItem Header="Speech recognition">
+                <Grid Margin="10 0 10 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Grid.Row="0" Margin="0 0 0 20">
+                        <Image DockPanel.Dock="Left" Source="Images\Logo.png" Stretch="Fill" Height="32" Width="81" HorizontalAlignment="Left" Margin="0 10 0 5"/>
+                        <Button Name="switchButton" Click="switchSR" DockPanel.Dock="Right" Height="32" Width="81" BorderThickness="0"  
+    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
+                            <StackPanel Name="stackP">
+                                <Image Source="Images\switch_off.png"/>
+                            </StackPanel>
+                        </Button>
+                        <Image Grid.Column="1" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5"/>
+                    </DockPanel>
 
-    <Grid Margin="10 0 10 0">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <DockPanel Grid.Row="0" Margin="0 0 0 20">
-            <Image DockPanel.Dock="Left" Source="Images\Logo.png" Stretch="Fill" Height="32" Width="81" HorizontalAlignment="Left" Margin="0 10 0 5"/>
-            <TextBlock DockPanel.Dock="Right" Margin="0 0 -1 0" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Foreground="{StaticResource MediumGreyBrush}" FontFamily="Segoe UI" FontSize="18">Speech Basics</TextBlock>
-            <Image Grid.Column="1" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5"/>
-        </DockPanel>
-        <Viewbox Grid.Row="1" Stretch="Uniform">
-            <Canvas Name="playArea"  Width="600" Height="400">
-                <TextBlock Name="language" Canvas.Left="308" FontSize="16" TextWrapping="Wrap" Text="Current language " Canvas.Top="19"/>
-            </Canvas>
-        </Viewbox>
+                    <Viewbox Grid.Row="1" Stretch="Uniform">
+                        <Canvas   Width="600" Height="400">
+                            <TextBlock Name="language"  Canvas.Left="308" FontSize="16" TextWrapping="Wrap" Text="" Canvas.Top="19"/>
+                            <TextBlock  Canvas.Left="420" FontSize="16" TextWrapping="Wrap" Text="Confidence" Canvas.Top="61"/>
+                            <xctk:IntegerUpDown Name="upDown" Value="30" Minimum="0" Maximum="100" Increment="1" Canvas.Left="500" Canvas.Top="63" Height="20" Width="50"/>
+                            <Button Click="submitConfidence" RenderTransformOrigin="5.586,1.817" Canvas.Left="560" Canvas.Top="63" Height="20">OK</Button>
+                        </Canvas>
+                    </Viewbox>
+                    <Button Name="browse"
+                            Content="Browse"
+                            HorizontalAlignment="Left"
+                            Margin="10,30.8,0,0"
+                            VerticalAlignment="Top"
+                            Width="75"
+                            Click="updateXMLGrammarFile" 
+                            Grid.Row="1">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="IsEnabled" Value="False" />
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <TextBlock Name="lastWord" Grid.Row="2" HorizontalAlignment="Center" FontSize="16" Margin="0 10 0 10" >
+                    </TextBlock>
+                    <StatusBar Grid.Row="3" Height="23" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White">
+                        <StatusBarItem Padding="0">
+                            <TextBlock Name="statusBarText"></TextBlock>
+                        </StatusBarItem>
+                    </StatusBar>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Skeleton tracking">
+                <Grid Margin="10 0 10 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Grid.Row="0" Margin="0 0 0 20">
+                        <Image DockPanel.Dock="Left" Source="Images\Logo.png" Stretch="Fill" Height="32" Width="81" HorizontalAlignment="Left" Margin="0 10 0 5"/>
+                        <Button Click="switchSR" DockPanel.Dock="Right" Height="32" Width="81">
+                            <StackPanel >
+                                <Image Source="Images\switch_off.png"/>
+                            </StackPanel>
+                        </Button>
+                        <Image Grid.Column="1" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5"/>
+                    </DockPanel>
+                    <Viewbox Grid.Row="1" Stretch="Uniform">
+                        <Canvas  Width="600" Height="400">
+                            <TextBlock Canvas.Left="308" FontSize="16" TextWrapping="Wrap" Text="Current language " Canvas.Top="19"/>
+                        </Canvas>
+                    </Viewbox>
 
-        <Button Content="Browse"
+                    <Button Content="Browse"
                 HorizontalAlignment="Left"
                 Margin="10,30.8,0,0"
                 VerticalAlignment="Top"
                 Width="75"
                 Click="updateXMLGrammarFile" 
                 Grid.Row="1"/>
-        <TextBlock Name="lastWord" Grid.Row="2" HorizontalAlignment="Center" FontSize="16" Margin="0 10 0 10" Foreground="{StaticResource MediumGreyBrush}">
+                    <TextBlock Grid.Row="2" HorizontalAlignment="Center" FontSize="16" Margin="0 10 0 10" >
             Last word recognized: ""
-        </TextBlock>
-        <StatusBar Grid.Row="3" Height="23" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" Foreground="{StaticResource MediumGreyBrush}">
-            <StatusBarItem Padding="0">
-                <TextBlock Name="statusBarText"></TextBlock>
-            </StatusBarItem>
-        </StatusBar>
+                    </TextBlock>
+                    <StatusBar Grid.Row="3" Height="23" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="White">
+                        <StatusBarItem Padding="0">
+                            <TextBlock></TextBlock>
+                        </StatusBarItem>
+                    </StatusBar>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Gesture">
+                <Grid Margin="10 0 10 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Grid.Row="0" Margin="0 0 0 20">
+                        <Image DockPanel.Dock="Left" Source="Images\Logo.png" Stretch="Fill" Height="32" Width="81" HorizontalAlignment="Left" Margin="0 10 0 5"/>
+                        <Button Click="switchSR" DockPanel.Dock="Right" Height="32" Width="81">
+                            <StackPanel>
+                                <Image Source="Images\switch_off.png"/>
+                            </StackPanel>
+                        </Button>
+                        <Image Grid.Column="1" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5"/>
+                    </DockPanel>
+                    <Viewbox Grid.Row="1" Stretch="Uniform">
+                        <Canvas Width="600" Height="400">
+                            <TextBlock  Canvas.Left="308" FontSize="16" TextWrapping="Wrap" Text="Current language " Canvas.Top="19"/>
+                        </Canvas>
+                    </Viewbox>
+
+                    <Button Content="Browse"
+                HorizontalAlignment="Left"
+                Margin="10,30.8,0,0"
+                VerticalAlignment="Top"
+                Width="75"
+                Click="updateXMLGrammarFile" 
+                Grid.Row="1"/>
+                    <TextBlock  Grid.Row="2" HorizontalAlignment="Center" FontSize="16" Margin="0 10 0 10" >
+            Last word recognized: ""
+                    </TextBlock>
+                    <StatusBar Grid.Row="3" Height="23" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="White">
+                        <StatusBarItem Padding="0">
+                            <TextBlock ></TextBlock>
+                        </StatusBarItem>
+                    </StatusBar>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Varied Row Tab">
+                <Grid Margin="10 0 10 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <DockPanel Grid.Row="0" Margin="0 0 0 20">
+                        <Image DockPanel.Dock="Left" Source="Images\Logo.png" Stretch="Fill" Height="32" Width="81" HorizontalAlignment="Left" Margin="0 10 0 5"/>
+                        <Button  Click="switchSR" DockPanel.Dock="Right" Height="32" Width="81">
+                            <StackPanel >
+                                <Image Source="Images\switch_off.png"/>
+                            </StackPanel>
+                        </Button>
+                        <Image Grid.Column="1" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5"/>
+                    </DockPanel>
+                    <Button Content="Browse"
+                HorizontalAlignment="Left"
+                Margin="10,30.8,0,0"
+                VerticalAlignment="Top"
+                Width="75"
+                Click="updateXMLGrammarFile" 
+                Grid.Row="1"/>
+                    <TextBlock  Grid.Row="2" HorizontalAlignment="Center" FontSize="16" Margin="0 10 0 10" >
+            Last word recognized: ""
+                    </TextBlock>
+                    <StatusBar Grid.Row="3" Height="23" HorizontalAlignment="Stretch"  VerticalAlignment="Bottom" Background="White">
+                        <StatusBarItem Padding="0">
+                            <TextBlock ></TextBlock>
+                        </StatusBarItem>
+                    </StatusBar>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
