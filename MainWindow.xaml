@@ -18,7 +18,7 @@
                     </Grid.RowDefinitions>
                     <DockPanel Grid.Row="0" Margin="0 0 0 20">
                         <Image DockPanel.Dock="Left" Source="Images\Logo.png" Stretch="Fill" Height="32" Width="81" HorizontalAlignment="Left" Margin="0 10 0 5"/>
-                        <Button Name="switchButton" Click="switchSR" DockPanel.Dock="Right" Height="32" Width="81" BorderThickness="0"  
+                        <Button Click="switchSR" DockPanel.Dock="Right" Height="32" Width="81" BorderThickness="0"  
     Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
                             <StackPanel Name="stackP">
                                 <Image Source="Images\switch_off.png"/>
@@ -30,9 +30,27 @@
                     <Viewbox Grid.Row="1" Stretch="Uniform">
                         <Canvas   Width="600" Height="400">
                             <TextBlock Name="language"  Canvas.Left="308" FontSize="16" TextWrapping="Wrap" Text="" Canvas.Top="19"/>
-                            <TextBlock  Canvas.Left="420" FontSize="16" TextWrapping="Wrap" Text="Confidence" Canvas.Top="61"/>
-                            <xctk:IntegerUpDown Name="upDown" Value="30" Minimum="0" Maximum="100" Increment="1" Canvas.Left="500" Canvas.Top="63" Height="20" Width="50"/>
-                            <Button Click="submitConfidence" RenderTransformOrigin="5.586,1.817" Canvas.Left="560" Canvas.Top="63" Height="20">OK</Button>
+                            <TextBlock  Canvas.Left="420" FontSize="16" TextWrapping="Wrap" Text="Confidence" Canvas.Top="270"/>
+                            <xctk:IntegerUpDown Name="upDown" Value="30" Minimum="0" Maximum="100" Increment="1" Canvas.Left="500" Canvas.Top="270" Height="20" Width="50"/>
+                            <Button Click="submitConfidence" RenderTransformOrigin="5.586,1.817" Canvas.Left="555" Canvas.Top="270" Height="20">OK</Button>
+                            <TextBlock  Canvas.Left="420" FontSize="16" TextWrapping="Wrap" Text="Semantics" Canvas.Top="321"/>
+                            <TextBlock  Canvas.Left="420" FontSize="16" TextWrapping="Wrap" Text="FullSentence" Canvas.Top="362"/>
+                            <TextBlock Height="25" Width="400" Name="lastSentence"  HorizontalAlignment="Center" FontSize="16" Canvas.Left="15" Canvas.Top="362" TextAlignment="Center" />
+                            <TextBlock Height="25" Width="400" x:Name="lastSemantics" HorizontalAlignment="Center" FontSize="16" TextAlignment="Center" Canvas.Left="14" Canvas.Top="317" />
+                            <DockPanel Height="85" Canvas.Left="500" Canvas.Top="315" Width="104">
+                                <Button Click="switchSemantics" DockPanel.Dock="Top" Height="41" BorderThickness="0"  
+    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="0,0,12,0" HorizontalAlignment="Right" Width="82">
+                                    <StackPanel Name="semanticsStack">
+                                        <Image Source="Images\switch_off.png"/>
+                                    </StackPanel>
+                                </Button>
+                                <Button Click="switchSentence" DockPanel.Dock="Top" Height="41" BorderThickness="0"  
+    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" Margin="0,0,12,0" HorizontalAlignment="Right" Width="82">
+                                    <StackPanel Name="sentenceStack">
+                                        <Image Source="Images\switch_off.png"/>
+                                    </StackPanel>
+                                </Button>
+                            </DockPanel>
                         </Canvas>
                     </Viewbox>
                     <Button Name="browse"
@@ -49,8 +67,7 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    <TextBlock Name="lastWord" Grid.Row="2" HorizontalAlignment="Center" FontSize="16" Margin="0 10 0 10" >
-                    </TextBlock>
+                    <TextBlock Name="currentFile" Margin="10,76.8,264,330.4" Grid.Row="1" FontSize="16"/>
                     <StatusBar Grid.Row="3" Height="23" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White">
                         <StatusBarItem Padding="0">
                             <TextBlock Name="statusBarText"></TextBlock>
@@ -75,22 +92,6 @@
                         </Button>
                         <Image Grid.Column="1" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5"/>
                     </DockPanel>
-                    <Viewbox Grid.Row="1" Stretch="Uniform">
-                        <Canvas  Width="600" Height="400">
-                            <TextBlock Canvas.Left="308" FontSize="16" TextWrapping="Wrap" Text="Current language " Canvas.Top="19"/>
-                        </Canvas>
-                    </Viewbox>
-
-                    <Button Content="Browse"
-                HorizontalAlignment="Left"
-                Margin="10,30.8,0,0"
-                VerticalAlignment="Top"
-                Width="75"
-                Click="updateXMLGrammarFile" 
-                Grid.Row="1"/>
-                    <TextBlock Grid.Row="2" HorizontalAlignment="Center" FontSize="16" Margin="0 10 0 10" >
-            Last word recognized: ""
-                    </TextBlock>
                     <StatusBar Grid.Row="3" Height="23" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Background="White">
                         <StatusBarItem Padding="0">
                             <TextBlock></TextBlock>

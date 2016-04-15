@@ -32,7 +32,7 @@ namespace Kinect2Server
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
-            
+            setKinectSensor(sender, e);
         }
 
         private void WindowClosing(object sender, CancelEventArgs e)
@@ -95,33 +95,37 @@ namespace Kinect2Server
         // Create, close or open the KinectSensor regarding to its status 
         private void switchSR(object sender, RoutedEventArgs e)
         {
+            switchKinectStatus(sender, e);
+        }
+
+        private void switchKinectStatus(object sender, RoutedEventArgs e)
+        {
             Image img = new Image();
             this.stackP.Children.Clear();
-            if (kinectSensor == null)
+            this.lastSemantics.Text = "";
+            this.lastSentence.Text = "";
+            if (speechEngine == null)
             {
                 img.Source = new BitmapImage(new Uri(@"Images/switch_on.png", UriKind.Relative));
                 this.stackP.Children.Add(img);
-                setKinectSensor(sender, e);
-
+                updateXMLGrammarFile(sender, e);
                 //Enable the Browse button
                 this.browse.IsEnabled = true;
             }
-            else if (!kinectSensor.IsOpen)
-            {
-                img.Source = new BitmapImage(new Uri(@"Images/switch_on.png", UriKind.Relative));
-                this.stackP.Children.Add(img);
-                kinectSensor.Open();
-            }
-            else
+            else if (speechEngine.Grammars.Count!=0)
             {
                 img.Source = new BitmapImage(new Uri(@"Images/switch_off.png", UriKind.Relative));
                 this.stackP.Children.Add(img);
-                this.lastWord.Text = "";
-                kinectSensor.Close();
+                speechEngine.UnloadAllGrammars();
+            }
+            else
+            {
+                img.Source = new BitmapImage(new Uri(@"Images/switch_on.png", UriKind.Relative));
+                this.stackP.Children.Add(img);
+                this.lastSentence.Text = "";
+                speechEngine.LoadGrammar(grammar);
             }
         }
-        
-        
 /*---------------------------------------------------------------------------------------
  * 
  *                               SPEECH RECOGNITION
@@ -134,13 +138,24 @@ namespace Kinect2Server
         private static string location;
         private static string currentLanguage;
         private double confidenceThreshold = 0.3;
+        private string[] semanticsString;
+        private bool semanticsStatus = false;
+        private bool sentenceStatus = false;
+
 
 
         private static void setGrammarText(string location)
         {
             //Load the xml file 
             XmlDocument grammar = new XmlDocument();
-            grammar.Load(location);
+            try  
+            {
+                grammar.Load(location);
+            }
+            catch (System.Xml.XmlException)
+            {
+                
+            }
 
             //Convert the xml file into string
             StringWriter sw = new StringWriter();
@@ -183,7 +198,7 @@ namespace Kinect2Server
             {
                 return null;
             }
-
+            
             setGrammarText(location);
             setCurrentLanguage(grammarText);
 
@@ -202,6 +217,12 @@ namespace Kinect2Server
 
         private void createGrammar(object sender, RoutedEventArgs e)
         {
+
+            if (speechEngine != null)
+            {
+                speechEngine.UnloadAllGrammars();
+            }
+
             RecognizerInfo ri = TryGetKinectRecognizer();
 
             if (null != ri)
@@ -256,6 +277,10 @@ namespace Kinect2Server
                 location = dlg.FileName;
                 fileName = dlg.SafeFileName;
 
+                this.currentFile.Text = fileName;
+                this.lastSentence.Text = "";
+                this.lastSemantics.Text = "";
+
                 setGrammarText(location);
                 setCurrentLanguage(grammarText);
 
@@ -277,28 +302,86 @@ namespace Kinect2Server
 
         private void submitConfidence(object sender, RoutedEventArgs e)
         {
+            if (this.upDown.Value == null)
+            {
+                this.upDown.Value = 30;
+            }
             this.confidenceThreshold = (double)this.upDown.Value/100;
+        }
+
+        private void switchSemantics(object sender, RoutedEventArgs e)
+        {
+            Image img = new Image();
+            this.semanticsStack.Children.Clear();
+            this.lastSemantics.Text = "";
+            if (semanticsStatus)
+            {
+                this.lastSemantics.Visibility = Visibility.Hidden;
+                semanticsStatus = false;
+                img.Source = new BitmapImage(new Uri(@"Images/switch_off.png", UriKind.Relative));
+            }
+            else
+            {
+                this.lastSemantics.Visibility = Visibility.Visible;
+                semanticsStatus = true;
+                img.Source = new BitmapImage(new Uri(@"Images/switch_on.png", UriKind.Relative));
+            }
+            this.semanticsStack.Children.Add(img);
+        }
+
+        private void switchSentence(object sender, RoutedEventArgs e)
+        {
+            Image img = new Image();
+            this.sentenceStack.Children.Clear();
+            this.lastSentence.Text = "";
+            if (sentenceStatus)
+            {
+                this.lastSentence.Visibility = Visibility.Hidden;
+                sentenceStatus = false;
+                img.Source = new BitmapImage(new Uri(@"Images/switch_off.png", UriKind.Relative));
+            }
+            else
+            {
+                this.lastSentence.Visibility = Visibility.Visible;
+                sentenceStatus = true;
+                img.Source = new BitmapImage(new Uri(@"Images/switch_on.png", UriKind.Relative));
+            }
+            this.sentenceStack.Children.Add(img);
         }
 
         private void SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-
-            if (e.Result.Confidence >= confidenceThreshold)
+            SemanticValue semantics = e.Result.Semantics;
+            if (semantics.Confidence >= confidenceThreshold)
             {
-                this.lastWord.Text = e.Result.Text;
-                /*SemanticValue semantics = e.Result.Semantics;
-                foreach(KeyValuePair<String,SemanticValue> child in semantics) {
-                    this.lastWord.Text += child.Value.ToString();
-                }*/
-
+                if (sentenceStatus) { 
+                    this.lastSentence.Text = e.Result.Text;
+                } 
+                
+                if(semanticsStatus){
+                    this.lastSemantics.Text = "";
+                    int i = 0;
+                    semanticsString = new string[semantics.Count];
+                    foreach (KeyValuePair<String, SemanticValue> child in semantics)
+                    {
+                        semanticsString[i] = semantics[child.Key].Value.ToString();
+                        i++;
+                    }
+                    for (i = 0; i < semantics.Count; i++)
+                    {
+                        this.lastSemantics.Text += semanticsString[i].ToString() + " ";
+                    }
+                }
             }
-
-
         }
 
         private void SpeechRejected(object sender, SpeechRecognitionRejectedEventArgs e)
         {
-            this.lastWord.Text = Properties.Resources.NoWordsRecognized;
+            if (sentenceStatus)
+            {
+                this.lastSentence.Text = Properties.Resources.NoWordsRecognized;
+            }
+            this.lastSemantics.Text = "";
         }
 
 
