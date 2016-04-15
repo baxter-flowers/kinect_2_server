@@ -95,34 +95,28 @@ namespace Kinect2Server
         // Create, close or open the KinectSensor regarding to its status 
         private void switchSR(object sender, RoutedEventArgs e)
         {
-            switchKinectStatus(sender, e);
+            switchSpeechRecognition(sender, e);
         }
 
-        private void switchKinectStatus(object sender, RoutedEventArgs e)
+        private void switchSpeechRecognition(object sender, RoutedEventArgs e)
         {
-            Image img = new Image();
-            this.stackP.Children.Clear();
             this.lastSemantics.Text = "";
             this.lastSentence.Text = "";
             if (speechEngine == null)
             {
-                img.Source = new BitmapImage(new Uri(@"Images/switch_on.png", UriKind.Relative));
-                this.stackP.Children.Add(img);
+                setButtonOn();
                 updateXMLGrammarFile(sender, e);
                 //Enable the Browse button
                 this.browse.IsEnabled = true;
             }
             else if (speechEngine.Grammars.Count!=0)
             {
-                img.Source = new BitmapImage(new Uri(@"Images/switch_off.png", UriKind.Relative));
-                this.stackP.Children.Add(img);
+                setButtonOff();
                 speechEngine.UnloadAllGrammars();
             }
             else
             {
-                img.Source = new BitmapImage(new Uri(@"Images/switch_on.png", UriKind.Relative));
-                this.stackP.Children.Add(img);
-                this.lastSentence.Text = "";
+                setButtonOn();
                 speechEngine.LoadGrammar(grammar);
             }
         }
@@ -154,7 +148,6 @@ namespace Kinect2Server
             }
             catch (System.Xml.XmlException)
             {
-                
             }
 
             //Convert the xml file into string
@@ -257,6 +250,21 @@ namespace Kinect2Server
             }
         }
 
+        private void setButtonOff()
+        {
+            Image img = new Image();
+            this.stackP.Children.Clear();
+            img.Source = new BitmapImage(new Uri(@"Images/switch_off.png", UriKind.Relative));
+            this.stackP.Children.Add(img);
+        }
+
+        private void setButtonOn()
+        {
+            Image img = new Image();
+            this.stackP.Children.Clear();
+            img.Source = new BitmapImage(new Uri(@"Images/switch_on.png", UriKind.Relative));
+            this.stackP.Children.Add(img);
+        }
 
         // Update the XML file when the user opens a file
         private void updateXMLGrammarFile(object sender, RoutedEventArgs e)
@@ -286,6 +294,15 @@ namespace Kinect2Server
 
                 // Create a new grammar for the file loaded
                 createGrammar(sender, e);
+            }
+            else if(result==false)
+            {
+                setButtonOff();
+            }
+
+            if (grammar == null)
+            {
+                setButtonOff();
             }
 
             switch (currentLanguage)
