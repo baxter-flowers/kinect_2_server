@@ -1,0 +1,9 @@
+bin/*
+obj/*
+*.user
+*.userprefs
+*.old*
+*.nupkg
+amd64/v*
+i386/v*
+ZeroMQ.*.zip

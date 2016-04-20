@@ -1,0 +1,95 @@
+﻿<UserControl x:Class="Kinect2Server.View.SpeechRecognitionView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+      xmlns:customName="xctk"
+      Width="Auto" Height="Auto">
+
+    <Grid>
+        <Grid Margin="0,-154,0,153.6">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="400" />
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="0" Grid.Row="0" Content="Current grammar file" />
+            <Label Grid.Column="0" Grid.Row="1" Content="Current language" />
+            <Label Grid.Column="0" Grid.Row="2" Content="Semantics" />
+            <Label Grid.Column="0" Grid.Row="3" Content="Sentence" />
+            <Label Grid.Column="0" Grid.Row="4" Content="Status" />
+
+
+            <TextBlock Name="currentFile" Grid.Column="1" Grid.Row="0" Width="400" 
+                     Text="{Binding Path=Age, Mode=TwoWay}" 
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5,0,0" />
+            <TextBlock Name="currentLanguage" Grid.Column="1" Grid.Row="1" Width="400"
+                     Text="{Binding Path=FirstName, Mode=TwoWay}" 
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4.6,0,0" />
+            <TextBlock Name="lastSemantics" Grid.Column="1" Grid.Row="2" Width="400"
+                     Text="{Binding Path=LastName, Mode=TwoWay}" 
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5.2,0,0" />
+            <TextBlock Name="lastSentence" Grid.Column="1" Grid.Row="3" Width="400"
+                     Text="{Binding Path=LastName, Mode=TwoWay}" 
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5.8,0,0" />
+            <TextBlock Name="status" Grid.Column="1" Grid.Row="4" Width="400"
+                     Text="{Binding Path=LastName, Mode=TwoWay}" 
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5.4,0,0" />
+
+        </Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="82" />
+            </Grid.ColumnDefinitions>
+
+            <Label Grid.Column="0" Grid.Row="0" Content="Speech recognition" />
+            <Label Grid.Column="0" Grid.Row="1" Content="Load a grammar file" />
+            <Label Grid.Column="0" Grid.Row="2" Content="Confidence" />
+            <Label Grid.Column="0" Grid.Row="3" Content="Semantics" />
+            <Label Grid.Column="0" Grid.Row="4" Content="Full sentence" />
+
+
+            <Button Click="switchSR" Height="32" Width="81" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" BorderThickness="0">
+                <StackPanel Name="stackSR">
+                    <Image Source="..\Images\switch_off.png"/>
+                </StackPanel>
+            </Button>
+            <Button Name="browse" Click="loadGrammarFile" Content="Browse" Width="75" Height="32" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="IsEnabled" Value="False" />
+                    </Style>
+                </Button.Style>
+            </Button>
+            <xctk:IntegerUpDown Name="confidenceSelector"  Value="30" Minimum="0" Maximum="100"
+                                Increment="1" Height="20" Width="50" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left"/>
+            <Button Click="submitConfidence" Content="OK" Height="20" Width="20" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right"/>
+            <Button Click="switchSem" Height="32" Width="81" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" BorderThickness="0">
+                <StackPanel Name="stackSem">
+                    <Image Source="..\Images\switch_off.png"/>
+                </StackPanel>
+            </Button>
+            <Button Click="switchSen" Height="32" Width="81" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" BorderThickness="0">
+                <StackPanel Name="stackSen">
+                    <Image Source="..\Images\switch_off.png"/>
+                </StackPanel>
+            </Button>
+
+
+        </Grid>
+    </Grid>
+</UserControl>
