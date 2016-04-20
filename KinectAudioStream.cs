@@ -4,7 +4,7 @@ using System.IO;
 namespace Kinect2Server
 {
     
-    internal class KinectAudioStream : Stream
+    public class KinectAudioStream : Stream
     {
         private Stream kinect32BitStream;
 

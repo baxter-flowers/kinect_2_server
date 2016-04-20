@@ -61,7 +61,7 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Current language : american English.
+        ///   Looks up a localized string similar to american English.
         /// </summary>
         internal static string AmericanEnglish {
             get {
@@ -70,7 +70,7 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Current language : French.
+        ///   Looks up a localized string similar to French.
         /// </summary>
         internal static string French {
             get {
