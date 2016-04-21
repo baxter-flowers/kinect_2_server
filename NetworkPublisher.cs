@@ -7,7 +7,7 @@ using ZeroMQ;
 
 namespace Kinect2Server
 {
-    class NetworkPublisher
+    public class NetworkPublisher
     {
         private ZContext context;
         private ZSocket socket;
@@ -27,7 +27,7 @@ namespace Kinect2Server
                 this.socket.Bind("tcp://*:" + listening_port);
                 this.binded = true;
             }
-            catch (ZException)
+            catch (ZException e)
             {
                 //Console.WriteLine("Socket connection failed, server cannot listen on port " + listening_port + ": " + e.Message);
             }
@@ -42,7 +42,7 @@ namespace Kinect2Server
                 {
                     this.socket.Send(frame);
                 }
-                catch (ZException)
+                catch (ZException e)
                 {
                     //Console.WriteLine("Cannot publish message: " + e.Message);
                 }

@@ -1,4 +1,8 @@
-﻿using System;
+﻿using Microsoft.Speech.Recognition;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -12,10 +16,15 @@ namespace Kinect2Server.View
     {
         public SpeechRecognitionView()
         {
+            mw = (MainWindow)Application.Current.MainWindow;
+            sr = mw.getSRInstance();
             InitializeComponent();
         }
 
-        SpeechRecognition sr = new SpeechRecognition();
+        private SpeechRecognition sr;
+        private MainWindow mw;
+
+
 
         // Turn off or on the speech recognition 
         private void switchSR(object sender, RoutedEventArgs e)
@@ -33,22 +42,21 @@ namespace Kinect2Server.View
         {
             clearRecognitionText();
 
-            if (sr.speechEngine == null)
+            if (!sr.isSpeechEngineSet())
             {
                 setButtonOn(this.stackSR);
                 loadGrammarFile(sender, e);
-                //Enable the Browse button
-                this.browse.IsEnabled = true;
+                mw.addSRList(this.SpeechRecognized);
             }
-            else if (sr.speechEngine.Grammars.Count != 0)
+            else if (sr.anyGrammarLoaded())
             {
                 setButtonOff(this.stackSR);
-                sr.speechEngine.UnloadAllGrammars();
+                sr.unloadGrammars();
             }
             else
             {
                 setButtonOn(this.stackSR);
-                sr.speechEngine.LoadGrammar(sr.grammar);
+                sr.loadGrammar();
             }
         }
 
@@ -69,6 +77,37 @@ namespace Kinect2Server.View
             stack.Children.Add(img);
         }
 
+        private void SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        {
+            SemanticValue semantics = e.Result.Semantics;
+            if (semantics.Confidence >= sr.getConfidenceThreshold())
+            {
+                if (sr.isSentenceOn())
+                {
+                    this.lastSentence.Text = e.Result.Text;
+                }
+
+                if (sr.isSemanticOn())
+                {
+                    this.lastSemantics.Text = "";
+                    string[] semanticsString = new string[semantics.Count];
+                    int i = 0;
+                    foreach (KeyValuePair<String, SemanticValue> child in semantics)
+                    {
+                        semanticsString[i] = semantics[child.Key].Value.ToString();
+                        i++;
+                    }
+
+                    string json = JsonConvert.SerializeObject(semanticsString);
+
+                    for (i = 0; i < semantics.Count; i++)
+                    {
+                       this.lastSemantics.Text += semanticsString[i].ToString() + " ";
+                    }
+                }
+            }
+        }
+
 
         // Update the XML file when the user opens a file
         private void loadGrammarFile(object sender, RoutedEventArgs e)
@@ -84,37 +123,35 @@ namespace Kinect2Server.View
             Nullable<bool> result = dlg.ShowDialog();
 
             // Get the selected file path and set it in location if it is different from the actual file
-            if (result == true && sr.fileLocation != dlg.FileName)
+            if (result == true && sr.isFileNew(dlg.FileName))
             {
                 this.status.Text = "";
                 this.currentLanguage.Text = "";
-                sr.fileLocation = dlg.FileName;
-                sr.fileName = dlg.SafeFileName;
 
-                this.currentFile.Text = sr.fileName;
+                this.currentFile.Text = dlg.SafeFileName;
                 clearRecognitionText();
 
                 // Create a new grammar for the file loaded
-                sr.createGrammar(sr.fileLocation);
+                sr.createGrammar(dlg.FileName, dlg.SafeFileName);
+
+                //Enable the Browse button
+                this.browse.IsEnabled = true;
 
                 setButtonOn(this.stackSR);
 
             }
-            else if (result == false && sr.grammar == null)
+            else if (result == false && !sr.isGrammarLoaded())
             {
                 setButtonOff(this.stackSR);
             }
-            /*else if (){
 
-            }*/
-
-            if (sr.grammar == null || sr.currentLanguage.Equals(""))
+            if (!sr.isGrammarLoaded() || sr.getCurrentLanguage().Equals(""))
             {
                 setButtonOff(this.stackSR);
                 this.status.Text = Properties.Resources.NoSpeechRecognizer;
             }
 
-            switch (sr.currentLanguage)
+            switch (sr.getCurrentLanguage())
             {
                 case "en-US":
                     this.currentLanguage.Text = Properties.Resources.AmericanEnglish;
@@ -136,22 +173,25 @@ namespace Kinect2Server.View
             {
                 this.confidenceSelector.Value = 30;
             }
-            sr.confidenceThreshold = (double)this.confidenceSelector.Value / 100;
+            else
+            {
+                sr.updateConfidence((Double)this.confidenceSelector.Value);
+            }
         }
 
         private void switchSem(object sender, RoutedEventArgs e)
         {
             this.lastSemantics.Text = "";
-            if (sr.semanticsStatus)
+            if (sr.isSemanticOn())
             {
                 this.lastSemantics.Visibility = Visibility.Hidden;
-                sr.semanticsStatus = false;
+                sr.changeSemanticsStatus(false);
                 setButtonOff(this.stackSem);
             }
             else
             {
                 this.lastSemantics.Visibility = Visibility.Visible;
-                sr.semanticsStatus = true;
+                sr.changeSemanticsStatus(true);
                 setButtonOn(this.stackSem);
             }
         }
@@ -159,16 +199,16 @@ namespace Kinect2Server.View
         private void switchSen(object sender, RoutedEventArgs e)
         {
             this.lastSentence.Text = "";
-            if (sr.sentenceStatus)
+            if (sr.isSentenceOn())
             {
                 this.lastSentence.Visibility = Visibility.Hidden;
-                sr.sentenceStatus = false;
+                sr.changeSentenceStatus(false);
                 setButtonOff(this.stackSen);
             }
             else
             {
                 this.lastSentence.Visibility = Visibility.Visible;
-                sr.sentenceStatus = true;
+                sr.changeSentenceStatus(true);
                 setButtonOn(this.stackSen);
             }
         }

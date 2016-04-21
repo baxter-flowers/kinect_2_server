@@ -5,6 +5,7 @@ using System.Windows;
 using Microsoft.Kinect;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using Microsoft.Speech.Recognition;
 
 namespace Kinect2Server
 {
@@ -13,41 +14,79 @@ namespace Kinect2Server
 
         public MainWindow()
         {
-            this.InitializeComponent();
+            this.initializeSR();
+            InitializeComponent();
         }
 
-/*---------------------------------------------------------------------------------------
-* 
-*                                WINDOW 
-* 
-*----------------------------------------------------------------------------------------*/
+        private NetworkPublisher publisher;
+        private KinectSensor kinectSensor;
+        private KinectAudioStream convertStream;
+        private SpeechRecognition sr;
 
+        private void initializeSR()
+        {
+            setKinectSensor();
+            this.publisher = new NetworkPublisher();
+            this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
+        }
 
+        private void setKinectSensor()
+        {
+            // Only one sensor is supported
+            this.kinectSensor = KinectSensor.GetDefault();
+
+            if (this.kinectSensor != null)
+            {
+                // open the sensor
+                this.kinectSensor.Open();
+
+                // grab the audio stream
+                IReadOnlyList<AudioBeam> audioBeamList = this.kinectSensor.AudioSource.AudioBeams;
+                System.IO.Stream audioStream = audioBeamList[0].OpenInputStream();
+
+                // create the convert stream
+                this.convertStream = new KinectAudioStream(audioStream);
+
+            }
+            else
+            {
+                // on failure, set the status text and close the application
+                //this.statusBarText.Text = Properties.Resources.NoKinectReady;
+                System.Threading.Thread.Sleep(10000);
+            }
+        }
+
+        public SpeechRecognition getSRInstance(){
+            return this.sr;
+        }
+
+        public void addSRList(EventHandler<SpeechRecognizedEventArgs> f)
+        {
+            sr.addSRListener(f);
+        }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
-            //setKinectSensor(sender, e);
+            
         }
 
         private void WindowClosing(object sender, CancelEventArgs e)
         {
-            /*if (null != sr.convertStream)
+            if (null != this.convertStream)
             {
-                sr.convertStream.SpeechActive = false;
+                this.convertStream.SpeechActive = false;
             }
 
-            if (null != sr.speechEngine)
+            if (sr.isSpeechEngineSet())
             {
-                sr.speechEngine.SpeechRecognized -= sr.SpeechRecognized;
-                sr.speechEngine.SpeechRecognitionRejected -= sr.SpeechRejected;
-                sr.speechEngine.RecognizeAsyncStop();
+                sr.disableSpeechEngine();
             }
 
-            if (null != sr.kinectSensor)
+            if (null != this.kinectSensor)
             {
-                sr.kinectSensor.Close();
-                sr.kinectSensor = null;
-            }*/
+                this.kinectSensor.Close();
+                this.kinectSensor = null;
+            }
         }
     }
 }

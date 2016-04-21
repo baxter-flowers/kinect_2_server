@@ -12,23 +12,101 @@ namespace Kinect2Server
 {
     public class SpeechRecognition
     {
-        public KinectSensor kinectSensor;
-        public KinectAudioStream convertStream;
-        public SpeechRecognitionEngine speechEngine;
-        public Grammar grammar;
-        public String grammarText;
-        public String fileLocation;
-        public String fileName;
-        public String currentLanguage;
-        public Double confidenceThreshold = 0.30;
-        public Boolean semanticsStatus;
-        public Boolean sentenceStatus;
+        private NetworkPublisher network;
+        private KinectSensor kinectSensor;
+        private KinectAudioStream convertStream;
+        private SpeechRecognitionEngine speechEngine = null;
+        private Grammar grammar = null;
+        private String grammarText;
+        private String fileLocation;
+        private String fileName;
+        private String currentLanguage;
+        private Double confidenceThreshold = 0.30;
+        private Boolean semanticsStatus;
+        private Boolean sentenceStatus;
 
 
 
-        public SpeechRecognition()
+        public SpeechRecognition(KinectSensor kinect, NetworkPublisher network, KinectAudioStream convertStream)
         {
-            setKinectSensor();
+            this.kinectSensor = kinect;
+            this.network = network;
+            this.convertStream = convertStream;
+        }
+
+        public Boolean isGrammarLoaded()
+        {
+            return this.grammar != null;
+        }
+
+        public Boolean isFileNew(String newFile)
+        {
+            if (this.fileLocation == null)
+                return true;
+            else
+                return !this.fileLocation.Equals(newFile);
+        }
+
+        public Boolean isSpeechEngineSet()
+        {
+            return this.speechEngine != null;
+        }
+
+        public void unloadGrammars()
+        {
+            this.speechEngine.UnloadAllGrammars();
+        }
+
+        public void loadGrammar()
+        {
+            this.speechEngine.LoadGrammar(this.grammar);
+        }
+
+        public Boolean anyGrammarLoaded()
+        {
+            if (!this.isGrammarLoaded())
+                return false;
+            else
+                return this.speechEngine.Grammars.Count != 0;
+        }
+
+        public String getCurrentLanguage()
+        {
+            return this.currentLanguage;
+        }
+
+        public void updateConfidence(Double confidence) {
+            this.confidenceThreshold = confidence / 100;
+        }
+
+        public Boolean isSemanticOn()
+        {
+            return semanticsStatus;
+        }
+
+        public Boolean isSentenceOn()
+        {
+            return sentenceStatus;
+        }
+
+        public void changeSemanticsStatus(Boolean status)
+        {
+            this.semanticsStatus = status;
+        }
+
+        public void changeSentenceStatus(Boolean status)
+        {
+            this.sentenceStatus = status;
+        }
+
+        public void disableSpeechEngine()
+        {
+            this.speechEngine.RecognizeAsyncStop();
+        }
+
+        public Double getConfidenceThreshold()
+        {
+            return this.confidenceThreshold;
         }
 
         /*private SpeechRecognition(KinectSensor kinect, KinectAudioStream convStream, String language, Double confidence, Boolean semStatus, Boolean senStatus)
@@ -77,9 +155,10 @@ namespace Kinect2Server
             }
         }
 
-        public void createGrammar(String fileLocation)
+        public void createGrammar(String fileLocation, String fileName)
         {
-
+            this.fileLocation = fileLocation;
+            this.fileName = fileName;
             RecognizerInfo ri = TryGetKinectRecognizer();
 
             if (speechEngine != null)
@@ -89,8 +168,6 @@ namespace Kinect2Server
 
             if (null != ri)
             {
-                //this.statusBarText.Text = "";
-
                 this.speechEngine = new SpeechRecognitionEngine(ri.Id);
 
                 // Create a grammar from grammar definition XML file.
@@ -100,24 +177,14 @@ namespace Kinect2Server
                     this.speechEngine.LoadGrammar(this.grammar);
                 }
 
-                this.speechEngine.SpeechRecognized += this.SpeechRecognized;
-                this.speechEngine.SpeechRecognitionRejected += this.SpeechRejected;
 
                 // let the convertStream know speech is going active
                 this.convertStream.SpeechActive = true;
-
-                // For long recognition sessions (a few hours or more), it may be beneficial to turn off adaptation of the acoustic model. 
-                // This will prevent recognition accuracy from degrading over time.
-                ////speechEngine.UpdateRecognizerSetting("AdaptationOn", 0);
+                this.speechEngine.UpdateRecognizerSetting("AdaptationOn", 0);
 
                 this.speechEngine.SetInputToAudioStream(
                     this.convertStream, new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
                 this.speechEngine.RecognizeAsync(RecognizeMode.Multiple);
-                //return "";
-            }
-            else
-            {
-                //return Properties.Resources.NoSpeechRecognizer;
             }
         }
 
@@ -151,45 +218,9 @@ namespace Kinect2Server
             return null;
         }
 
-
-        public void SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        public void addSRListener(EventHandler<SpeechRecognizedEventArgs> f)
         {
-            SemanticValue semantics = e.Result.Semantics;
-            if (semantics.Confidence >= confidenceThreshold)
-            {
-                if (sentenceStatus)
-                {
-                    string sentence = e.Result.Text;
-                }
-
-                if (semanticsStatus)
-                {
-                    //this.lastSemantics.Text = "";
-                    int i = 0;
-                    string[] semanticsString = new string[semantics.Count];
-                    foreach (KeyValuePair<String, SemanticValue> child in semantics)
-                    {
-                        semanticsString[i] = semantics[child.Key].Value.ToString();
-                        i++;
-                    }
-
-                    string json = JsonConvert.SerializeObject(semanticsString);
-
-                    /*for (i = 0; i < semantics.Count; i++)
-                    {
-                       this.lastSemantics.Text += semanticsString[i].ToString() + " ";
-                    }*/
-                }
-            }
-        }
-
-        public void SpeechRejected(object sender, SpeechRecognitionRejectedEventArgs e)
-        {
-            if (sentenceStatus)
-            {
-                //this.lastSentence.Text = Properties.Resources.NoWordsRecognized;
-            }
-            //this.lastSemantics.Text = "";
+            this.speechEngine.SpeechRecognized += f;
         }
 
         public void setCurrentLanguage(string grammarText)
@@ -211,13 +242,13 @@ namespace Kinect2Server
             reader.Close();
         }
 
-        public void setGrammarText(string location)
+        public void setGrammarText(string fileLocation)
         {
             //Load the xml file 
             XmlDocument grammar = new XmlDocument();
             try
             {
-                grammar.Load(location);
+                grammar.Load(fileLocation);
             }
             catch (System.Xml.XmlException)
             {
@@ -229,5 +260,6 @@ namespace Kinect2Server
             grammar.WriteTo(tw);
             this.grammarText = sw.ToString();
         }
+
     }
 }

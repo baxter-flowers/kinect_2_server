@@ -20,9 +20,8 @@
                         <Image DockPanel.Dock="Left" Source="Images\Logo.png" Stretch="Fill" Height="32" Width="81" HorizontalAlignment="Left" Margin="0 10 0 5"/>
                         <Image Grid.Column="1" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5"/>
                     </DockPanel>
+                    <View:SpeechRecognitionView Grid.Row="2"/>
 
-                    <View:SpeechRecognitionView x:Name="MasterView"
-                                           Grid.Row="2"/>
                 </Grid>
             </TabItem>
 
