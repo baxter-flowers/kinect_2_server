@@ -1,7 +1,6 @@
 ﻿using Microsoft.Kinect;
 using Microsoft.Speech.AudioFormat;
 using Microsoft.Speech.Recognition;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -79,6 +78,12 @@ namespace Kinect2Server
             this.confidenceThreshold = confidence / 100;
         }
 
+        public void updateListeningPort(int listeningPort)
+        {
+            string lPort = listeningPort.ToString();
+            this.network.Bind(lPort);
+        }
+
         public Boolean isSemanticOn()
         {
             return semanticsStatus;
@@ -107,6 +112,11 @@ namespace Kinect2Server
         public Double getConfidenceThreshold()
         {
             return this.confidenceThreshold;
+        }
+
+        public NetworkPublisher getNetworkPublisher()
+        {
+            return this.network;
         }
 
         /*private SpeechRecognition(KinectSensor kinect, KinectAudioStream convStream, String language, Double confidence, Boolean semStatus, Boolean senStatus)
@@ -218,9 +228,10 @@ namespace Kinect2Server
             return null;
         }
 
-        public void addSRListener(EventHandler<SpeechRecognizedEventArgs> f)
+        public void addSRListener(EventHandler<SpeechRecognizedEventArgs> f1, EventHandler<SpeechRecognitionRejectedEventArgs> f2)
         {
-            this.speechEngine.SpeechRecognized += f;
+            this.speechEngine.SpeechRecognized += f1;
+            this.speechEngine.SpeechRecognitionRejected += f2;
         }
 
         public void setCurrentLanguage(string grammarText)

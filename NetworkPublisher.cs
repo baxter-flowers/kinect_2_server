@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ZeroMQ;
 
 namespace Kinect2Server
@@ -33,11 +29,11 @@ namespace Kinect2Server
             }
         }
 
-        public void SendJSON(String json_string)
+        public void SendJSON(String json_string, String topic)
         {
             if (this.binded)
             {
-                ZFrame frame = new ZFrame(json_string);
+                ZFrame frame = new ZFrame(string.Format(topic + " {0}",json_string));
                 try
                 {
                     this.socket.Send(frame);

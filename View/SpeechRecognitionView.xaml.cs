@@ -2,7 +2,6 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
@@ -35,7 +34,7 @@ namespace Kinect2Server.View
         public void clearRecognitionText()
         {
             this.lastSemantics.Text = "";
-            this.lastSemantics.Text = "";
+            this.lastSentence.Text = "";
         }
 
         private void switchSpeechRecognition(object sender, RoutedEventArgs e)
@@ -46,7 +45,7 @@ namespace Kinect2Server.View
             {
                 setButtonOn(this.stackSR);
                 loadGrammarFile(sender, e);
-                mw.addSRList(this.SpeechRecognized);
+                mw.addSRList(this.SpeechRecognized, this.SpeechRejected);
             }
             else if (sr.anyGrammarLoaded())
             {
@@ -82,30 +81,74 @@ namespace Kinect2Server.View
             SemanticValue semantics = e.Result.Semantics;
             if (semantics.Confidence >= sr.getConfidenceThreshold())
             {
-                if (sr.isSentenceOn())
-                {
-                    this.lastSentence.Text = e.Result.Text;
-                }
+                List<String> contentSentence = new List<string>();
+                List<String> contentSemantic = new List<string>();
+                Dictionary<String, List<String>> dico = new Dictionary<string, List<String>>();
+                string sentence = e.Result.Text;
 
-                if (sr.isSemanticOn())
+                //Only sentence is active
+                if(sr.isSentenceOn() && !sr.isSemanticOn()){
+                    //Fill the dictinnary
+                    contentSentence.Add(sentence);
+                    dico.Add("Sentence : ", contentSentence);
+                    //Update the text
+                    this.lastSentence.Text = sentence;
+                    //Send the dictionary
+                    string json = JsonConvert.SerializeObject(dico);
+                    sr.getNetworkPublisher().SendJSON(json, "RecognizedSpeech");
+                }
+                //Only semantic is active
+                else if (!sr.isSentenceOn() && sr.isSemanticOn())
                 {
-                    this.lastSemantics.Text = "";
-                    string[] semanticsString = new string[semantics.Count];
-                    int i = 0;
+                    //Fill the dictionary
                     foreach (KeyValuePair<String, SemanticValue> child in semantics)
                     {
-                        semanticsString[i] = semantics[child.Key].Value.ToString();
-                        i++;
+                        contentSemantic.Add(semantics[child.Key].Value.ToString());
                     }
-
-                    string json = JsonConvert.SerializeObject(semanticsString);
-
-                    for (i = 0; i < semantics.Count; i++)
+                    dico.Add("Semantic : ", contentSemantic);
+                    //Update the text
+                    this.lastSemantics.Text = "";
+                    for (int i = 0; i < contentSemantic.Count; i++)
                     {
-                       this.lastSemantics.Text += semanticsString[i].ToString() + " ";
+                        this.lastSemantics.Text += contentSemantic[i];
                     }
+                    //Send the dictionary
+                    string json = JsonConvert.SerializeObject(dico);
+                    sr.getNetworkPublisher().SendJSON(json, "RecognizedSpeech");
+                }
+                //Both sentence and semantic are active
+                if (sr.isSentenceOn() && sr.isSemanticOn())
+                {
+                    //Fill the dictionary
+                    contentSentence.Add(sentence);
+                    dico.Add("Sentence :", contentSentence);
+                    foreach (KeyValuePair<String, SemanticValue> child in semantics)
+                    {
+                        contentSemantic.Add(semantics[child.Key].Value.ToString());
+                    }
+                    dico.Add("Semantic :", contentSemantic);
+                    //Update the text
+                    this.lastSentence.Text = sentence;
+                    this.lastSemantics.Text = "";
+                    for (int i = 1; i < contentSemantic.Count; i++)
+                    {
+                        this.lastSemantics.Text += contentSemantic[i];
+
+                    }
+                    //Send the dictionary
+                    string json = JsonConvert.SerializeObject(dico);
+                    sr.getNetworkPublisher().SendJSON(json, "RecognizedSpeech");
                 }
             }
+        }
+
+        private void SpeechRejected(object sender, SpeechRecognitionRejectedEventArgs e)
+        {
+            if (sr.isSentenceOn())
+            {
+                this.lastSentence.Text = Properties.Resources.NoWordsRecognized;
+            }
+            this.lastSemantics.Text = "";
         }
 
 
@@ -176,6 +219,17 @@ namespace Kinect2Server.View
             else
             {
                 sr.updateConfidence((Double)this.confidenceSelector.Value);
+                this.clearRecognitionText();
+            }
+        }
+
+        private void submitListeningPort(object sender, RoutedEventArgs e)
+        {
+            if (this.listeningPortSelector.Value == null)
+                this.listeningPortSelector.Value = 33405;
+            else
+            {
+                sr.updateListeningPort((int)this.listeningPortSelector.Value);
             }
         }
 

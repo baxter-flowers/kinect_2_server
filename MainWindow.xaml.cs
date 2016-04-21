@@ -1,11 +1,9 @@
-﻿using System;
+﻿using Microsoft.Kinect;
+using Microsoft.Speech.Recognition;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
-using Microsoft.Kinect;
-using System.Windows.Controls;
-using System.Windows.Media.Imaging;
-using Microsoft.Speech.Recognition;
 
 namespace Kinect2Server
 {
@@ -27,6 +25,7 @@ namespace Kinect2Server
         {
             setKinectSensor();
             this.publisher = new NetworkPublisher();
+            this.publisher.Bind("33405");
             this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
         }
 
@@ -60,9 +59,9 @@ namespace Kinect2Server
             return this.sr;
         }
 
-        public void addSRList(EventHandler<SpeechRecognizedEventArgs> f)
+        public void addSRList(EventHandler<SpeechRecognizedEventArgs> f1, EventHandler<SpeechRecognitionRejectedEventArgs> f2)
         {
-            sr.addSRListener(f);
+            sr.addSRListener(f1,f2);
         }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
