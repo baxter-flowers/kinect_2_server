@@ -90,12 +90,12 @@ namespace Kinect2Server.View
                 if(sr.isSentenceOn() && !sr.isSemanticOn()){
                     //Fill the dictinnary
                     contentSentence.Add(sentence);
-                    dico.Add("Sentence : ", contentSentence);
+                    dico.Add("sentence", contentSentence);
                     //Update the text
                     this.lastSentence.Text = sentence;
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
-                    sr.getNetworkPublisher().SendJSON(json, "RecognizedSpeech");
+                    sr.getNetworkPublisher().SendJSON(json, "recognized_speech");
                 }
                 //Only semantic is active
                 else if (!sr.isSentenceOn() && sr.isSemanticOn())
@@ -105,7 +105,7 @@ namespace Kinect2Server.View
                     {
                         contentSemantic.Add(semantics[child.Key].Value.ToString());
                     }
-                    dico.Add("Semantic : ", contentSemantic);
+                    dico.Add("semantic", contentSemantic);
                     //Update the text
                     this.lastSemantics.Text = "";
                     for (int i = 0; i < contentSemantic.Count; i++)
@@ -114,19 +114,19 @@ namespace Kinect2Server.View
                     }
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
-                    sr.getNetworkPublisher().SendJSON(json, "RecognizedSpeech");
+                    sr.getNetworkPublisher().SendJSON(json, "recognized_speech");
                 }
                 //Both sentence and semantic are active
                 if (sr.isSentenceOn() && sr.isSemanticOn())
                 {
                     //Fill the dictionary
                     contentSentence.Add(sentence);
-                    dico.Add("Sentence :", contentSentence);
+                    dico.Add("sentence", contentSentence);
                     foreach (KeyValuePair<String, SemanticValue> child in semantics)
                     {
                         contentSemantic.Add(semantics[child.Key].Value.ToString());
                     }
-                    dico.Add("Semantic :", contentSemantic);
+                    dico.Add("semantic", contentSemantic);
                     //Update the text
                     this.lastSentence.Text = sentence;
                     this.lastSemantics.Text = "";
@@ -137,7 +137,7 @@ namespace Kinect2Server.View
                     }
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
-                    sr.getNetworkPublisher().SendJSON(json, "RecognizedSpeech");
+                    sr.getNetworkPublisher().SendJSON(json, "recognized_speech");
                 }
             }
         }
