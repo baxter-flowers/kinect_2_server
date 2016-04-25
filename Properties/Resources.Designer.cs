@@ -70,6 +70,15 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to write screenshot to {0}.
+        /// </summary>
+        internal static string FailedScreenshotStatusTextFormat {
+            get {
+                return ResourceManager.GetString("FailedScreenshotStatusTextFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to French.
         /// </summary>
         internal static string French {
@@ -88,6 +97,15 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No ready Kinect found!.
+        /// </summary>
+        internal static string NoSensorStatusText {
+            get {
+                return ResourceManager.GetString("NoSensorStatusText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to I can&apos;t find any Kinect speech recognizer..
         /// </summary>
         internal static string NoSpeechRecognizer {
@@ -102,6 +120,24 @@ namespace Kinect2Server.Properties {
         internal static string NoWordsRecognized {
             get {
                 return ResourceManager.GetString("NoWordsRecognized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Running.
+        /// </summary>
+        internal static string RunningStatusText {
+            get {
+                return ResourceManager.GetString("RunningStatusText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kinect not available!.
+        /// </summary>
+        internal static string SensorNotAvailableStatusText {
+            get {
+                return ResourceManager.GetString("SensorNotAvailableStatusText", resourceCulture);
             }
         }
     }

@@ -12,7 +12,12 @@ namespace Kinect2Server
 
         public MainWindow()
         {
+            setKinectSensor();
+            this.publisher = new NetworkPublisher();
+            this.publisher.Bind("33405");
+
             this.initializeSR();
+            this.initializeGR();
             InitializeComponent();
         }
 
@@ -20,13 +25,16 @@ namespace Kinect2Server
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
         private SpeechRecognition sr;
+        private GestureRecognition gr;
 
         private void initializeSR()
         {
-            setKinectSensor();
-            this.publisher = new NetworkPublisher();
-            this.publisher.Bind("33405");
             this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
+        }
+
+        private void initializeGR()
+        {
+            this.gr = new GestureRecognition(this.kinectSensor, this.publisher);
         }
 
         private void setKinectSensor()
@@ -55,13 +63,43 @@ namespace Kinect2Server
             }
         }
 
-        public SpeechRecognition getSRInstance(){
-            return this.sr;
+        public SpeechRecognition SpeechRecogniton
+        {
+            get
+            {
+                return this.sr;
+            }
+        }
+
+        public GestureRecognition GestureRecognition
+        {
+            get
+            {
+                return this.gr;
+            }
+        }
+
+        public KinectSensor KinectSensor
+        {
+            get
+            {
+                return this.kinectSensor;
+            }
         }
 
         public void addSRList(EventHandler<SpeechRecognizedEventArgs> f1, EventHandler<SpeechRecognitionRejectedEventArgs> f2)
         {
             sr.addSRListener(f1,f2);
+        }
+
+        public void addGRList(EventHandler<BodyFrameArrivedEventArgs> f1)
+        {
+            gr.addGRListener(f1);
+        }
+
+        public void removeGRList(EventHandler<BodyFrameArrivedEventArgs> f1)
+        {
+            gr.removeGRListener(f1);
         }
 
         private void WindowLoaded(object sender, RoutedEventArgs e)

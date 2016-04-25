@@ -13,15 +13,16 @@ namespace Kinect2Server.View
     /// </summary>
     public partial class SpeechRecognitionView : UserControl
     {
-        public SpeechRecognitionView()
-        {
-            mw = (MainWindow)Application.Current.MainWindow;
-            sr = mw.getSRInstance();
-            InitializeComponent();
-        }
 
         private SpeechRecognition sr;
         private MainWindow mw;
+
+        public SpeechRecognitionView()
+        {
+            this.mw = (MainWindow)Application.Current.MainWindow;
+            this.sr = this.mw.SpeechRecogniton;
+            InitializeComponent();
+        }
 
 
 
@@ -79,7 +80,7 @@ namespace Kinect2Server.View
         private void SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
             SemanticValue semantics = e.Result.Semantics;
-            if (semantics.Confidence >= sr.getConfidenceThreshold())
+            if (semantics.Confidence >= sr.ConfidenceThreshold)
             {
                 List<String> contentSentence = new List<string>();
                 List<String> contentSemantic = new List<string>();
@@ -87,7 +88,7 @@ namespace Kinect2Server.View
                 string sentence = e.Result.Text;
 
                 //Only sentence is active
-                if(sr.isSentenceOn() && !sr.isSemanticOn()){
+                if(sr.SentenceStatus && !sr.SemanticsStatus){
                     //Fill the dictinnary
                     contentSentence.Add(sentence);
                     dico.Add("sentence", contentSentence);
@@ -95,10 +96,10 @@ namespace Kinect2Server.View
                     this.lastSentence.Text = sentence;
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
-                    sr.getNetworkPublisher().SendJSON(json, "recognized_speech");
+                    sr.NetworkPublisher.SendJSON(json, "recognized_speech");
                 }
                 //Only semantic is active
-                else if (!sr.isSentenceOn() && sr.isSemanticOn())
+                else if (!sr.SentenceStatus && sr.SemanticsStatus)
                 {
                     //Fill the dictionary
                     foreach (KeyValuePair<String, SemanticValue> child in semantics)
@@ -114,10 +115,10 @@ namespace Kinect2Server.View
                     }
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
-                    sr.getNetworkPublisher().SendJSON(json, "recognized_speech");
+                    sr.NetworkPublisher.SendJSON(json, "recognized_speech");
                 }
                 //Both sentence and semantic are active
-                if (sr.isSentenceOn() && sr.isSemanticOn())
+                if (sr.SentenceStatus && sr.SemanticsStatus)
                 {
                     //Fill the dictionary
                     contentSentence.Add(sentence);
@@ -137,14 +138,14 @@ namespace Kinect2Server.View
                     }
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
-                    sr.getNetworkPublisher().SendJSON(json, "recognized_speech");
+                    sr.NetworkPublisher.SendJSON(json, "recognized_speech");
                 }
             }
         }
 
         private void SpeechRejected(object sender, SpeechRecognitionRejectedEventArgs e)
         {
-            if (sr.isSentenceOn())
+            if (sr.SentenceStatus)
             {
                 this.lastSentence.Text = Properties.Resources.NoWordsRecognized;
             }
@@ -188,13 +189,13 @@ namespace Kinect2Server.View
                 setButtonOff(this.stackSR);
             }
 
-            if (!sr.isGrammarLoaded() || sr.getCurrentLanguage().Equals(""))
+            if (!sr.isGrammarLoaded() || sr.CurrentLanguage.Equals(""))
             {
                 setButtonOff(this.stackSR);
                 this.status.Text = Properties.Resources.NoSpeechRecognizer;
             }
 
-            switch (sr.getCurrentLanguage())
+            switch (sr.CurrentLanguage)
             {
                 case "en-US":
                     this.currentLanguage.Text = Properties.Resources.AmericanEnglish;
@@ -218,7 +219,7 @@ namespace Kinect2Server.View
             }
             else
             {
-                sr.updateConfidence((Double)this.confidenceSelector.Value);
+                sr.ConfidenceThreshold = ((Double)this.confidenceSelector.Value);
                 this.clearRecognitionText();
             }
         }
@@ -229,23 +230,23 @@ namespace Kinect2Server.View
                 this.listeningPortSelector.Value = 33405;
             else
             {
-                sr.updateListeningPort((int)this.listeningPortSelector.Value);
+                sr.ListeningPort = ((int)this.listeningPortSelector.Value);
             }
         }
 
         private void switchSem(object sender, RoutedEventArgs e)
         {
             this.lastSemantics.Text = "";
-            if (sr.isSemanticOn())
+            if (sr.SemanticsStatus)
             {
                 this.lastSemantics.Visibility = Visibility.Hidden;
-                sr.changeSemanticsStatus(false);
+                sr.SemanticsStatus = false;
                 setButtonOff(this.stackSem);
             }
             else
             {
                 this.lastSemantics.Visibility = Visibility.Visible;
-                sr.changeSemanticsStatus(true);
+                sr.SemanticsStatus = true;
                 setButtonOn(this.stackSem);
             }
         }
@@ -253,16 +254,16 @@ namespace Kinect2Server.View
         private void switchSen(object sender, RoutedEventArgs e)
         {
             this.lastSentence.Text = "";
-            if (sr.isSentenceOn())
+            if (sr.SentenceStatus)
             {
                 this.lastSentence.Visibility = Visibility.Hidden;
-                sr.changeSentenceStatus(false);
+                sr.SentenceStatus = false;
                 setButtonOff(this.stackSen);
             }
             else
             {
                 this.lastSentence.Visibility = Visibility.Visible;
-                sr.changeSentenceStatus(true);
+                sr.SentenceStatus = true;
                 setButtonOn(this.stackSen);
             }
         }

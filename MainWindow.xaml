@@ -5,33 +5,47 @@
         xmlns:View="clr-namespace:Kinect2Server.View"
         xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         xmlns:customName="xctk"
-        Title="Kinect Server" Height="600" Width="640"
+        Title="Kinect Server" Height="600" Width="700"
         Loaded="WindowLoaded" Closing="WindowClosing">
     <Grid>
         <TabControl>
             <TabItem Header="Speech recognition">
                 <Grid Margin="10 0 10 0">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <DockPanel Grid.Row="0" Margin="0 0 0 20">
-                        <Image DockPanel.Dock="Left" Source="Images\Logo.png" Stretch="Fill" Height="32" Width="81" HorizontalAlignment="Left" Margin="0 10 0 5"/>
-                        <Image Grid.Column="1" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5"/>
-                    </DockPanel>
+                    
+                    <Image Grid.Row="0" Source="Images\Logo.png" HorizontalAlignment="Left" Stretch="Fill" Height="32" Width="81" Margin="0 10 0 5" />
+                    <TextBlock Grid.Row="0" Margin="0 0 -1 0" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontFamily="Segoe UI" FontSize="18">Speech Recognition</TextBlock>
+                    <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5" />
+                    
                     <View:SpeechRecognitionView Grid.Row="2"/>
 
                 </Grid>
             </TabItem>
 
-            <TabItem Header="Skeleton tracking">
+            <TabItem Header="Gesture recognition">
+                <Grid Margin="10 0 10 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Image Grid.Row="0" Source="Images\Logo.png" HorizontalAlignment="Left" Stretch="Fill" Height="32" Width="81" Margin="0 10 0 5" />
+                    <TextBlock Grid.Row="0" Margin="0 0 -1 0" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontFamily="Segoe UI" FontSize="18">Body Basics</TextBlock>
+                    <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5" />
+                    
+                    <View:GestureRecognitionView Grid.Row="2"/>
+                </Grid>
             </TabItem>
 
-            <TabItem Header="Gesture">
+            <TabItem Header="....">
             </TabItem>
 
-            <TabItem Header="Varied Row Tab">
+            <TabItem Header="....">
             </TabItem>
         </TabControl>
     </Grid>

@@ -120,16 +120,28 @@
   <data name="AmericanEnglish" xml:space="preserve">
     <value>american English</value>
   </data>
+  <data name="FailedScreenshotStatusTextFormat" xml:space="preserve">
+    <value>Failed to write screenshot to {0}</value>
+  </data>
   <data name="French" xml:space="preserve">
     <value>French</value>
   </data>
   <data name="NoKinectReady" xml:space="preserve">
     <value>I can't find any Kinect connected through USB :( Closing in 10 sec...</value>
   </data>
+  <data name="NoSensorStatusText" xml:space="preserve">
+    <value>No ready Kinect found!</value>
+  </data>
   <data name="NoSpeechRecognizer" xml:space="preserve">
     <value>I can't find any Kinect speech recognizer.</value>
   </data>
   <data name="NoWordsRecognized" xml:space="preserve">
     <value>Can you repeat ? I don't get it...</value>
+  </data>
+  <data name="RunningStatusText" xml:space="preserve">
+    <value>Running</value>
+  </data>
+  <data name="SensorNotAvailableStatusText" xml:space="preserve">
+    <value>Kinect not available!</value>
   </data>
 </root>

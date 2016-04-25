@@ -14,8 +14,8 @@ namespace Kinect2Server
         private NetworkPublisher network;
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
-        private SpeechRecognitionEngine speechEngine = null;
-        private Grammar grammar = null;
+        private SpeechRecognitionEngine speechEngine;
+        private Grammar grammar;
         private String grammarText;
         private String fileLocation;
         private String fileName;
@@ -69,75 +69,71 @@ namespace Kinect2Server
                 return this.speechEngine.Grammars.Count != 0;
         }
 
-        public String getCurrentLanguage()
+        public String CurrentLanguage
         {
-            return this.currentLanguage;
+            get
+            {
+                return this.currentLanguage;
+            }
         }
 
-        public void updateConfidence(Double confidence) {
-            this.confidenceThreshold = confidence / 100;
+        public Double ConfidenceThreshold
+        {
+            get
+            {
+                return this.confidenceThreshold;
+            }
+            set
+            {
+                this.confidenceThreshold = value / 100;
+            }
         }
 
-        public void updateListeningPort(int listeningPort)
+        public int ListeningPort
         {
-            string lPort = listeningPort.ToString();
-            this.network.Bind(lPort);
+            set
+            {
+                string lPort = value.ToString();
+                this.network.Bind(lPort);
+            }
         }
 
-        public Boolean isSemanticOn()
+        public Boolean SemanticsStatus
         {
-            return semanticsStatus;
+            get
+            {
+                return this.semanticsStatus;
+            }
+            set
+            {
+                this.semanticsStatus = value;
+            }
         }
 
-        public Boolean isSentenceOn()
+        public Boolean SentenceStatus
         {
-            return sentenceStatus;
+            get
+            {
+                return this.sentenceStatus;
+            }
+            set
+            {
+                this.sentenceStatus = value;
+            }
         }
 
-        public void changeSemanticsStatus(Boolean status)
+        public NetworkPublisher NetworkPublisher
         {
-            this.semanticsStatus = status;
-        }
-
-        public void changeSentenceStatus(Boolean status)
-        {
-            this.sentenceStatus = status;
+            get
+            {
+                return this.network;
+            }
         }
 
         public void disableSpeechEngine()
         {
             this.speechEngine.RecognizeAsyncStop();
         }
-
-        public Double getConfidenceThreshold()
-        {
-            return this.confidenceThreshold;
-        }
-
-        public NetworkPublisher getNetworkPublisher()
-        {
-            return this.network;
-        }
-
-        /*private SpeechRecognition(KinectSensor kinect, KinectAudioStream convStream, String language, Double confidence, Boolean semStatus, Boolean senStatus)
-        {
-            this.kinectSensor = kinect;
-            this.convertStream = convStream;
-            this.ri = TryGetKinectRecognizer();
-            this.confidenceThreshold = confidence;
-            this.semanticsStatus = semStatus;
-            this.sentenceStatus = senStatus;
-        }
-
-        private SpeechRecognition(KinectSensor kinect, KinectAudioStream convStream, String language, String fileLocation, Double confidence, Boolean semStatus, Boolean senStatus) :
-            this(kinect,convStream,language,confidence,semStatus,senStatus)
-        {
-            if (this.ri != null)
-            {
-                this.speechEngine = new SpeechRecognitionEngine(this.ri.Id);
-                createGrammar(fileLocation);
-            }
-        }*/
 
         private void setKinectSensor()
         {
