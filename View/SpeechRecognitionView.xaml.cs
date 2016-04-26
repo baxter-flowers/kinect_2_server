@@ -52,10 +52,12 @@ namespace Kinect2Server.View
             {
                 setButtonOff(this.stackSR);
                 sr.unloadGrammars();
+                mw.removeSRList(this.SpeechRecognized, this.SpeechRejected);
             }
             else
             {
                 setButtonOn(this.stackSR);
+                mw.addSRList(this.SpeechRecognized, this.SpeechRejected);
                 sr.loadGrammar();
             }
         }
@@ -180,7 +182,6 @@ namespace Kinect2Server.View
 
                 //Enable the Browse button
                 this.browse.IsEnabled = true;
-
                 setButtonOn(this.stackSR);
 
             }

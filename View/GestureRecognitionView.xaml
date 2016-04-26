@@ -1,20 +1,56 @@
 ﻿<UserControl x:Class="Kinect2Server.View.GestureRecognitionView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Width="700" Height="600">
-
-    <Grid Margin="10 0 10 0">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+      xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+      Width="700" Height="Auto">
+    <Grid>
+        <Grid Margin="0 80 10 0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
         
-        <Viewbox Grid.Row="0" HorizontalAlignment="Center">
-            <Image Source="{Binding ImageSource}" Stretch="UniformToFill" />
-        </Viewbox>
+            <Viewbox Grid.Row="0" HorizontalAlignment="Center">
+                <Image Source="{Binding ImageSource}" Stretch="UniformToFill" />
+            </Viewbox>
 
-        <StatusBar Grid.Row="1" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White">
-            <StatusBarItem Content="{Binding StatusText}" />
-        </StatusBar>
+        </Grid>
+        <Grid Margin="0,0,191,0.4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="82" />
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" Grid.Row="0" Content="Speech recognition" />
+            <Label Grid.Column="0" Grid.Row="1" Content="Listening port" />
+            <Button Click="switchGR" Height="32" Width="81" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" BorderThickness="0">
+                <StackPanel Name="stackGR">
+                    <Image Source="..\Images\switch_off.png"/>
+                </StackPanel>
+            </Button>
+            <xctk:IntegerUpDown Name="listeningPortSelector"  Value="33405" Minimum="1024" Maximum="65535"
+                                Increment="1" Height="20" Width="60" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"/>
+            <Button Content="OK" Height="20" Width="20" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right"/>
+        </Grid>
+        <Grid Margin="214,10,-214,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Name="slot1" Grid.Column="0" Grid.Row="0" Text="1"/>
+            <TextBlock Name="slot2" Grid.Column="0" Grid.Row="1" Text="2"/>
+            <TextBlock Name="slot3" Grid.Column="0" Grid.Row="2" Text="3"/>
+            <TextBlock Name="slot4" Grid.Column="1" Grid.Row="0" Text="4"/>
+            <TextBlock Name="slot5" Grid.Column="1" Grid.Row="1" Text="5"/>
+            <TextBlock Name="slot6" Grid.Column="1" Grid.Row="2" Text="6"/>
+        </Grid>
     </Grid>
 </UserControl>

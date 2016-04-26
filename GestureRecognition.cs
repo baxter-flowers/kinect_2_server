@@ -15,8 +15,6 @@ namespace Kinect2Server
         private Body[] bodies;
         private KinectSensor kinectSensor;
         private BodyFrameReader bodyFrameReader;
-        private Dictionary<JointType, JointType> hierarchy;
-        private List<JointType> feuilles;
         private CoordinateMapper coordinateMapper;
         private const float InferredZPositionClamp = 0.1f;
 
@@ -29,7 +27,7 @@ namespace Kinect2Server
             this.bodyFrameReader = this.kinectSensor.BodyFrameSource.OpenReader();
 
             // Hierarchy child-parent
-            hierarchy = new Dictionary<JointType, JointType>();
+            /*hierarchy = new Dictionary<JointType, JointType>();
             feuilles = new List<JointType>();
             // SpineBase has no parent
             hierarchy.Add(JointType.SpineBase, JointType.SpineBase);
@@ -66,7 +64,7 @@ namespace Kinect2Server
             hierarchy.Add(JointType.ThumbLeft, JointType.WristLeft);
             hierarchy.Add(JointType.WristLeft, JointType.ElbowLeft);
             hierarchy.Add(JointType.ElbowLeft, JointType.ShoulderLeft);
-            hierarchy.Add(JointType.ShoulderLeft, JointType.SpineShoulder);
+            hierarchy.Add(JointType.ShoulderLeft, JointType.SpineShoulder);*/
 
 
         }

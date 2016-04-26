@@ -27,19 +27,14 @@
 
 
             <TextBlock Name="currentFile" Grid.Column="1" Grid.Row="0" Width="400" 
-                     Text="{Binding Path=Age, Mode=TwoWay}" 
                      HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5,0,0" />
             <TextBlock Name="currentLanguage" Grid.Column="1" Grid.Row="1" Width="400"
-                     Text="{Binding Path=FirstName, Mode=TwoWay}" 
                      HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4.6,0,0" />
             <TextBlock Name="lastSemantics" Grid.Column="1" Grid.Row="2" Width="400"
-                     Text="{Binding Path=LastName, Mode=TwoWay}" 
                      HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5.2,0,0" />
             <TextBlock Name="lastSentence" Grid.Column="1" Grid.Row="3" Width="400"
-                     Text="{Binding Path=LastName, Mode=TwoWay}" 
                      HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5.8,0,0" />
             <TextBlock Name="status" Grid.Column="1" Grid.Row="4" Width="400"
-                     Text="{Binding Path=LastName, Mode=TwoWay}" 
                      HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5.4,0,0" />
 
         </Grid>

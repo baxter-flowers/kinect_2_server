@@ -19,6 +19,7 @@ namespace Kinect2Server
             this.initializeSR();
             this.initializeGR();
             InitializeComponent();
+            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
         }
 
         private NetworkPublisher publisher;
@@ -55,12 +56,6 @@ namespace Kinect2Server
                 this.convertStream = new KinectAudioStream(audioStream);
 
             }
-            else
-            {
-                // on failure, set the status text and close the application
-                //this.statusBarText.Text = Properties.Resources.NoKinectReady;
-                System.Threading.Thread.Sleep(10000);
-            }
         }
 
         public SpeechRecognition SpeechRecogniton
@@ -92,6 +87,11 @@ namespace Kinect2Server
             sr.addSRListener(f1,f2);
         }
 
+        public void removeSRList(EventHandler<SpeechRecognizedEventArgs> f1, EventHandler<SpeechRecognitionRejectedEventArgs> f2)
+        {
+            sr.removeSRListener(f1, f2);
+        }
+
         public void addGRList(EventHandler<BodyFrameArrivedEventArgs> f1)
         {
             gr.addGRListener(f1);
@@ -102,11 +102,7 @@ namespace Kinect2Server
             gr.removeGRListener(f1);
         }
 
-        private void WindowLoaded(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
+        
         private void WindowClosing(object sender, CancelEventArgs e)
         {
             if (null != this.convertStream)

@@ -5,8 +5,8 @@
         xmlns:View="clr-namespace:Kinect2Server.View"
         xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
         xmlns:customName="xctk"
-        Title="Kinect Server" Height="600" Width="700"
-        Loaded="WindowLoaded" Closing="WindowClosing">
+        Title="Kinect Server" Height="750" Width="800"
+        Closing="WindowClosing">
     <Grid>
         <TabControl>
             <TabItem Header="Speech recognition">

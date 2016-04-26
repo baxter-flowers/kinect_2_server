@@ -42,12 +42,12 @@ namespace Kinect2Server.View
         private int displayHeight;
         private List<Pen> bodyColors;
         private string statusText;
+        private Boolean grStatus = false;
 
         public GestureRecognitionView()
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.gr = this.mw.GestureRecognition;
-            this.mw.addGRList(this.Reader_FrameArrived);
 
             // get the depth (display) extents
             FrameDescription frameDescription = this.mw.KinectSensor.DepthFrameSource.FrameDescription;
@@ -118,7 +118,41 @@ namespace Kinect2Server.View
 
         private void switchGR(object sender, RoutedEventArgs e)
         {
+            this.switchGestureRecognition(sender, e);
+        }
 
+        private void switchGestureRecognition(object sender, RoutedEventArgs e)
+        {
+            if (!grStatus)
+            {
+                this.mw.addGRList(this.Reader_FrameArrived);
+                setButtonOn(this.stackGR);
+                this.grStatus = true;
+            }
+            else
+            {
+                this.mw.removeGRList(this.Reader_FrameArrived);
+                setButtonOff(this.stackGR);
+                this.grStatus = false;
+            }
+            
+            
+        }
+
+        private void setButtonOff(StackPanel stack)
+        {
+            Image img = new Image();
+            stack.Children.Clear();
+            img.Source = new BitmapImage(new Uri(@"../Images/switch_off.png", UriKind.Relative));
+            stack.Children.Add(img);
+        }
+
+        private void setButtonOn(StackPanel stack)
+        {
+            Image img = new Image();
+            stack.Children.Clear();
+            img.Source = new BitmapImage(new Uri(@"../Images/switch_on.png", UriKind.Relative));
+            stack.Children.Add(img);
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -186,6 +220,8 @@ namespace Kinect2Server.View
                     {
                         Pen drawPen = this.bodyColors[penIndex++];
 
+                        Dictionary<ulong, Dictionary<JointType, object>> dicoBodies = new Dictionary<ulong, Dictionary<JointType, object>>();
+
                         if (body.IsTracked)
                         {
                             this.DrawClippedEdges(body, dc);
@@ -204,19 +240,31 @@ namespace Kinect2Server.View
                                 // sometimes the depth(Z) of an inferred joint may show as negative
                                 // clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
                                 CameraSpacePoint position = joints[jointType].Position;
-                                Vector4 orientation = body.JointOrientations[jointType].Orientation;
                                 if (position.Z < 0)
                                 {
                                     position.Z = InferredZPositionClamp;
                                 }
-                                object ob = new { Position = position, Orientation = dicoOr[jointType] };
+
+                                object ob;
+                                if (jointType == JointType.HandRight)
+                                {
+                                    ob = new {Position = position, Orientation = dicoOr[jointType], HandState = body.HandRightState.ToString().ToLower() };
+                                }
+                                else if (jointType == JointType.HandLeft)
+                                {
+                                    ob = new {Position = position, Orientation = dicoOr[jointType], HandState = body.HandLeftState.ToString().ToLower() };
+                                }
+                                else
+                                {
+                                    ob = new {Position = position, Orientation = dicoOr[jointType] };
+                                }
                                 dicoPos[jointType] = ob;
 
                                 DepthSpacePoint depthSpacePoint = this.gr.CoordinateMapper.MapCameraPointToDepthSpace(position);
                                 jointPoints[jointType] = new Point(depthSpacePoint.X, depthSpacePoint.Y);
                             }
-
-                            string json = JsonConvert.SerializeObject(dicoPos);
+                            dicoBodies[body.TrackingId] = dicoPos;
+                            string json = JsonConvert.SerializeObject(dicoBodies);
                             this.gr.NetworkPublisher.SendJSON(json, "skeleton");
 
                             this.DrawBody(joints, jointPoints, dc, drawPen);
@@ -226,7 +274,14 @@ namespace Kinect2Server.View
                     }
 
                     // prevent drawing outside of our render area
-                    this.drawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
+                    this.drawingGroup.ClipGeometry = new RectangleGeometry(new  Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
+                }
+                for (int i = 1; i < this.gr.Bodies.Length + 1; i++)
+                {
+                    string slot = "slot" + i;
+                    TextBlock tb = (TextBlock)this.FindName(slot);
+                    tb.Foreground = this.bodyColors[i-1].Brush;
+                    tb.Text = "Tracking Id : " + this.gr.Bodies[i - 1].TrackingId;
                 }
             }
         }

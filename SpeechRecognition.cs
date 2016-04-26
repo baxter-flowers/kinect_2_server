@@ -230,6 +230,12 @@ namespace Kinect2Server
             this.speechEngine.SpeechRecognitionRejected += f2;
         }
 
+        public void removeSRListener(EventHandler<SpeechRecognizedEventArgs> f1, EventHandler<SpeechRecognitionRejectedEventArgs> f2)
+        {
+            this.speechEngine.SpeechRecognized -= f1;
+            this.speechEngine.SpeechRecognitionRejected -= f2;
+        }
+
         public void setCurrentLanguage(string grammarText)
         {
             //Create the XmlNamespaceManager.
