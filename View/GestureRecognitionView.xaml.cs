@@ -189,6 +189,9 @@ namespace Kinect2Server.View
 
         private void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
+            if (!this.grStatus)
+                return;
+
             bool dataReceived = false;
 
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
@@ -221,48 +224,57 @@ namespace Kinect2Server.View
                         Pen drawPen = this.bodyColors[penIndex++];
 
                         Dictionary<ulong, Dictionary<JointType, object>> dicoBodies = new Dictionary<ulong, Dictionary<JointType, object>>();
+                        
 
                         if (body.IsTracked)
                         {
+                            
                             this.DrawClippedEdges(body, dc);
 
                             IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
-
-
-                            // convert the joint points to depth (display) space
+                            
                             Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>();
-                            Dictionary<JointType, object> dicoPos = new Dictionary<JointType, object>();
+                            KinectJointFilter filter = new KinectJointFilter(0.9f, 0.9f, 0.9f);
+                            filter.Init(0.9f, 0.9f, 0.9f);
+                            filter.UpdateFilter(body);
+                            CameraSpacePoint[] filteredJoints = filter.GetFilteredJoints();
 
+                            Dictionary<JointType, object> dicoPos = new Dictionary<JointType, object>();
                             Dictionary<JointType, Vector4> dicoOr = this.gr.chainQuat(body);
 
                             foreach (JointType jointType in joints.Keys)
                             {
                                 // sometimes the depth(Z) of an inferred joint may show as negative
                                 // clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
-                                CameraSpacePoint position = joints[jointType].Position;
-                                if (position.Z < 0)
+                                CameraSpacePoint filteredPoint = filteredJoints[(int)jointType];
+                                
+
+                                if (filteredPoint.Z < 0)
                                 {
-                                    position.Z = InferredZPositionClamp;
+                                    filteredPoint.Z = InferredZPositionClamp;
                                 }
 
                                 object ob;
                                 if (jointType == JointType.HandRight)
                                 {
-                                    ob = new {Position = position, Orientation = dicoOr[jointType], HandState = body.HandRightState.ToString().ToLower() };
+                                    ob = new {Position = filteredPoint, Orientation = dicoOr[jointType], HandState = body.HandRightState.ToString().ToLower() };
                                 }
                                 else if (jointType == JointType.HandLeft)
                                 {
-                                    ob = new {Position = position, Orientation = dicoOr[jointType], HandState = body.HandLeftState.ToString().ToLower() };
+                                    ob = new {Position = filteredPoint, Orientation = dicoOr[jointType], HandState = body.HandLeftState.ToString().ToLower() };
                                 }
                                 else
                                 {
-                                    ob = new {Position = position, Orientation = dicoOr[jointType] };
+                                    ob = new {Position = filteredPoint, Orientation = dicoOr[jointType] };
                                 }
                                 dicoPos[jointType] = ob;
 
-                                DepthSpacePoint depthSpacePoint = this.gr.CoordinateMapper.MapCameraPointToDepthSpace(position);
+                                DepthSpacePoint depthSpacePoint = this.gr.CoordinateMapper.MapCameraPointToDepthSpace(filteredJoints[(int)jointType]);
                                 jointPoints[jointType] = new Point(depthSpacePoint.X, depthSpacePoint.Y);
+                                
                             }
+                            this.slot1.Text = "X0 : " + filteredJoints[0].X;
+                            this.slot2.Text = "X1 : " + joints[JointType.SpineBase].Position.X;
                             dicoBodies[body.TrackingId] = dicoPos;
                             string json = JsonConvert.SerializeObject(dicoBodies);
                             this.gr.NetworkPublisher.SendJSON(json, "skeleton");
@@ -270,13 +282,14 @@ namespace Kinect2Server.View
                             this.DrawBody(joints, jointPoints, dc, drawPen);
                             this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
                             this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
+                            
                         }
                     }
 
                     // prevent drawing outside of our render area
                     this.drawingGroup.ClipGeometry = new RectangleGeometry(new  Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
                 }
-                for (int i = 1; i < this.gr.Bodies.Length + 1; i++)
+                for (int i = 3; i < this.gr.Bodies.Length + 1; i++)
                 {
                     string slot = "slot" + i;
                     TextBlock tb = (TextBlock)this.FindName(slot);

@@ -25,48 +25,6 @@ namespace Kinect2Server
 
             this.coordinateMapper = this.kinectSensor.CoordinateMapper;
             this.bodyFrameReader = this.kinectSensor.BodyFrameSource.OpenReader();
-
-            // Hierarchy child-parent
-            /*hierarchy = new Dictionary<JointType, JointType>();
-            feuilles = new List<JointType>();
-            // SpineBase has no parent
-            hierarchy.Add(JointType.SpineBase, JointType.SpineBase);
-            // Right leg
-            feuilles.Add(JointType.FootRight);
-            hierarchy.Add(JointType.FootRight, JointType.AnkleRight);
-            hierarchy.Add(JointType.AnkleRight, JointType.HipRight);
-            hierarchy.Add(JointType.HipRight, JointType.SpineBase);
-            // Left leg
-            feuilles.Add(JointType.FootLeft);
-            hierarchy.Add(JointType.FootLeft, JointType.AnkleLeft);
-            hierarchy.Add(JointType.AnkleLeft, JointType.HipLeft);
-            hierarchy.Add(JointType.HipLeft, JointType.SpineBase);
-            // SpineBase to Head
-            feuilles.Add(JointType.Head);
-            hierarchy.Add(JointType.Head, JointType.Neck);
-            hierarchy.Add(JointType.Neck, JointType.SpineShoulder);
-            hierarchy.Add(JointType.SpineShoulder, JointType.SpineMid);
-            hierarchy.Add(JointType.SpineMid, JointType.SpineBase);
-            //Right arm
-            feuilles.Add(JointType.HandTipRight);
-            hierarchy.Add(JointType.HandTipRight, JointType.HandRight);
-            hierarchy.Add(JointType.HandRight, JointType.WristRight);
-            hierarchy.Add(JointType.ThumbRight, JointType.WristRight);
-            feuilles.Add(JointType.ThumbRight);
-            hierarchy.Add(JointType.WristRight, JointType.ElbowRight);
-            hierarchy.Add(JointType.ElbowRight, JointType.ShoulderRight);
-            hierarchy.Add(JointType.ShoulderRight, JointType.SpineShoulder);
-            //Left arm
-            feuilles.Add(JointType.HandTipLeft);
-            hierarchy.Add(JointType.HandTipLeft, JointType.HandLeft);
-            hierarchy.Add(JointType.HandLeft, JointType.WristLeft);
-            feuilles.Add(JointType.ThumbLeft);
-            hierarchy.Add(JointType.ThumbLeft, JointType.WristLeft);
-            hierarchy.Add(JointType.WristLeft, JointType.ElbowLeft);
-            hierarchy.Add(JointType.ElbowLeft, JointType.ShoulderLeft);
-            hierarchy.Add(JointType.ShoulderLeft, JointType.SpineShoulder);*/
-
-
         }
 
         public void addGRListener(EventHandler<BodyFrameArrivedEventArgs> f1)
@@ -167,6 +125,5 @@ namespace Kinect2Server
 
             return orientation;
         }
-
     }
 }
