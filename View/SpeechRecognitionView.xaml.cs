@@ -216,7 +216,7 @@ namespace Kinect2Server.View
         {
             if (this.confidenceSelector.Value == null)
             {
-                this.confidenceSelector.Value = 30;
+                this.confidenceSelector.Value = (int)sr.ConfidenceThreshold*100;
             }
             else
             {

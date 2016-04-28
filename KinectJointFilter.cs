@@ -1,23 +1,14 @@
 ﻿using System.Collections;
 using Microsoft.Kinect;
 using System;
+using System.Collections.Generic;
+using Kinect2Server.View;
+using System.Windows;
 
 namespace Kinect2Server
 {
     public class KinectJointFilter
     {
-        public KinectJointFilter(float fSmoothing = 0.25f, float fCorrection = 0.25f, float fPrediction = 0.25f, float fJitterRadius = 0.03f, float fMaxDeviationRadius = 0.05f)
-        {
-            m_pFilteredJoints = new CameraSpacePoint[Body.JointCount];
-            m_pHistory = new FilterDoubleExponentialData[Body.JointCount];
-            for (int i = 0; i < Body.JointCount; i++)
-            {
-                m_pHistory[i] = new FilterDoubleExponentialData();
-            }
-
-            Init(fSmoothing, fCorrection, fPrediction, fJitterRadius, fMaxDeviationRadius);
-        }
-
         public struct TRANSFORM_SMOOTH_PARAMETERS
         {
             public float fSmoothing;             // [0..1], lower values closer to raw data
@@ -37,6 +28,7 @@ namespace Kinect2Server
 
         // Holt Double Exponential Smoothing filter
         CameraSpacePoint[] m_pFilteredJoints;
+        Dictionary<JointType, Joint> filteredJoints;
         FilterDoubleExponentialData[] m_pHistory;
         float m_fSmoothing;
         float m_fCorrection;
@@ -44,8 +36,9 @@ namespace Kinect2Server
         float m_fJitterRadius;
         float m_fMaxDeviationRadius;
 
-        public KinectJointFilter()
+        public KinectJointFilter(float fSmoothing = 0.25f, float fCorrection = 0.25f, float fPrediction = 0.25f, float fJitterRadius = 0.03f, float fMaxDeviationRadius = 0.05f)
         {
+            filteredJoints = new Dictionary<JointType, Joint>(Body.JointCount);
             m_pFilteredJoints = new CameraSpacePoint[Body.JointCount];
             m_pHistory = new FilterDoubleExponentialData[Body.JointCount];
             for (int i = 0; i < Body.JointCount; i++)
@@ -53,7 +46,7 @@ namespace Kinect2Server
                 m_pHistory[i] = new FilterDoubleExponentialData();
             }
 
-            Init();
+            Init(fSmoothing, fCorrection, fPrediction, fJitterRadius, fMaxDeviationRadius);
         }
 
         ~KinectJointFilter()
@@ -131,14 +124,14 @@ namespace Kinect2Server
                 SmoothingParams.fMaxDeviationRadius = m_fMaxDeviationRadius;
 
                 // If inferred, we smooth a bit more by using a bigger jitter radius
-                Microsoft.Kinect.Joint joint = pBody.Joints[jt];
+                Joint joint = pBody.Joints[jt];
                 if (joint.TrackingState == TrackingState.Inferred)
                 {
                     SmoothingParams.fJitterRadius *= 2.0f;
                     SmoothingParams.fMaxDeviationRadius *= 2.0f;
                 }
-
-                UpdateJoint(pBody, jt, SmoothingParams);
+                
+                filteredJoints[jt] = UpdateJoint(pBody, jt, SmoothingParams);
             }
         }
 
@@ -152,9 +145,9 @@ namespace Kinect2Server
                         vJointPosition.Z != 0.0f);
         }
 
-        public CameraSpacePoint[] GetFilteredJoints()
+        public Dictionary<JointType,Joint> GetFilteredJoints()
         {
-            return m_pFilteredJoints;
+            return filteredJoints;
         }
 
         CameraSpacePoint CSVectorSet(float x, float y, float z)
@@ -217,7 +210,7 @@ namespace Kinect2Server
             return Convert.ToSingle(Math.Sqrt(p.X * p.X + p.Y * p.Y + p.Z * p.Z));
         }
 
-        void UpdateJoint(Body body, JointType jt, TRANSFORM_SMOOTH_PARAMETERS smoothingParams)
+        Joint UpdateJoint(Body body, JointType jt, TRANSFORM_SMOOTH_PARAMETERS smoothingParams)
         {
             CameraSpacePoint vPrevRawPosition;
             CameraSpacePoint vPrevFilteredPosition;
@@ -230,7 +223,7 @@ namespace Kinect2Server
             float fDiff;
             bool bJointIsValid;
 
-            Microsoft.Kinect.Joint joint = body.Joints[jt];
+            Joint joint = body.Joints[jt];
 
             vRawPosition = joint.Position;
             vPrevFilteredPosition = m_pHistory[(int)jt].m_vFilteredPosition;
@@ -296,6 +289,7 @@ namespace Kinect2Server
                     CSVectorScale(vRawPosition, 1.0f - smoothingParams.fMaxDeviationRadius / fDiff));
             }
 
+            
             // Save the data from this frame
             m_pHistory[(int)jt].m_vRawPosition = vRawPosition;
             m_pHistory[(int)jt].m_vFilteredPosition = vFilteredPosition;
@@ -303,6 +297,10 @@ namespace Kinect2Server
 
             // Output the data
             m_pFilteredJoints[(int)jt] = vPredictedPosition;
+            joint.Position = vPredictedPosition;
+
+            return joint;
         }
+
     }
 }

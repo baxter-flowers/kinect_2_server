@@ -19,23 +19,28 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="120" />
                 <ColumnDefinition Width="82" />
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Grid.Row="0" Content="Speech recognition" />
-            <Label Grid.Column="0" Grid.Row="1" Content="Listening port" />
+            <Label Grid.Column="0" Grid.Row="0" Content="Gesture recognition" />
+            <Label Grid.Column="0" Grid.Row="2" Content="Listening port" />
             <Button Click="switchGR" Height="32" Width="81" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" BorderThickness="0">
                 <StackPanel Name="stackGR">
                     <Image Source="..\Images\switch_off.png"/>
                 </StackPanel>
             </Button>
+            <Label Grid.Column="0" Grid.Row="1" Content="Smoothing"/>
+            <xctk:DoubleUpDown Name="smoothingSelector" Value="0.5" Minimum="0.0" Maximum="0.9"
+                               Increment="0.1" Height="20" Width="60" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"/>
+            <Button Click="submitSmoothing" Content="OK" Height="20" Width="20" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right"/>
             <xctk:IntegerUpDown Name="listeningPortSelector"  Value="33405" Minimum="1024" Maximum="65535"
-                                Increment="1" Height="20" Width="60" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"/>
-            <Button Content="OK" Height="20" Width="20" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right"/>
+                                Increment="1" Height="20" Width="60" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left"/>
+            <Button Content="OK" Height="20" Width="20" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right"/>
         </Grid>
-        <Grid Margin="214,10,-214,0">
+        <Grid Margin="214,10,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>

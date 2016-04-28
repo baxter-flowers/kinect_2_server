@@ -38,11 +38,19 @@ namespace Kinect2Server.View
         private DrawingGroup drawingGroup;
         private DrawingImage imageSource;
         private List<Tuple<JointType, JointType>> bones;
+        private Dictionary<JointType, object> dicoPos;
+        private Dictionary<JointType, Point> jointPoints;
+        private Dictionary<JointType, Vector4> dicoOr;
+        private IReadOnlyDictionary<JointType, Joint> joints;
+        private Dictionary<ulong, Dictionary<JointType, object>> dicoBodies;
+        private Dictionary<JointType, Joint> filteredJoints;
         private int displayWidth;
         private int displayHeight;
         private List<Pen> bodyColors;
         private string statusText;
         private Boolean grStatus = false;
+        private float smoothingParam = 0.5f;
+        private KinectJointFilter filter;
 
         public GestureRecognitionView()
         {
@@ -112,6 +120,10 @@ namespace Kinect2Server.View
             // use the window object as the view model in this simple example
             this.DataContext = this;
 
+            this.filter = new KinectJointFilter(smoothingParam, smoothingParam, smoothingParam);
+            this.filter.Init(smoothingParam, smoothingParam, smoothingParam);
+
+
             // initialize the components (controls) of the window
             InitializeComponent();
         }
@@ -136,7 +148,19 @@ namespace Kinect2Server.View
                 this.grStatus = false;
             }
             
-            
+        }
+
+        private void submitSmoothing(object sender, RoutedEventArgs e)
+        {
+            if (this.smoothingSelector.Value == null)
+            {
+                this.smoothingSelector.Value = (double)this.smoothingParam;
+            }
+            else
+            {
+                this.smoothingParam = (float)this.smoothingSelector.Value;
+                this.filter.Init(smoothingParam, smoothingParam, smoothingParam);
+            }
         }
 
         private void setButtonOff(StackPanel stack)
@@ -223,83 +247,89 @@ namespace Kinect2Server.View
                     {
                         Pen drawPen = this.bodyColors[penIndex++];
 
-                        Dictionary<ulong, Dictionary<JointType, object>> dicoBodies = new Dictionary<ulong, Dictionary<JointType, object>>();
-                        
+                        dicoBodies = new Dictionary<ulong, Dictionary<JointType, object>>();
 
                         if (body.IsTracked)
                         {
-                            
+
                             this.DrawClippedEdges(body, dc);
+                            this.jointPoints = new Dictionary<JointType, Point>();
 
-                            IReadOnlyDictionary<JointType, Joint> joints = body.Joints;
-                            
-                            Dictionary<JointType, Point> jointPoints = new Dictionary<JointType, Point>();
-                            KinectJointFilter filter = new KinectJointFilter(0.9f, 0.9f, 0.9f);
-                            filter.Init(0.9f, 0.9f, 0.9f);
-                            filter.UpdateFilter(body);
-                            CameraSpacePoint[] filteredJoints = filter.GetFilteredJoints();
-
-                            Dictionary<JointType, object> dicoPos = new Dictionary<JointType, object>();
-                            Dictionary<JointType, Vector4> dicoOr = this.gr.chainQuat(body);
-
-                            foreach (JointType jointType in joints.Keys)
+                            if (smoothingParam != 0.0f)
                             {
-                                // sometimes the depth(Z) of an inferred joint may show as negative
-                                // clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
-                                CameraSpacePoint filteredPoint = filteredJoints[(int)jointType];
-                                
-
-                                if (filteredPoint.Z < 0)
-                                {
-                                    filteredPoint.Z = InferredZPositionClamp;
-                                }
-
-                                object ob;
-                                if (jointType == JointType.HandRight)
-                                {
-                                    ob = new {Position = filteredPoint, Orientation = dicoOr[jointType], HandState = body.HandRightState.ToString().ToLower() };
-                                }
-                                else if (jointType == JointType.HandLeft)
-                                {
-                                    ob = new {Position = filteredPoint, Orientation = dicoOr[jointType], HandState = body.HandLeftState.ToString().ToLower() };
-                                }
-                                else
-                                {
-                                    ob = new {Position = filteredPoint, Orientation = dicoOr[jointType] };
-                                }
-                                dicoPos[jointType] = ob;
-
-                                DepthSpacePoint depthSpacePoint = this.gr.CoordinateMapper.MapCameraPointToDepthSpace(filteredJoints[(int)jointType]);
-                                jointPoints[jointType] = new Point(depthSpacePoint.X, depthSpacePoint.Y);
-                                
+                                filter.UpdateFilter(body);
+                                filteredJoints = filter.GetFilteredJoints();
+                                frameTreatement(filteredJoints, body, dc, drawPen);
                             }
-                            this.slot1.Text = "X0 : " + filteredJoints[0].X;
-                            this.slot2.Text = "X1 : " + joints[JointType.SpineBase].Position.X;
-                            dicoBodies[body.TrackingId] = dicoPos;
-                            string json = JsonConvert.SerializeObject(dicoBodies);
-                            this.gr.NetworkPublisher.SendJSON(json, "skeleton");
-
-                            this.DrawBody(joints, jointPoints, dc, drawPen);
-                            this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
-                            this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
-                            
+                            else
+                            {
+                                this.joints = body.Joints;
+                                frameTreatement(joints, body, dc, drawPen);
+                            }
                         }
                     }
-
-                    // prevent drawing outside of our render area
-                    this.drawingGroup.ClipGeometry = new RectangleGeometry(new  Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
-                }
-                for (int i = 3; i < this.gr.Bodies.Length + 1; i++)
-                {
-                    string slot = "slot" + i;
-                    TextBlock tb = (TextBlock)this.FindName(slot);
-                    tb.Foreground = this.bodyColors[i-1].Brush;
-                    tb.Text = "Tracking Id : " + this.gr.Bodies[i - 1].TrackingId;
+                    for (int i = 1; i <= this.gr.Bodies.Length; i++)
+                    {
+                        string slot = "slot" + i;
+                        TextBlock tb = (TextBlock)this.FindName(slot);
+                        tb.Foreground = this.bodyColors[i - 1].Brush;
+                        tb.Text = "Tracking Id : " + this.gr.Bodies[i - 1].TrackingId;
+                    }
                 }
             }
         }
 
-        private void DrawBody(IReadOnlyDictionary<JointType, Joint> joints, IDictionary<JointType, Point> jointPoints, DrawingContext drawingContext, Pen drawingPen)
+        public void frameTreatement(IReadOnlyDictionary<JointType, Joint> joints, Body body, DrawingContext dc, Pen drawPen)
+        {
+            this.dicoPos = new Dictionary<JointType, object>();
+            this.dicoOr = this.gr.chainQuat(body);
+
+            foreach (JointType jointType in joints.Keys)
+            {
+                // sometimes the depth(Z) of an inferred joint may show as negative
+                // clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
+                CameraSpacePoint point = joints[jointType].Position;
+
+                if (point.Z < 0)
+                {
+                    point.Z = InferredZPositionClamp;
+                }
+
+                object ob;
+                if (jointType == JointType.HandRight)
+                {
+                    ob = new { Position = point, Orientation = dicoOr[jointType], HandState = body.HandRightState.ToString().ToLower() };
+                }
+                else if (jointType == JointType.HandLeft)
+                {
+                    ob = new { Position = point, Orientation = dicoOr[jointType], HandState = body.HandLeftState.ToString().ToLower() };
+                }
+                else
+                {
+                    ob = new { Position = point , Orientation = dicoOr[jointType] };
+                }
+                dicoPos[jointType] = ob;
+
+                DepthSpacePoint depthSpacePoint = this.gr.CoordinateMapper.MapCameraPointToDepthSpace(point);
+                jointPoints[jointType] = new Point(depthSpacePoint.X, depthSpacePoint.Y);
+
+            }
+
+            dicoBodies[body.TrackingId] = dicoPos;
+            string json = JsonConvert.SerializeObject(dicoBodies);
+            this.gr.NetworkPublisher.SendJSON(json, "skeleton");
+
+
+            this.DrawBody(joints, jointPoints, dc, drawPen);
+            this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
+            this.DrawHand(body.HandRightState, jointPoints[JointType.HandRight], dc);
+
+            // prevent drawing outside of our render area
+            this.drawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
+
+        }
+
+        private void DrawBody(IReadOnlyDictionary<JointType, Joint> joints, Dictionary<JointType, Point> jointPoints, DrawingContext drawingContext, Pen drawingPen)
         {
             // Draw the bones
             foreach (var bone in this.bones)
@@ -330,7 +360,7 @@ namespace Kinect2Server.View
             }
         }
 
-        private void DrawBone(IReadOnlyDictionary<JointType, Joint> joints, IDictionary<JointType, Point> jointPoints, JointType jointType0, JointType jointType1, DrawingContext drawingContext, Pen drawingPen)
+        private void DrawBone(IReadOnlyDictionary<JointType, Joint> joints, Dictionary<JointType, Point> jointPoints, JointType jointType0, JointType jointType1, DrawingContext drawingContext, Pen drawingPen)
         {
             Joint joint0 = joints[jointType0];
             Joint joint1 = joints[jointType1];
