@@ -26,7 +26,7 @@ namespace Kinect2Server
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
         private SpeechRecognition sr;
-        private GestureRecognition gr;
+        private SkeletonTracking gr;
 
         private void initializeSR()
         {
@@ -35,7 +35,7 @@ namespace Kinect2Server
 
         private void initializeGR()
         {
-            this.gr = new GestureRecognition(this.kinectSensor, this.publisher);
+            this.gr = new SkeletonTracking(this.kinectSensor, this.publisher);
         }
 
         private void setKinectSensor()
@@ -66,7 +66,7 @@ namespace Kinect2Server
             }
         }
 
-        public GestureRecognition GestureRecognition
+        public SkeletonTracking GestureRecognition
         {
             get
             {

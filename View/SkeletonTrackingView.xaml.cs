@@ -21,10 +21,10 @@ namespace Kinect2Server.View
     /// <summary>
     /// Interaction logic for GestureRecognition.xaml
     /// </summary>
-    public partial class GestureRecognitionView : UserControl
+    public partial class SkeletonTrackingView : UserControl
     {
         private MainWindow mw;
-        private GestureRecognition gr;
+        private SkeletonTracking gr;
         private const double HandSize = 30;
         private const double JointThickness = 3;
         private const double ClipBoundsThickness = 10;
@@ -52,7 +52,7 @@ namespace Kinect2Server.View
         private float smoothingParam = 0.5f;
         private KinectJointFilter filter;
 
-        public GestureRecognitionView()
+        public SkeletonTrackingView()
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.gr = this.mw.GestureRecognition;

@@ -9,7 +9,7 @@ using System.Windows.Media.Media3D;
 
 namespace Kinect2Server
 {
-    public class GestureRecognition
+    public class SkeletonTracking
     {
         private NetworkPublisher network;
         private Body[] bodies;
@@ -18,7 +18,7 @@ namespace Kinect2Server
         private CoordinateMapper coordinateMapper;
         private const float InferredZPositionClamp = 0.1f;
 
-        public GestureRecognition(KinectSensor kinect, NetworkPublisher network)
+        public SkeletonTracking(KinectSensor kinect, NetworkPublisher network)
         {
             this.kinectSensor = kinect;
             this.network = network;

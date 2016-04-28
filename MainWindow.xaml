@@ -38,7 +38,7 @@
                     <TextBlock Grid.Row="0" Margin="0 0 -1 0" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontFamily="Segoe UI" FontSize="18">Body Basics</TextBlock>
                     <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5" />
                     
-                    <View:GestureRecognitionView Grid.Row="2"/>
+                    <View:SkeletonTrackingView Grid.Row="2"/>
                 </Grid>
             </TabItem>
 

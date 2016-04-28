@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Kinect2Server.View.GestureRecognitionView"
+﻿<UserControl x:Class="Kinect2Server.View.SkeletonTrackingView"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
