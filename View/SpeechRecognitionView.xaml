@@ -35,7 +35,8 @@
             <TextBlock Name="lastSentence" Grid.Column="1" Grid.Row="3" Width="400"
                      HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5.8,0,0" />
             <TextBlock Name="status" Grid.Column="1" Grid.Row="4" Width="400"
-                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5.4,0,0" />
+                     HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5.4,0,0"
+                     Text="Turn on speech recognition and select a grammar file"/>
 
         </Grid>
         <Grid>

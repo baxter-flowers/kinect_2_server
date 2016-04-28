@@ -70,6 +70,15 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your gramar file is not valid.
+        /// </summary>
+        internal static string BadFile {
+            get {
+                return ResourceManager.GetString("BadFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Failed to write screenshot to {0}.
         /// </summary>
         internal static string FailedScreenshotStatusTextFormat {
@@ -88,6 +97,15 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Everything is fine, you can go on :).
+        /// </summary>
+        internal static string GoOn {
+            get {
+                return ResourceManager.GetString("GoOn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to I can&apos;t find any Kinect connected through USB :( Closing in 10 sec....
         /// </summary>
         internal static string NoKinectReady {
@@ -102,15 +120,6 @@ namespace Kinect2Server.Properties {
         internal static string NoSensorStatusText {
             get {
                 return ResourceManager.GetString("NoSensorStatusText", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to I can&apos;t find any Kinect speech recognizer..
-        /// </summary>
-        internal static string NoSpeechRecognizer {
-            get {
-                return ResourceManager.GetString("NoSpeechRecognizer", resourceCulture);
             }
         }
         
@@ -138,6 +147,15 @@ namespace Kinect2Server.Properties {
         internal static string SensorNotAvailableStatusText {
             get {
                 return ResourceManager.GetString("SensorNotAvailableStatusText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ZzZzZzZzZz......
+        /// </summary>
+        internal static string ZzZz {
+            get {
+                return ResourceManager.GetString("ZzZz", resourceCulture);
             }
         }
     }

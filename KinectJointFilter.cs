@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using Microsoft.Kinect;
+﻿using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
-using Kinect2Server.View;
-using System.Windows;
 
 namespace Kinect2Server
 {

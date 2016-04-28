@@ -51,12 +51,14 @@ namespace Kinect2Server.View
             else if (sr.anyGrammarLoaded())
             {
                 setButtonOff(this.stackSR);
+                this.status.Text = Properties.Resources.ZzZz;
                 sr.unloadGrammars();
                 mw.removeSRList(this.SpeechRecognized, this.SpeechRejected);
             }
             else
             {
                 setButtonOn(this.stackSR);
+                this.status.Text = Properties.Resources.GoOn;
                 mw.addSRList(this.SpeechRecognized, this.SpeechRejected);
                 sr.loadGrammar();
             }
@@ -171,7 +173,6 @@ namespace Kinect2Server.View
             // Get the selected file path and set it in location if it is different from the actual file
             if (result == true && sr.isFileNew(dlg.FileName))
             {
-                this.status.Text = "";
                 this.currentLanguage.Text = "";
 
                 this.currentFile.Text = dlg.SafeFileName;
@@ -193,7 +194,11 @@ namespace Kinect2Server.View
             if (!sr.isGrammarLoaded() || sr.CurrentLanguage.Equals(""))
             {
                 setButtonOff(this.stackSR);
-                this.status.Text = Properties.Resources.NoSpeechRecognizer;
+                this.status.Text = Properties.Resources.BadFile;
+            }
+            else
+            {
+                this.status.Text = Properties.Resources.GoOn;
             }
 
             switch (sr.CurrentLanguage)

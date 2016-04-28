@@ -153,12 +153,6 @@ namespace Kinect2Server
                 this.convertStream = new KinectAudioStream(audioStream);
 
             }
-            else
-            {
-                // on failure, set the status text and close the application
-                //this.statusBarText.Text = Properties.Resources.NoKinectReady;
-                System.Threading.Thread.Sleep(10000);
-            }
         }
 
         public void createGrammar(String fileLocation, String fileName)
