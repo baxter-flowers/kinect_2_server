@@ -81,6 +81,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Speech" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -122,11 +123,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="SkeletonTracking.cs" />
-    <Compile Include="KinectAudioStream.cs" />
-    <Compile Include="KinectJointFilter.cs" />
-    <Compile Include="NetworkPublisher.cs" />
-    <Compile Include="SpeechRecognition.cs" />
+    <Compile Include="Model\NetworkSubscriber.cs" />
+    <Compile Include="Model\SkeletonTracking.cs" />
+    <Compile Include="Model\KinectAudioStream.cs" />
+    <Compile Include="Model\KinectJointFilter.cs" />
+    <Compile Include="Model\NetworkPublisher.cs" />
+    <Compile Include="Model\SpeechRecognition.cs" />
+    <Compile Include="Model\TextToSpeech.cs" />
     <Compile Include="View\SkeletonTrackingView.xaml.cs">
       <DependentUpon>SkeletonTrackingView.xaml</DependentUpon>
     </Compile>
