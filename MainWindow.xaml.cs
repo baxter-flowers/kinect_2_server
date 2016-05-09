@@ -9,24 +9,29 @@ namespace Kinect2Server
 {
     public partial class MainWindow : Window
     {
+        private NetworkPublisher publisher;
+        private NetworkSubscriber subscriber;
+        private KinectSensor kinectSensor;
+        private KinectAudioStream convertStream;
+        private SpeechRecognition sr;
+        private SkeletonTracking gr;
+        private TextToSpeech tts;
 
         public MainWindow()
         {
             setKinectSensor();
             this.publisher = new NetworkPublisher();
             this.publisher.Bind("33405");
+            this.subscriber = new NetworkSubscriber();
+            this.subscriber.Bind("33406");
 
             this.initializeSR();
             this.initializeGR();
+            this.tts = new TextToSpeech(this.subscriber);
+            
             InitializeComponent();
             WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
         }
-
-        private NetworkPublisher publisher;
-        private KinectSensor kinectSensor;
-        private KinectAudioStream convertStream;
-        private SpeechRecognition sr;
-        private SkeletonTracking gr;
 
         private void initializeSR()
         {
@@ -82,6 +87,14 @@ namespace Kinect2Server
             }
         }
 
+        public TextToSpeech TextToSpeech
+        {
+            get
+            {
+                return this.tts;
+            }
+        }
+
         public void addSRList(EventHandler<SpeechRecognizedEventArgs> f1, EventHandler<SpeechRecognitionRejectedEventArgs> f2)
         {
             sr.addSRListener(f1,f2);
@@ -102,7 +115,6 @@ namespace Kinect2Server
             gr.removeGRListener(f1);
         }
 
-        
         private void WindowClosing(object sender, CancelEventArgs e)
         {
             if (null != this.convertStream)

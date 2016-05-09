@@ -136,6 +136,9 @@
     <Compile Include="View\SpeechRecognitionView.xaml.cs">
       <DependentUpon>SpeechRecognitionView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="View\TextToSpeechView.xaml.cs">
+      <DependentUpon>TextToSpeechView.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -154,6 +157,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\SpeechRecognitionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\TextToSpeechView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

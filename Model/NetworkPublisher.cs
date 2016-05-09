@@ -18,6 +18,7 @@ namespace Kinect2Server
 
         public void Bind(String listening_port)
         {
+            String status = null;
             try
             {
                 this.socket.Bind("tcp://*:" + listening_port);
@@ -25,12 +26,13 @@ namespace Kinect2Server
             }
             catch (ZException e)
             {
-                //Console.WriteLine("Socket connection failed, server cannot listen on port " + listening_port + ": " + e.Message);
+                status = ("Socket connection failed, server cannot listen on p ort " + listening_port + ": " + e.Message);
             }
         }
 
         public void SendJSON(String json_string, String topic)
         {
+            String status = null;
             if (this.binded)
             {
                 ZFrame frame = new ZFrame(string.Format(topic + " {0}",json_string));
@@ -40,13 +42,13 @@ namespace Kinect2Server
                 }
                 catch (ZException e)
                 {
-                    //Console.WriteLine("Cannot publish message: " + e.Message);
+                    status = "Cannot publish message: " + e.Message;
                 }
 
             }
             else
             {
-                //Console.WriteLine("Cannot publish message: Not binded");
+                status = ("Cannot publish message: Not binded");
             }
         }
 

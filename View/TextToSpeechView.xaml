@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="Kinect2Server.View.TextToSpeechView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      Height="Auto" Width="Auto">
+
+    <Grid>
+        <Menu Height="Auto" Width="125" HorizontalAlignment="Left">
+            <MenuItem Header="Gender">
+                <MenuItem Header="Male" Name="Male"
+                          IsCheckable="True" Checked="Male_Checked"/>
+                <MenuItem Header="Female" Name="Female"
+                          IsCheckable="True" Checked="Female_Checked"/>
+            </MenuItem>
+            <MenuItem Header="Language">
+                <MenuItem Header="American English" Name="enUS"
+                          IsCheckable="True" Checked="enUS_Checked"/>
+                <MenuItem Header="French" Name="frFR"
+                          IsCheckable="True" Checked="frFR_Checked"/>
+            </MenuItem>
+        </Menu>
+        <Button Name="speackButton" Click="speak" Margin="0,20,0.4,-20" Content="Speak to me baby!"/>
+    </Grid>
+</UserControl>

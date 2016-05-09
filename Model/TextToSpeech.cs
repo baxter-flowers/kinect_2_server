@@ -1,32 +1,66 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Speech.Synthesis;
 using System.Globalization;
-using System.Threading;
+using System.Speech.Synthesis;
 
 namespace Kinect2Server
 {
     public class TextToSpeech
     {
         private SpeechSynthesizer synthesizer;
+        private NetworkSubscriber subscriber;
+        private VoiceGender voiceGender;
         private CultureInfo culture;
 
-        public TextToSpeech()
+        public TextToSpeech(NetworkSubscriber sub)
         {
-            string defaultLanguage = Thread.CurrentThread.CurrentUICulture.ToString();
-            synthesizer = new SpeechSynthesizer();
-            PromptBuilder cultures = new PromptBuilder(new CultureInfo(defaultLanguage));
+            this.synthesizer = new SpeechSynthesizer();
+            this.subscriber = sub;
+            // Configure the audio output to default settings
+            this.synthesizer.SetOutputToDefaultAudioDevice();
+
+            this.voiceGender = VoiceGender.Male;
+            this.culture = new CultureInfo("en-US");
         }
 
-        public void speak(string language)
-        {
 
-            this.synthesizer.SelectVoiceByHints(VoiceGender.Male,VoiceAge.Teen);
-            this.synthesizer.Volume = 100;
-            this.synthesizer.Rate = 10;
+        public void Speak()
+        {
+            string text = null;
+            while (true)
+            {
+                text = this.subscriber.ReceiveText();
+                if (text != null)
+                {
+                    this.synthesizer.SpeakAsync(text);
+                }
+                text = null;
+            }
+        }
+
+        public VoiceGender VoiceGender
+        {
+            get
+            {
+                return this.voiceGender;
+            }
+            set
+            {
+                this.voiceGender = value;
+                this.synthesizer.SelectVoiceByHints(this.voiceGender);
+            }
+        }
+
+        public CultureInfo Culture
+        {
+            get
+            {
+                return this.culture;
+            }
+            set
+            {
+                this.culture = value;
+                this.synthesizer.SelectVoiceByHints(this.VoiceGender, VoiceAge.Adult, 0, this.culture);
+            }
         }
     }
 }
