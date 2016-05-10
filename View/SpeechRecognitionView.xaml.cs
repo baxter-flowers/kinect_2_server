@@ -46,20 +46,20 @@ namespace Kinect2Server.View
             {
                 setButtonOn(this.stackSR);
                 loadGrammarFile(sender, e);
-                mw.addSRList(this.SpeechRecognized, this.SpeechRejected);
+                this.sr.addSRListener(this.SpeechRecognized, this.SpeechRejected);
             }
             else if (sr.anyGrammarLoaded())
             {
                 setButtonOff(this.stackSR);
                 this.status.Text = Properties.Resources.ZzZz;
                 sr.unloadGrammars();
-                mw.removeSRList(this.SpeechRecognized, this.SpeechRejected);
+                this.sr.removeSRListener(this.SpeechRecognized, this.SpeechRejected);
             }
             else
             {
                 setButtonOn(this.stackSR);
                 this.status.Text = Properties.Resources.GoOn;
-                mw.addSRList(this.SpeechRecognized, this.SpeechRejected);
+                this.sr.addSRListener(this.SpeechRecognized, this.SpeechRejected);
                 sr.loadGrammar();
             }
         }

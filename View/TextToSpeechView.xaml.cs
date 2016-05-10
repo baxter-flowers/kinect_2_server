@@ -18,11 +18,12 @@ namespace Kinect2Server.View
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.tts = mw.TextToSpeech;
             InitializeComponent();
+            this.tts.addTTSListener(updateText);
         }
 
-        private void speak(object sender, RoutedEventArgs e)
+        private void updateText(object sender, SpeakProgressEventArgs e)
         {
-            this.tts.Speak();
+            this.text.Text = this.tts.SpokenText;
         }
 
         private void Male_Checked(object sender, RoutedEventArgs e)

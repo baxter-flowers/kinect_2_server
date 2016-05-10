@@ -3,6 +3,7 @@ using Microsoft.Speech.Recognition;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Speech.Synthesis;
 using System.Windows;
 
 namespace Kinect2Server
@@ -14,7 +15,7 @@ namespace Kinect2Server
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
         private SpeechRecognition sr;
-        private SkeletonTracking gr;
+        private SkeletonTracking st;
         private TextToSpeech tts;
 
         public MainWindow()
@@ -40,7 +41,7 @@ namespace Kinect2Server
 
         private void initializeGR()
         {
-            this.gr = new SkeletonTracking(this.kinectSensor, this.publisher);
+            this.st = new SkeletonTracking(this.kinectSensor, this.publisher);
         }
 
         private void setKinectSensor()
@@ -75,7 +76,7 @@ namespace Kinect2Server
         {
             get
             {
-                return this.gr;
+                return this.st;
             }
         }
 
@@ -93,26 +94,6 @@ namespace Kinect2Server
             {
                 return this.tts;
             }
-        }
-
-        public void addSRList(EventHandler<SpeechRecognizedEventArgs> f1, EventHandler<SpeechRecognitionRejectedEventArgs> f2)
-        {
-            sr.addSRListener(f1,f2);
-        }
-
-        public void removeSRList(EventHandler<SpeechRecognizedEventArgs> f1, EventHandler<SpeechRecognitionRejectedEventArgs> f2)
-        {
-            sr.removeSRListener(f1, f2);
-        }
-
-        public void addGRList(EventHandler<BodyFrameArrivedEventArgs> f1)
-        {
-            gr.addGRListener(f1);
-        }
-
-        public void removeGRList(EventHandler<BodyFrameArrivedEventArgs> f1)
-        {
-            gr.removeGRListener(f1);
         }
 
         private void WindowClosing(object sender, CancelEventArgs e)

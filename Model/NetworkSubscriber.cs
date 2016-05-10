@@ -8,7 +8,6 @@ namespace Kinect2Server
         private ZContext context;
         private ZSocket socket;
         private Boolean binded;
-        private String text;
 
         public NetworkSubscriber()
         {
@@ -38,8 +37,8 @@ namespace Kinect2Server
                 {
                     socket.Subscribe("tts");
                     ZFrame frame = this.socket.ReceiveFrame();
-                    this.text = frame.ReadString();
-                    text = text.Remove(0, 3);
+                    status = frame.ReadString();
+                    status = status.Remove(0, 3);
                 }
                 catch (ZException e)
                 {
@@ -50,7 +49,7 @@ namespace Kinect2Server
             {
                 status = "Cannot receive message: Not connected";
             }
-            return this.text;
+            return status;
         }
 
         public void Close()

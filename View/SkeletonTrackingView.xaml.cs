@@ -16,7 +16,7 @@ namespace Kinect2Server.View
     public partial class SkeletonTrackingView : UserControl
     {
         private MainWindow mw;
-        private SkeletonTracking gr;
+        private SkeletonTracking st;
         private const double HandSize = 30;
         private const double JointThickness = 3;
         private const double ClipBoundsThickness = 10;
@@ -47,7 +47,7 @@ namespace Kinect2Server.View
         public SkeletonTrackingView()
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
-            this.gr = this.mw.GestureRecognition;
+            this.st = this.mw.GestureRecognition;
 
             // get the depth (display) extents
             FrameDescription frameDescription = this.mw.KinectSensor.DepthFrameSource.FrameDescription;
@@ -129,13 +129,13 @@ namespace Kinect2Server.View
         {
             if (!grStatus)
             {
-                this.mw.addGRList(this.Reader_FrameArrived);
+                this.st.addGRListener(this.Reader_FrameArrived);
                 setButtonOn(this.stackGR);
                 this.grStatus = true;
             }
             else
             {
-                this.mw.removeGRList(this.Reader_FrameArrived);
+                this.st.removeGRListener(this.Reader_FrameArrived);
                 setButtonOff(this.stackGR);
                 this.grStatus = false;
             }
@@ -214,15 +214,15 @@ namespace Kinect2Server.View
             {
                 if (bodyFrame != null)
                 {
-                    if (this.gr.Bodies == null)
+                    if (this.st.Bodies == null)
                     {
-                        this.gr.Bodies = new Body[bodyFrame.BodyCount];
+                        this.st.Bodies = new Body[bodyFrame.BodyCount];
                     }
 
                     // The first time GetAndRefreshBodyData is called, Kinect will allocate each Body in the array.
                     // As long as those body objects are not disposed and not set to null in the array,
                     // those body objects will be re-used.
-                    bodyFrame.GetAndRefreshBodyData(this.gr.Bodies);
+                    bodyFrame.GetAndRefreshBodyData(this.st.Bodies);
                     dataReceived = true;
                 }
             }
@@ -235,7 +235,7 @@ namespace Kinect2Server.View
                     dc.DrawRectangle(Brushes.Black, null, new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
 
                     int penIndex = 0;
-                    foreach (Body body in this.gr.Bodies)
+                    foreach (Body body in this.st.Bodies)
                     {
                         Pen drawPen = this.bodyColors[penIndex++];
 
@@ -260,12 +260,12 @@ namespace Kinect2Server.View
                             }
                         }
                     }
-                    for (int i = 1; i <= this.gr.Bodies.Length; i++)
+                    for (int i = 1; i <= this.st.Bodies.Length; i++)
                     {
                         string slot = "slot" + i;
                         TextBlock tb = (TextBlock)this.FindName(slot);
                         tb.Foreground = this.bodyColors[i - 1].Brush;
-                        tb.Text = "Tracking Id : " + this.gr.Bodies[i - 1].TrackingId;
+                        tb.Text = "Tracking Id : " + this.st.Bodies[i - 1].TrackingId;
                     }
                 }
             }
@@ -274,7 +274,7 @@ namespace Kinect2Server.View
         public void frameTreatement(IReadOnlyDictionary<JointType, Joint> joints, Body body, DrawingContext dc, Pen drawPen)
         {
             this.dicoPos = new Dictionary<JointType, object>();
-            this.dicoOr = this.gr.chainQuat(body);
+            this.dicoOr = this.st.chainQuat(body);
 
             foreach (JointType jointType in joints.Keys)
             {
@@ -302,14 +302,14 @@ namespace Kinect2Server.View
                 }
                 dicoPos[jointType] = ob;
 
-                DepthSpacePoint depthSpacePoint = this.gr.CoordinateMapper.MapCameraPointToDepthSpace(point);
+                DepthSpacePoint depthSpacePoint = this.st.CoordinateMapper.MapCameraPointToDepthSpace(point);
                 jointPoints[jointType] = new Point(depthSpacePoint.X, depthSpacePoint.Y);
 
             }
 
             dicoBodies[body.TrackingId] = dicoPos;
             string json = JsonConvert.SerializeObject(dicoBodies);
-            this.gr.NetworkPublisher.SendJSON(json, "skeleton");
+            this.st.NetworkPublisher.SendJSON(json, "skeleton");
 
 
             this.DrawBody(joints, jointPoints, dc, drawPen);

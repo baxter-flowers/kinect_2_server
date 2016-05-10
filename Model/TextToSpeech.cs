@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Speech.Synthesis;
+using System.Threading;
 
 namespace Kinect2Server
 {
@@ -10,6 +11,8 @@ namespace Kinect2Server
         private NetworkSubscriber subscriber;
         private VoiceGender voiceGender;
         private CultureInfo culture;
+        private Thread speakThread;
+        private String spokenText;
 
         public TextToSpeech(NetworkSubscriber sub)
         {
@@ -18,25 +21,26 @@ namespace Kinect2Server
             // Configure the audio output to default settings
             this.synthesizer.SetOutputToDefaultAudioDevice();
 
-            this.voiceGender = VoiceGender.Male;
-            this.culture = new CultureInfo("en-US");
+            this.speakThread = new Thread(new ThreadStart(Speak));
+            this.speakThread.Start();
         }
 
 
         public void Speak()
         {
-            string text = null;
-            while (true)
+            while (Thread.CurrentThread.IsAlive)
             {
-                text = this.subscriber.ReceiveText();
-                if (text != null)
-                {
-                    this.synthesizer.SpeakAsync(text);
-                }
-                text = null;
+                this.spokenText = this.subscriber.ReceiveText();
+                this.synthesizer.SpeakAsync(this.spokenText);
             }
         }
 
+        public void addTTSListener(EventHandler<SpeakProgressEventArgs> f)
+        {
+            this.synthesizer.SpeakProgress += new EventHandler<SpeakProgressEventArgs>(f);
+        }
+
+       
         public VoiceGender VoiceGender
         {
             get
@@ -60,6 +64,14 @@ namespace Kinect2Server
             {
                 this.culture = value;
                 this.synthesizer.SelectVoiceByHints(this.VoiceGender, VoiceAge.Adult, 0, this.culture);
+            }
+        }
+
+        public String SpokenText
+        {
+            get
+            {
+                return this.spokenText;
             }
         }
     }
