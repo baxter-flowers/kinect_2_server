@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.Kinect.VisualGestureBuilder;
 using Microsoft.Kinect;
 using System.Windows.Media.Media3D;
+using System.Windows;
+using Newtonsoft.Json;
 
 namespace Kinect2Server
 {
@@ -16,7 +18,14 @@ namespace Kinect2Server
         private KinectSensor kinectSensor;
         private BodyFrameReader bodyFrameReader;
         private CoordinateMapper coordinateMapper;
+        private Dictionary<JointType, object> dicoPos;
+        private Dictionary<JointType, Vector4> dicoOr;
+        private Dictionary<ulong, Dictionary<JointType, object>> dicoBodies;
+        private Dictionary<JointType, Point> jointPoints;
         private const float InferredZPositionClamp = 0.1f;
+
+        private KinectJointFilter filter;
+        private float smoothingParam = 0.5f;
 
         public SkeletonTracking(KinectSensor kinect, NetworkPublisher network)
         {
@@ -25,6 +34,9 @@ namespace Kinect2Server
 
             this.coordinateMapper = this.kinectSensor.CoordinateMapper;
             this.bodyFrameReader = this.kinectSensor.BodyFrameSource.OpenReader();
+
+            this.filter = new KinectJointFilter(smoothingParam, smoothingParam, smoothingParam);
+            this.filter.Init(smoothingParam, smoothingParam, smoothingParam);
         }
 
         public void addGRListener(EventHandler<BodyFrameArrivedEventArgs> f1)
@@ -62,6 +74,27 @@ namespace Kinect2Server
             get
             {
                 return this.network;
+            }
+        }
+
+        public float SmoothingParam
+        {
+            get
+            {
+                return this.smoothingParam;
+            }
+            set
+            {
+                this.smoothingParam = value;
+                this.filter.Init(smoothingParam, smoothingParam, smoothingParam);
+            }
+        }
+
+        public KinectJointFilter Filter
+        {
+            get
+            {
+                return this.filter;
             }
         }
 
@@ -123,6 +156,49 @@ namespace Kinect2Server
             orientation.W = (float)final.W;
 
             return orientation;
+        }
+
+        public Dictionary<JointType, Point> frameTreatement(IReadOnlyDictionary<JointType, Joint> joints, Body body)
+        {
+            this.dicoPos = new Dictionary<JointType, object>();
+            this.jointPoints = new Dictionary<JointType, Point>();
+            this.dicoBodies = new Dictionary<ulong, Dictionary<JointType, object>>();
+            this.dicoOr = this.chainQuat(body);
+
+            foreach (JointType jointType in joints.Keys)
+            {
+                // sometimes the depth(Z) of an inferred joint may show as negative
+                // clamp down to 0.1f to prevent coordinatemapper from returning (-Infinity, -Infinity)
+                CameraSpacePoint point = joints[jointType].Position;
+
+                if (point.Z < 0)
+                {
+                    point.Z = InferredZPositionClamp;
+                }
+
+                object ob;
+                if (jointType == JointType.HandRight)
+                {
+                    ob = new { Position = point, Orientation = dicoOr[jointType], HandState = body.HandRightState.ToString().ToLower() };
+                }
+                else if (jointType == JointType.HandLeft)
+                {
+                    ob = new { Position = point, Orientation = dicoOr[jointType], HandState = body.HandLeftState.ToString().ToLower() };
+                }
+                else
+                {
+                    ob = new { Position = point, Orientation = dicoOr[jointType] };
+                }
+                this.dicoPos[jointType] = ob;
+
+                DepthSpacePoint depthSpacePoint = this.CoordinateMapper.MapCameraPointToDepthSpace(point);
+                this.jointPoints[jointType] = new Point(depthSpacePoint.X, depthSpacePoint.Y);
+
+                this.dicoBodies[body.TrackingId] = this.dicoPos;
+                string json = JsonConvert.SerializeObject(this.dicoBodies);
+                this.NetworkPublisher.SendJSON(json, "skeleton");
+            }
+            return this.jointPoints;
         }
     }
 }
