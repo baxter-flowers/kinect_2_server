@@ -24,8 +24,6 @@ namespace Kinect2Server
         private Boolean semanticsStatus;
         private Boolean sentenceStatus;
 
-
-
         public SpeechRecognition(KinectSensor kinect, NetworkPublisher network, KinectAudioStream convertStream)
         {
             this.kinectSensor = kinect;

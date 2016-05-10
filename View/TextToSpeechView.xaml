@@ -7,21 +7,41 @@
       Height="Auto" Width="Auto">
 
     <Grid>
-        <Menu Height="Auto" Width="125" HorizontalAlignment="Left" Margin="0,0,-0.2,10.4">
-            <MenuItem Header="Gender">
-                <MenuItem Header="Male" Name="Male"
-                          IsCheckable="True" Checked="Male_Checked"/>
-                <MenuItem Header="Female" Name="Female"
-                          IsCheckable="True" Checked="Female_Checked"/>
-            </MenuItem>
-            <MenuItem Header="Language">
-                <MenuItem Header="American English" Name="enUS"
-                          IsCheckable="True" Checked="enUS_Checked"/>
-                <MenuItem Header="French" Name="frFR"
-                          IsCheckable="True" Checked="frFR_Checked"/>
-            </MenuItem>
-        </Menu>
-        <Label Content="Currently spoken text" Margin="0,25,-0.2,-23.6" Height="29" Width="125" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-        <TextBlock Name="text" Margin="130,25,-130.2,-23.6" Width="Auto" Height="29" VerticalAlignment="Center" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Menu HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0">
+                <MenuItem Header="Gender">
+                    <MenuItem Header="Male" Name="Male"
+                              IsCheckable="True" Checked="Male_Checked"/>
+                    <MenuItem Header="Female" Name="Female"
+                              IsCheckable="True" Checked="Female_Checked"/>
+                </MenuItem>
+                <MenuItem Header="Language">
+                    <MenuItem Header="American English" Name="enUS"
+                              IsCheckable="True" Checked="enUS_Checked"/>
+                    <MenuItem Header="French" Name="frFR"
+                              IsCheckable="True" Checked="frFR_Checked"/>
+                </MenuItem>
+            </Menu>
+            
+            <Label Content="Currently spoken text" Grid.Row="1" Grid.Column="0"/>
+            <TextBlock Name="text" Width="Auto" Grid.Row="1" Grid.Column="1"
+                   HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5.2,0,0"/>
+            
+            <Label Content="Queued messages" Grid.Row="2" Grid.Column="0" />
+            <Button Click="switchQueue" Height="32" Width="81" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" BorderThickness="0">
+                <StackPanel Name="stackQueue">
+                    <Image Source="..\Images\switch_off.png"/>
+                </StackPanel>
+            </Button>
+        </Grid>
     </Grid>
 </UserControl>

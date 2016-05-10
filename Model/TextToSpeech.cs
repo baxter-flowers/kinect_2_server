@@ -13,6 +13,7 @@ namespace Kinect2Server
         private CultureInfo culture;
         private Thread speakThread;
         private String spokenText;
+        private Boolean queuedMessages;
 
         public TextToSpeech(NetworkSubscriber sub)
         {
@@ -21,8 +22,9 @@ namespace Kinect2Server
             // Configure the audio output to default settings
             this.synthesizer.SetOutputToDefaultAudioDevice();
 
-            this.speakThread = new Thread(new ThreadStart(Speak));
+            this.speakThread = new Thread(new ThreadStart(this.Speak));
             this.speakThread.Start();
+            this.queuedMessages = false;
         }
 
 
@@ -31,13 +33,21 @@ namespace Kinect2Server
             while (Thread.CurrentThread.IsAlive)
             {
                 this.spokenText = this.subscriber.ReceiveText();
-                this.synthesizer.SpeakAsync(this.spokenText);
+                lock (this)
+                {
+                    if (!this.queuedMessages)
+                        this.synthesizer.SpeakAsyncCancelAll();
+                    this.synthesizer.SpeakAsync(this.spokenText);
+                }
             }
         }
 
         public void addTTSListener(EventHandler<SpeakProgressEventArgs> f)
         {
-            this.synthesizer.SpeakProgress += new EventHandler<SpeakProgressEventArgs>(f);
+            lock (this)
+            {
+                this.synthesizer.SpeakProgress += new EventHandler<SpeakProgressEventArgs>(f);
+            }
         }
 
        
@@ -50,7 +60,10 @@ namespace Kinect2Server
             set
             {
                 this.voiceGender = value;
-                this.synthesizer.SelectVoiceByHints(this.voiceGender);
+                lock (this)
+                {
+                    this.synthesizer.SelectVoiceByHints(this.voiceGender);
+                }
             }
         }
 
@@ -63,7 +76,10 @@ namespace Kinect2Server
             set
             {
                 this.culture = value;
-                this.synthesizer.SelectVoiceByHints(this.VoiceGender, VoiceAge.Adult, 0, this.culture);
+                lock (this)
+                {
+                    this.synthesizer.SelectVoiceByHints(this.VoiceGender, VoiceAge.Adult, 0, this.culture);
+                }
             }
         }
 
@@ -72,6 +88,30 @@ namespace Kinect2Server
             get
             {
                 return this.spokenText;
+            }
+        }
+
+        public Thread SpeakThread
+        {
+            get
+            {
+                return this.speakThread;
+            }
+            set
+            {
+                this.speakThread = value;
+            }
+        }
+
+        public Boolean QueuedMessages
+        {
+            get
+            {
+                return this.queuedMessages;
+            }
+            set
+            {
+                this.queuedMessages = value;
             }
         }
     }

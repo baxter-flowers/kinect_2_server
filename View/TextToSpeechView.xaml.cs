@@ -1,7 +1,10 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Speech.Synthesis;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Imaging;
 
 namespace Kinect2Server.View
 {
@@ -51,6 +54,36 @@ namespace Kinect2Server.View
             this.Female.IsChecked = true;
             this.Male.IsEnabled = false;
             this.tts.Culture = new CultureInfo("fr-FR");
+        }
+
+        private void switchQueue(object sender, RoutedEventArgs e)
+        {
+            if (this.tts.QueuedMessages)
+            {
+                this.tts.QueuedMessages = false;
+                this.setButtonOff(this.stackQueue);
+            }
+            else
+            {
+                this.tts.QueuedMessages = true;
+                this.setButtonOn(this.stackQueue);
+            }
+        }
+
+        private void setButtonOff(StackPanel stack)
+        {
+            Image img = new Image();
+            stack.Children.Clear();
+            img.Source = new BitmapImage(new Uri(@"../Images/switch_off.png", UriKind.Relative));
+            stack.Children.Add(img);
+        }
+
+        private void setButtonOn(StackPanel stack)
+        {
+            Image img = new Image();
+            stack.Children.Clear();
+            img.Source = new BitmapImage(new Uri(@"../Images/switch_on.png", UriKind.Relative));
+            stack.Children.Add(img);
         }
     }
 }

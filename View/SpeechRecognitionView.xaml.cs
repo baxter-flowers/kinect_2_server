@@ -46,7 +46,8 @@ namespace Kinect2Server.View
             {
                 setButtonOn(this.stackSR);
                 loadGrammarFile(sender, e);
-                this.sr.addSRListener(this.SpeechRecognized, this.SpeechRejected);
+                if (this.sr.isSpeechEngineSet())
+                    this.sr.addSRListener(this.SpeechRecognized, this.SpeechRejected);
             }
             else if (sr.anyGrammarLoaded())
             {
@@ -64,7 +65,6 @@ namespace Kinect2Server.View
             }
         }
 
-        //
         private void setButtonOff(StackPanel stack)
         {
             Image img = new Image();
