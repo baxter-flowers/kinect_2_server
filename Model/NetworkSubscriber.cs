@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using ZeroMQ;
 
 namespace Kinect2Server
@@ -12,12 +12,13 @@ namespace Kinect2Server
         public NetworkSubscriber()
         {
             this.context = new ZContext();
-            this.socket = new ZSocket(context, ZSocketType.SUB);
+            this.socket = new ZSocket(this.context, ZSocketType.SUB);
             this.binded = false;
         }
 
         public void Bind(String listeningPort)
         {
+            String status = null;
             try
             {
                 this.socket.Bind("tcp://*:"+ listeningPort);
@@ -25,6 +26,7 @@ namespace Kinect2Server
             }
             catch (ZException e)
             {
+                status = ("Socket connection failed, server cannot listen on port " + listeningPort + ": " + e.Message);
             }
         }
 

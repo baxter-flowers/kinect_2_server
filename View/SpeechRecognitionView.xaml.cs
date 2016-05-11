@@ -100,7 +100,7 @@ namespace Kinect2Server.View
                     this.lastSentence.Text = sentence;
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
-                    sr.NetworkPublisher.SendJSON(json, "recognized_speech");
+                    sr.NetworkPublisher.SendString(json, "recognized_speech");
                 }
                 //Only semantic is active
                 else if (!sr.SentenceStatus && sr.SemanticsStatus)
@@ -119,7 +119,7 @@ namespace Kinect2Server.View
                     }
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
-                    sr.NetworkPublisher.SendJSON(json, "recognized_speech");
+                    sr.NetworkPublisher.SendString(json, "recognized_speech");
                 }
                 //Both sentence and semantic are active
                 if (sr.SentenceStatus && sr.SemanticsStatus)
@@ -142,7 +142,7 @@ namespace Kinect2Server.View
                     }
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
-                    sr.NetworkPublisher.SendJSON(json, "recognized_speech");
+                    sr.NetworkPublisher.SendString(json, "recognized_speech");
                 }
             }
         }

@@ -11,12 +11,16 @@ namespace Kinect2Server
     public partial class MainWindow : Window
     {
         private NetworkPublisher publisher;
+        private NetworkPublisher colorPublisher;
+        private NetworkPublisher depthPublisher;
         private NetworkSubscriber subscriber;
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
         private SpeechRecognition sr;
         private SkeletonTracking st;
         private TextToSpeech tts;
+        private ColorImages ci;
+        private DepthImage di;
 
         public MainWindow()
         {
@@ -25,23 +29,19 @@ namespace Kinect2Server
             this.publisher.Bind("33405");
             this.subscriber = new NetworkSubscriber();
             this.subscriber.Bind("33406");
+            this.colorPublisher = new NetworkPublisher();
+            this.colorPublisher.Bind("33407");
+            this.depthPublisher = new NetworkPublisher();
+            this.colorPublisher.Bind("33408");
 
-            this.initializeSR();
-            this.initializeGR();
+            this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
+            this.st = new SkeletonTracking(this.kinectSensor, this.publisher);
             this.tts = new TextToSpeech(this.subscriber);
+            this.ci = new ColorImages(this.kinectSensor, this.colorPublisher);
+            this.di = new DepthImage(this.kinectSensor, this.depthPublisher);
             
             InitializeComponent();
             WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
-        }
-
-        private void initializeSR()
-        {
-            this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
-        }
-
-        private void initializeGR()
-        {
-            this.st = new SkeletonTracking(this.kinectSensor, this.publisher);
         }
 
         private void setKinectSensor()
@@ -72,7 +72,7 @@ namespace Kinect2Server
             }
         }
 
-        public SkeletonTracking GestureRecognition
+        public SkeletonTracking SkeletonTracking
         {
             get
             {
@@ -114,5 +114,6 @@ namespace Kinect2Server
                 this.kinectSensor = null;
             }
         }
+
     }
 }

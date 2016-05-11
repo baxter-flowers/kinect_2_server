@@ -123,6 +123,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\ColorImages.cs" />
+    <Compile Include="Model\DepthImage.cs" />
+    <Compile Include="Model\NetworkResponder.cs" />
     <Compile Include="Model\NetworkSubscriber.cs" />
     <Compile Include="Model\SkeletonTracking.cs" />
     <Compile Include="Model\KinectAudioStream.cs" />
