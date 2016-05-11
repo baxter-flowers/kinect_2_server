@@ -41,7 +41,7 @@ namespace Kinect2Server.View
         public SkeletonTrackingView()
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
-            this.st = this.mw.GestureRecognition;
+            this.st = this.mw.SkeletonTracking;
 
             // get the depth (display) extents
             FrameDescription frameDescription = this.mw.KinectSensor.DepthFrameSource.FrameDescription;

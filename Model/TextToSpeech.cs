@@ -23,6 +23,7 @@ namespace Kinect2Server
             this.synthesizer.SetOutputToDefaultAudioDevice();
 
             this.speakThread = new Thread(new ThreadStart(this.Speak));
+            this.speakThread.IsBackground = true;
             this.speakThread.Start();
             this.queuedMessages = false;
         }
