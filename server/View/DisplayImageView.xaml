@@ -42,13 +42,23 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
-        <Viewbox Grid.Row="0" HorizontalAlignment="Center">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!--<Viewbox Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center">
+            <Image Source="{Binding ColorImageSource}" Stretch="UniformToFill"/>
+        </Viewbox>-->
+
+        <Viewbox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center">
             <Image Source="{Binding DepthImageSource}" Stretch="UniformToFill"/>
         </Viewbox>
+        
+        
 
-        <Button Grid.Row="1" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10 10 0 10" Click="ScreenshotButton_Click" />
-        <Button Click="switchDisplay" Height="32" Width="81" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+        <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10 10 0 10" Click="ScreenshotButton_Click" />
+        <Button Click="switchDisplay" Height="32" Width="81" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
             <StackPanel Name="stackDisplay">
                 <Image Source="..\Images\switch_off.png"/>
             </StackPanel>

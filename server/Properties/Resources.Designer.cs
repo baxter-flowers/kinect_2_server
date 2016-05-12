@@ -79,7 +79,7 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed to write screenshot to {0}.
+        ///   Looks up a localized string similar to Failed to write screenshots to {0}.
         /// </summary>
         internal static string FailedScreenshotStatusTextFormat {
             get {
@@ -142,7 +142,7 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Saved screenshot to {0}.
+        ///   Looks up a localized string similar to Saved screenshots to {0}.
         /// </summary>
         internal static string SavedScreenshotStatusTextFormat {
             get {

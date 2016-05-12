@@ -42,12 +42,12 @@ namespace Kinect2Server
             depthFrame.CopyFrameDataToArray(shorts);
 
             bytes = new Byte[size * 2];
-            int j = 0;
+            int index = 0;
             for (int i = 0; i < shorts.Length; i++)
             {
-                byte[] converted = GetBytesUShort(shorts[i]);
-                converted.CopyTo(bytes, j);
-                j += 2;
+                Byte[] converted = GetBytesUShort(shorts[i]);
+                converted.CopyTo(bytes, index);
+                index += 2;
             }
 
             this.publisher.SendByteArray(bytes);

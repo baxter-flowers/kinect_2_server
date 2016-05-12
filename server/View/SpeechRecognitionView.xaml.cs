@@ -48,7 +48,6 @@ namespace Kinect2Server.View
                 loadGrammarFile(sender, e);
                 if (this.sr.isSpeechEngineSet())
                 {
-                    //this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
                     this.sr.addSRListener(this.SpeechRecognized, this.SpeechRejected);
                 }
             }

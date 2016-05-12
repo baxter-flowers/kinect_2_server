@@ -29,7 +29,7 @@ namespace Kinect2Server.View
         private WriteableBitmap colorBitmap;
         private WriteableBitmap depthBitmap;
         private const int MapDepthToByte = 8000 / 256;
-        private byte[] depthPixels;
+        private Byte[] depthPixels;
         private FrameDescription depthFrameDescription;
         private int size;
 
@@ -40,9 +40,9 @@ namespace Kinect2Server.View
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.ci = this.mw.ColorImage;
             this.di = this.mw.DepthImage;
-            //this.ci.addCIListener(this.Reader_ColorFrameArrived);
+            this.ci.addCIListener(this.Reader_ColorFrameArrived);
             this.di.addDIListener(this.Reader_DepthFrameArrived);
-            //this.ci.ColorFrameReader.IsPaused = true;
+            this.ci.ColorFrameReader.IsPaused = true;
             this.di.DepthFrameReader.IsPaused = true;
 
             // create the colorFrameDescription from the ColorFrameSource using Bgra format
@@ -50,7 +50,7 @@ namespace Kinect2Server.View
 
             this.depthFrameDescription=this.mw.KinectSensor.DepthFrameSource.FrameDescription;
             this.size = this.depthFrameDescription.Width * this.depthFrameDescription.Height;
-            this.depthPixels = new byte[this.size];
+            this.depthPixels = new Byte[this.size];
 
             // create the bitmaps to display
             this.colorBitmap = new WriteableBitmap(colorFrameDescription.Width, colorFrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
@@ -111,14 +111,14 @@ namespace Kinect2Server.View
                 this.display = false;
                 this.setButtonOff(this.stackDisplay);
                 this.di.DepthFrameReader.IsPaused = true;
-                //this.ci.ColorFrameReader.IsPaused = true;
+                this.ci.ColorFrameReader.IsPaused = true;
             }
             else
             {
                 this.display = true;
                 this.setButtonOn(this.stackDisplay);
                 this.di.DepthFrameReader.IsPaused = false;
-                //this.ci.ColorFrameReader.IsPaused = false;
+                this.ci.ColorFrameReader.IsPaused = false;
             }
         }
 
@@ -171,11 +171,11 @@ namespace Kinect2Server.View
                         depthEncoder.Save(fs);
                     }
 
-                    //this.StatusText = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, colorPath);
+                    this.StatusText = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, myPhotos);
                 }
                 catch (IOException)
                 {
-                    //this.StatusText = string.Format(Properties.Resources.FailedScreenshotStatusTextFormat, colorPath);
+                    this.StatusText = string.Format(Properties.Resources.FailedScreenshotStatusTextFormat, myPhotos);
                 }
             }
         }
@@ -202,7 +202,7 @@ namespace Kinect2Server.View
                                 size,
                                 ColorImageFormat.Bgra);
 
-                            this.ci.colorFrameToByteArray((int)size, colorFrame);
+                            //this.ci.colorFrameToByteArray((int)size, colorFrame);
 
                             this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
 
@@ -265,7 +265,7 @@ namespace Kinect2Server.View
 
                 // To convert to a byte, we're mapping the depth value to the byte range.
                 // Values outside the reliable depth range are mapped to 0 (black).
-                this.depthPixels[i] = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
+                this.depthPixels[i] = (Byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
             }
         }
 
