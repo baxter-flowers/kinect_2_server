@@ -1,9 +1,5 @@
 ﻿using Microsoft.Kinect;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Kinect2Server
 {
@@ -20,43 +16,43 @@ namespace Kinect2Server
             this.kinect = kinect;
             this.publisher = pub;
             this.depthFrameReader = this.kinect.DepthFrameSource.OpenReader();
-            this.depthFrameReader.FrameArrived += this.Reader_DepthFrameArrived;
         }
 
-        public static Byte[] GetBytesUShort(ushort _short)
+        public DepthFrameReader DepthFrameReader
         {
-            return BitConverter.GetBytes(_short);
-        }
-
-        private void Reader_DepthFrameArrived(object sender, DepthFrameArrivedEventArgs e)
-        {
-            using (DepthFrame depthFrame = e.FrameReference.AcquireFrame())
+            get
             {
-                if (depthFrame != null)
-                {
-                    FrameDescription colorFrameDescription = depthFrame.FrameDescription;
-
-                    using (KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
-                    {
-                        int size = (colorFrameDescription.Width * colorFrameDescription.Height);
-                        shorts = new ushort[size];
-                        depthFrame.CopyFrameDataToArray(shorts);
-
-                        bytes = new Byte[size*2];
-                        int j = 0;
-                        for (int i = 0; i < shorts.Length; i++)
-                        {
-                            byte[] converted = GetBytesUShort(shorts[i]);
-                            converted.CopyTo(bytes, j);
-                            j += 2;
-                        }
-
-                        this.publisher.SendByteArray(bytes);
-                        shorts = null;
-                        bytes = null;
-                    }
-                }
+                return this.depthFrameReader;
             }
+        }
+
+        public void addDIListener(EventHandler<DepthFrameArrivedEventArgs>f)
+        {
+            this.depthFrameReader.FrameArrived += f;
+        }
+
+        public static Byte[] GetBytesUShort(ushort shortToConvert)
+        {
+            return BitConverter.GetBytes(shortToConvert);
+        }
+
+        public void depthFrameToByteArray(int size, DepthFrame depthFrame)
+        {
+            shorts = new ushort[size];
+            depthFrame.CopyFrameDataToArray(shorts);
+
+            bytes = new Byte[size * 2];
+            int j = 0;
+            for (int i = 0; i < shorts.Length; i++)
+            {
+                byte[] converted = GetBytesUShort(shorts[i]);
+                converted.CopyTo(bytes, j);
+                j += 2;
+            }
+
+            this.publisher.SendByteArray(bytes);
+            shorts = null;
+            bytes = null;
         }
     }
 }

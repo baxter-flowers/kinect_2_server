@@ -17,6 +17,7 @@ namespace Kinect2Server
         {
             this.context = new ZContext();
             this.socket = new ZSocket(this.context, ZSocketType.REP);
+            this.binded = false;
         }
 
         public void Bind(String listeningPort)

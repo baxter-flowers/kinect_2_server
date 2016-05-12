@@ -39,19 +39,19 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
         <Viewbox Grid.Row="0" HorizontalAlignment="Center">
-            <Image Source="{Binding ImageSource}" Stretch="UniformToFill"/>
+            <Image Source="{Binding DepthImageSource}" Stretch="UniformToFill"/>
         </Viewbox>
 
-        <Button Grid.Row="1" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10 10 0 10" Click="ScreenshotButton_Click" />
-
-        <StatusBar Grid.Row="2" HorizontalAlignment="Stretch" Name="statusBar" VerticalAlignment="Bottom" Background="White" Foreground="{StaticResource MediumGreyBrush}">
-            <StatusBarItem Content="{Binding StatusText}" />
-        </StatusBar>
+        <Button Grid.Row="1" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10 10 0 10" Click="ScreenshotButton_Click" />
+        <Button Click="switchDisplay" Height="32" Width="81" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+            <StackPanel Name="stackDisplay">
+                <Image Source="..\Images\switch_off.png"/>
+            </StackPanel>
+        </Button>
     </Grid>
 </UserControl>

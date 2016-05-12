@@ -24,14 +24,17 @@ namespace Kinect2Server
             this.colorFrameReader = this.kinect.ColorFrameSource.OpenReader();
         }
 
+        public ColorFrameReader ColorFrameReader
+        {
+            get
+            {
+                return this.colorFrameReader;
+            }
+        }
+
         public void addCIListener(EventHandler<ColorFrameArrivedEventArgs> f)
         {
             this.colorFrameReader.FrameArrived += f;
-        }
-
-        public void removeCIListener(EventHandler<ColorFrameArrivedEventArgs> f)
-        {
-            this.colorFrameReader.FrameArrived -= f;
         }
 
         public void colorFrameToByteArray(int size, ColorFrame colorFrame)

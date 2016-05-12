@@ -47,21 +47,24 @@ namespace Kinect2Server.View
                 setButtonOn(this.stackSR);
                 loadGrammarFile(sender, e);
                 if (this.sr.isSpeechEngineSet())
+                {
+                    //this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
                     this.sr.addSRListener(this.SpeechRecognized, this.SpeechRejected);
+                }
             }
             else if (sr.anyGrammarLoaded())
             {
                 setButtonOff(this.stackSR);
                 this.status.Text = Properties.Resources.ZzZz;
                 sr.unloadGrammars();
-                this.sr.removeSRListener(this.SpeechRecognized, this.SpeechRejected);
+                this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
             }
             else
             {
                 setButtonOn(this.stackSR);
                 this.status.Text = Properties.Resources.GoOn;
-                this.sr.addSRListener(this.SpeechRecognized, this.SpeechRejected);
                 sr.loadGrammar();
+                this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
             }
         }
 

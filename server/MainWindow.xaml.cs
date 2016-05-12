@@ -33,8 +33,8 @@ namespace Kinect2Server
             this.subscriber.Bind("33406");
             this.colorPublisher = new NetworkPublisher();
             this.colorPublisher.Bind("33407");
-            /*this.depthPublisher = new NetworkPublisher();
-            this.depthPublisher.Bind("33408");*/
+            this.depthPublisher = new NetworkPublisher();
+            this.depthPublisher.Bind("33408");
             this.audioPublisher = new NetworkPublisher();
             this.audioPublisher.Bind("33409");
 
@@ -42,7 +42,7 @@ namespace Kinect2Server
             this.st = new SkeletonTracking(this.kinectSensor, this.publisher);
             this.tts = new TextToSpeech(this.subscriber);
             this.ci = new ColorImage(this.kinectSensor, this.colorPublisher);
-            //this.di = new DepthImage(this.kinectSensor, this.depthPublisher);
+            this.di = new DepthImage(this.kinectSensor, this.depthPublisher);
             this.ab = new AudioFrame(this.kinectSensor, this.audioPublisher);
             
             InitializeComponent();
@@ -106,6 +106,14 @@ namespace Kinect2Server
             get
             {
                 return this.ci;
+            }
+        }
+
+        public DepthImage DepthImage
+        {
+            get
+            {
+                return this.di;
             }
         }
 

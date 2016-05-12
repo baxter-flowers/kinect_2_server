@@ -44,9 +44,12 @@ namespace Kinect2Server
             this.bodyFrameReader.FrameArrived += f1;
         }
 
-        public void removeSTListener(EventHandler<BodyFrameArrivedEventArgs> f1)
+        public BodyFrameReader BodyFrameReader
         {
-            this.bodyFrameReader.FrameArrived -= f1;
+            get
+            {
+                return this.bodyFrameReader;
+            }
         }
 
         public Body[] Bodies

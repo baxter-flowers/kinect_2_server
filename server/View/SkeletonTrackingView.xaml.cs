@@ -42,6 +42,8 @@ namespace Kinect2Server.View
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.st = this.mw.SkeletonTracking;
+            this.st.addSTListener(this.Reader_FrameArrived);
+            this.st.BodyFrameReader.IsPaused = true;
 
             // get the depth (display) extents
             FrameDescription frameDescription = this.mw.KinectSensor.DepthFrameSource.FrameDescription;
@@ -120,13 +122,13 @@ namespace Kinect2Server.View
         {
             if (!grStatus)
             {
-                this.st.addSTListener(this.Reader_FrameArrived);
+                this.st.BodyFrameReader.IsPaused = false;
                 setButtonOn(this.stackGR);
                 this.grStatus = true;
             }
             else
             {
-                this.st.removeSTListener(this.Reader_FrameArrived);
+                this.st.BodyFrameReader.IsPaused = true;
                 setButtonOff(this.stackGR);
                 this.grStatus = false;
             }
@@ -195,9 +197,6 @@ namespace Kinect2Server.View
 
         private void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
-            if (!this.grStatus)
-                return;
-
             bool dataReceived = false;
 
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())

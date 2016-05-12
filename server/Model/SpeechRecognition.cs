@@ -133,26 +133,7 @@ namespace Kinect2Server
             this.speechEngine.RecognizeAsyncStop();
         }
 
-        private void setKinectSensor()
-        {
-            // Only one sensor is supported
-            this.kinectSensor = KinectSensor.GetDefault();
-
-            if (this.kinectSensor != null)
-            {
-                // open the sensor
-                this.kinectSensor.Open();
-
-                // grab the audio stream
-                IReadOnlyList<AudioBeam> audioBeamList = this.kinectSensor.AudioSource.AudioBeams;
-                System.IO.Stream audioStream = audioBeamList[0].OpenInputStream();
-
-                // create the convert stream
-                this.convertStream = new KinectAudioStream(audioStream);
-
-            }
-        }
-
+        
         public void createGrammar(String fileLocation, String fileName)
         {
             this.fileLocation = fileLocation;
@@ -222,10 +203,12 @@ namespace Kinect2Server
             this.speechEngine.SpeechRecognitionRejected += f2;
         }
 
-        public void removeSRListener(EventHandler<SpeechRecognizedEventArgs> f1, EventHandler<SpeechRecognitionRejectedEventArgs> f2)
+        public SpeechRecognitionEngine SpeechRecognitionEngine
         {
-            this.speechEngine.SpeechRecognized -= f1;
-            this.speechEngine.SpeechRecognitionRejected -= f2;
+            get
+            {
+                return this.speechEngine;
+            }
         }
 
         public void setCurrentLanguage(string grammarText)
