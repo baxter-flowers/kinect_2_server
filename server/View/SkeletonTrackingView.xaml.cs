@@ -111,22 +111,22 @@ namespace Kinect2Server.View
             InitializeComponent();
         }
 
-        private void switchGR(object sender, RoutedEventArgs e)
+        private void switchST(object sender, RoutedEventArgs e)
         {
-            this.switchGestureRecognition(sender, e);
+            this.switchSkeletonTracking(sender, e);
         }
 
-        private void switchGestureRecognition(object sender, RoutedEventArgs e)
+        private void switchSkeletonTracking(object sender, RoutedEventArgs e)
         {
             if (!grStatus)
             {
-                this.st.addGRListener(this.Reader_FrameArrived);
+                this.st.addSTListener(this.Reader_FrameArrived);
                 setButtonOn(this.stackGR);
                 this.grStatus = true;
             }
             else
             {
-                this.st.removeGRListener(this.Reader_FrameArrived);
+                this.st.removeSTListener(this.Reader_FrameArrived);
                 setButtonOff(this.stackGR);
                 this.grStatus = false;
             }

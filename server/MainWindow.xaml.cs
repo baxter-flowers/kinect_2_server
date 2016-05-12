@@ -20,7 +20,7 @@ namespace Kinect2Server
         private SpeechRecognition sr;
         private SkeletonTracking st;
         private TextToSpeech tts;
-        private ColorImages ci;
+        private ColorImage ci;
         private DepthImage di;
         private AudioFrame ab;
 
@@ -33,16 +33,16 @@ namespace Kinect2Server
             this.subscriber.Bind("33406");
             this.colorPublisher = new NetworkPublisher();
             this.colorPublisher.Bind("33407");
-            this.depthPublisher = new NetworkPublisher();
-            this.depthPublisher.Bind("33408");
+            /*this.depthPublisher = new NetworkPublisher();
+            this.depthPublisher.Bind("33408");*/
             this.audioPublisher = new NetworkPublisher();
             this.audioPublisher.Bind("33409");
 
             this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
             this.st = new SkeletonTracking(this.kinectSensor, this.publisher);
             this.tts = new TextToSpeech(this.subscriber);
-            this.ci = new ColorImages(this.kinectSensor, this.colorPublisher);
-            this.di = new DepthImage(this.kinectSensor, this.depthPublisher);
+            this.ci = new ColorImage(this.kinectSensor, this.colorPublisher);
+            //this.di = new DepthImage(this.kinectSensor, this.depthPublisher);
             this.ab = new AudioFrame(this.kinectSensor, this.audioPublisher);
             
             InitializeComponent();
@@ -98,6 +98,14 @@ namespace Kinect2Server
             get
             {
                 return this.tts;
+            }
+        }
+
+        public ColorImage ColorImage
+        {
+            get
+            {
+                return this.ci;
             }
         }
 

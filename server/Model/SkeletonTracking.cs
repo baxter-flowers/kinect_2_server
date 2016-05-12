@@ -39,12 +39,12 @@ namespace Kinect2Server
             this.filter.Init(smoothingParam, smoothingParam, smoothingParam);
         }
 
-        public void addGRListener(EventHandler<BodyFrameArrivedEventArgs> f1)
+        public void addSTListener(EventHandler<BodyFrameArrivedEventArgs> f1)
         {
             this.bodyFrameReader.FrameArrived += f1;
         }
 
-        public void removeGRListener(EventHandler<BodyFrameArrivedEventArgs> f1)
+        public void removeSTListener(EventHandler<BodyFrameArrivedEventArgs> f1)
         {
             this.bodyFrameReader.FrameArrived -= f1;
         }
