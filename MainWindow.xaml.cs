@@ -13,6 +13,7 @@ namespace Kinect2Server
         private NetworkPublisher publisher;
         private NetworkPublisher colorPublisher;
         private NetworkPublisher depthPublisher;
+        private NetworkPublisher audioPublisher;
         private NetworkSubscriber subscriber;
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
@@ -21,6 +22,7 @@ namespace Kinect2Server
         private TextToSpeech tts;
         private ColorImages ci;
         private DepthImage di;
+        private AudioFrame ab;
 
         public MainWindow()
         {
@@ -32,13 +34,16 @@ namespace Kinect2Server
             this.colorPublisher = new NetworkPublisher();
             this.colorPublisher.Bind("33407");
             this.depthPublisher = new NetworkPublisher();
-            this.colorPublisher.Bind("33408");
+            this.depthPublisher.Bind("33408");
+            this.audioPublisher = new NetworkPublisher();
+            this.audioPublisher.Bind("33409");
 
             this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
             this.st = new SkeletonTracking(this.kinectSensor, this.publisher);
             this.tts = new TextToSpeech(this.subscriber);
             this.ci = new ColorImages(this.kinectSensor, this.colorPublisher);
             this.di = new DepthImage(this.kinectSensor, this.depthPublisher);
+            this.ab = new AudioFrame(this.kinectSensor, this.audioPublisher);
             
             InitializeComponent();
             WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;

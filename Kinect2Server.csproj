@@ -123,6 +123,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\AudioFrame.cs" />
     <Compile Include="Model\ColorImages.cs" />
     <Compile Include="Model\DepthImage.cs" />
     <Compile Include="Model\NetworkResponder.cs" />

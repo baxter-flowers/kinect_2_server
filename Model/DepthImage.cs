@@ -23,6 +23,11 @@ namespace Kinect2Server
             this.depthFrameReader.FrameArrived += this.Reader_DepthFrameArrived;
         }
 
+        public static Byte[] GetBytesUShort(ushort _short)
+        {
+            return BitConverter.GetBytes(_short);
+        }
+
         private void Reader_DepthFrameArrived(object sender, DepthFrameArrivedEventArgs e)
         {
             using (DepthFrame depthFrame = e.FrameReference.AcquireFrame())
@@ -30,19 +35,22 @@ namespace Kinect2Server
                 if (depthFrame != null)
                 {
                     FrameDescription colorFrameDescription = depthFrame.FrameDescription;
+
                     using (KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
                     {
                         int size = (colorFrameDescription.Width * colorFrameDescription.Height);
                         shorts = new ushort[size];
-
                         depthFrame.CopyFrameDataToArray(shorts);
+
                         bytes = new Byte[size*2];
                         int j = 0;
                         for (int i = 0; i < shorts.Length; i++)
                         {
-                            bytes[j] = (Byte)shorts[i];
+                            byte[] converted = GetBytesUShort(shorts[i]);
+                            converted.CopyTo(bytes, j);
                             j += 2;
                         }
+
                         this.publisher.SendByteArray(bytes);
                         shorts = null;
                         bytes = null;
