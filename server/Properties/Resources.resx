@@ -144,6 +144,9 @@
   <data name="RunningStatusText" xml:space="preserve">
     <value>Running</value>
   </data>
+  <data name="SavedScreenshotStatusTextFormat" xml:space="preserve">
+    <value>Saved screenshot to {0}</value>
+  </data>
   <data name="SensorNotAvailableStatusText" xml:space="preserve">
     <value>Kinect not available!</value>
   </data>

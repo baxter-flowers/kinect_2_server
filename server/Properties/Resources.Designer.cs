@@ -142,6 +142,15 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Saved screenshot to {0}.
+        /// </summary>
+        internal static string SavedScreenshotStatusTextFormat {
+            get {
+                return ResourceManager.GetString("SavedScreenshotStatusTextFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Kinect not available!.
         /// </summary>
         internal static string SensorNotAvailableStatusText {
