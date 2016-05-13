@@ -49,7 +49,6 @@ namespace Kinect2Server
                 converted.CopyTo(bytes, index);
                 index += 2;
             }
-
             this.publisher.SendByteArray(bytes);
             shorts = null;
             bytes = null;

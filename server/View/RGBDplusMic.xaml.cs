@@ -122,11 +122,11 @@ namespace Kinect2Server.View
         {
             if (this.colorBitmap != null && this.depthBitmap != null)
             {
-                // create a png bitmap encoder which knows how to save a .png file
-                BitmapEncoder colorEncoder = new PngBitmapEncoder();
+                // create a png bitmap & a jpg encoder
+                BitmapEncoder colorEncoder = new JpegBitmapEncoder();
                 BitmapEncoder depthEncoder = new PngBitmapEncoder();
 
-                // create frame from the writable bitmap and add to encoder
+                // create frames from the writable bitmaps and add to encoders
                 colorEncoder.Frames.Add(BitmapFrame.Create(this.colorBitmap));
                 depthEncoder.Frames.Add(BitmapFrame.Create(this.depthBitmap));
 
@@ -134,10 +134,10 @@ namespace Kinect2Server.View
 
                 string myPhotos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
 
-                string colorPath = System.IO.Path.Combine(myPhotos, "KinectScreenshot-Color-" + time + ".png");
+                string colorPath = System.IO.Path.Combine(myPhotos, "KinectScreenshot-Color-" + time + ".jpeg");
                 string depthPath = System.IO.Path.Combine(myPhotos, "KinectScreenshot-Depth-" + time + ".png");
 
-                // write the new file to disk
+                // write the new files to disk
                 try
                 {
                     // FileStream is IDisposable
@@ -146,6 +146,7 @@ namespace Kinect2Server.View
                         colorEncoder.Save(fs);
                     }
 
+                    // FileStream is IDisposable
                     using (FileStream fs = new FileStream(depthPath, FileMode.Create))
                     {
                         depthEncoder.Save(fs);
