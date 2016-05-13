@@ -36,7 +36,7 @@ namespace Kinect2Server
             return BitConverter.GetBytes(shortToConvert);
         }
 
-        public void depthFrameToByteArray(int size, DepthFrame depthFrame)
+        public void SendDepthFrame(int size, DepthFrame depthFrame)
         {
             shorts = new ushort[size];
             depthFrame.CopyFrameDataToArray(shorts);

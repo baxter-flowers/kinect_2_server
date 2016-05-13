@@ -19,12 +19,19 @@ using System.Windows.Shapes;
 
 namespace Kinect2Server.View
 {
+    public enum Mode
+    {
+        Color,
+        Depth
+    }
+
     public partial class ColorImageView : UserControl
     {
         private MainWindow mw;
         private ColorImage ci;
         private DepthImage di;
         private Boolean display;
+        private Mode mode;
 
         private WriteableBitmap colorBitmap;
         private WriteableBitmap depthBitmap;
@@ -32,8 +39,6 @@ namespace Kinect2Server.View
         private Byte[] depthPixels;
         private FrameDescription depthFrameDescription;
         private int size;
-
-        private string statusText;
 
         public ColorImageView()
         {
@@ -44,7 +49,8 @@ namespace Kinect2Server.View
             this.di.addDIListener(this.Reader_DepthFrameArrived);
             this.ci.ColorFrameReader.IsPaused = true;
             this.di.DepthFrameReader.IsPaused = true;
-
+            this.mode = Mode.Color;
+            
             // create the colorFrameDescription from the ColorFrameSource using Bgra format
             FrameDescription colorFrameDescription = this.mw.KinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
 
@@ -60,48 +66,10 @@ namespace Kinect2Server.View
             this.DataContext = this;
 
             this.display = false;
-
+            
             InitializeComponent();
-        }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public string StatusText
-        {
-            get
-            {
-                return this.statusText;
-            }
-
-            set
-            {
-                if (this.statusText != value)
-                {
-                    this.statusText = value;
-
-                    // notify any bound elements that the text has changed
-                    if (this.PropertyChanged != null)
-                    {
-                        this.PropertyChanged(this, new PropertyChangedEventArgs("StatusText"));
-                    }
-                }
-            }
-        }
-
-        public ImageSource ColorImageSource
-        {
-            get
-            {
-                return this.colorBitmap;
-            }
-        }
-
-        public ImageSource DepthImageSource
-        {
-            get
-            {
-                return this.depthBitmap;
-            }
+            this.statusBarItem.Content = "Image display off";
         }
 
         private void switchDisplay(object sender, RoutedEventArgs e)
@@ -112,6 +80,7 @@ namespace Kinect2Server.View
                 this.setButtonOff(this.stackDisplay);
                 this.di.DepthFrameReader.IsPaused = true;
                 this.ci.ColorFrameReader.IsPaused = true;
+                this.statusBarItem.Content = "Image display off";
             }
             else
             {
@@ -119,7 +88,18 @@ namespace Kinect2Server.View
                 this.setButtonOn(this.stackDisplay);
                 this.di.DepthFrameReader.IsPaused = false;
                 this.ci.ColorFrameReader.IsPaused = false;
+                this.statusBarItem.Content = "Running";
             }
+        }
+
+        private void Color_Click(object sender, RoutedEventArgs e)
+        {
+            this.mode = Mode.Color;
+        }
+
+        private void Depth_Click(object sender, RoutedEventArgs e)
+        {
+            this.mode = Mode.Depth;
         }
 
         private void setButtonOff(StackPanel stack)
@@ -150,7 +130,7 @@ namespace Kinect2Server.View
                 colorEncoder.Frames.Add(BitmapFrame.Create(this.colorBitmap));
                 depthEncoder.Frames.Add(BitmapFrame.Create(this.depthBitmap));
 
-                string time = System.DateTime.Now.ToString("hh'-'mm'-'ss", CultureInfo.CurrentUICulture.DateTimeFormat);
+                string time = DateTime.Now.ToString("dd'-'MMM'-'HH'-'mm'-'ss", CultureInfo.CurrentUICulture.DateTimeFormat);
 
                 string myPhotos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
 
@@ -171,11 +151,11 @@ namespace Kinect2Server.View
                         depthEncoder.Save(fs);
                     }
 
-                    this.StatusText = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, myPhotos);
+                    this.statusBarItem.Content = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, myPhotos);
                 }
                 catch (IOException)
                 {
-                    this.StatusText = string.Format(Properties.Resources.FailedScreenshotStatusTextFormat, myPhotos);
+                    this.statusBarItem.Content = string.Format(Properties.Resources.FailedScreenshotStatusTextFormat, myPhotos);
                 }
             }
         }
@@ -202,12 +182,13 @@ namespace Kinect2Server.View
                                 size,
                                 ColorImageFormat.Bgra);
 
-                            //this.ci.colorFrameToByteArray((int)size, colorFrame);
-
-                            this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
-
+                            //this.ci.SendColorFrame((int)size/2, colorFrame);
+                            if (this.mode == Mode.Color)
+                            {
+                                this.camera.Source = this.colorBitmap;
+                                this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
+                            }
                         }
-
                         this.colorBitmap.Unlock();
                     }
                 }
@@ -234,7 +215,7 @@ namespace Kinect2Server.View
                             // we are setting maxDepth to the extreme potential depth threshold
                             ushort maxDepth = ushort.MaxValue;
 
-                            this.di.depthFrameToByteArray(this.size, depthFrame);
+                            //this.di.SendDepthFrame(this.size, depthFrame);
 
                             // If you wish to filter by reliable depth distance, uncomment the following line:
                             //// maxDepth = depthFrame.DepthMaxReliableDistance
@@ -246,8 +227,9 @@ namespace Kinect2Server.View
                 }
             }
 
-            if (depthFrameProcessed)
+            if (depthFrameProcessed && this.mode==Mode.Depth)
             {
+                this.camera.Source=this.depthBitmap;
                 this.RenderDepthPixels();
             }
         }

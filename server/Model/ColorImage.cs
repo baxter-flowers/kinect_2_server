@@ -37,9 +37,9 @@ namespace Kinect2Server
             this.colorFrameReader.FrameArrived += f;
         }
 
-        public void colorFrameToByteArray(int size, ColorFrame colorFrame)
+        public void SendColorFrame(int size, ColorFrame colorFrame)
         {
-            bytes = new Byte[size/2];
+            bytes = new Byte[size];
             colorFrame.CopyRawFrameDataToArray(bytes);
             this.publisher.SendByteArray(bytes);
             bytes = null;

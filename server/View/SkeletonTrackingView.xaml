@@ -6,12 +6,12 @@
     <Grid>
         <Grid Margin="0 80 10 0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
         
             <Viewbox Grid.Row="0" HorizontalAlignment="Center">
-                <Image Source="{Binding ImageSource}" Stretch="UniformToFill" />
+                <Image Source="{Binding ImageSource}" Stretch="Fill" />
             </Viewbox>
 
         </Grid>

@@ -2,7 +2,7 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      Width="Auto" Height="Auto">
+      >
 
     <UserControl.Resources>
         <SolidColorBrush x:Key="MediumGreyBrush" Color="#ff6e6e6e" />
@@ -41,27 +41,30 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-        </Grid.ColumnDefinitions>
 
-        <!--<Viewbox Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center">
-            <Image Source="{Binding ColorImageSource}" Stretch="UniformToFill"/>
-        </Viewbox>-->
-
-        <Viewbox Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center">
-            <Image Source="{Binding DepthImageSource}" Stretch="UniformToFill"/>
-        </Viewbox>
+        <Image Width="Auto" Height="Auto" Name="camera" Grid.Row="0" HorizontalAlignment="Center"/>
         
         
 
-        <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10 10 0 10" Click="ScreenshotButton_Click" />
-        <Button Click="switchDisplay" Height="32" Width="81" Grid.Row="1" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
+        <Button Grid.Row="1" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10 10 0 10" Click="ScreenshotButton_Click" />
+        <Button Click="switchDisplay" Height="32" Width="81" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
             <StackPanel Name="stackDisplay">
                 <Image Source="..\Images\switch_off.png"/>
             </StackPanel>
         </Button>
+        
+        <StatusBar Grid.Row="2" HorizontalAlignment="Right" Name="statusBar" VerticalAlignment="Bottom" Background="White"
+                    Foreground="{StaticResource MediumGreyBrush}">
+            <StatusBarItem Name="statusBarItem" />
+        </StatusBar>
+
+        <Grid Grid.Row="0" Style="{StaticResource GridButtonsStyle}">
+            <StackPanel Style="{StaticResource StackPanelButtonsStyle}">
+                <Button Content="Color" Style="{StaticResource ButtonStyle}" Click="Color_Click" />
+                <Button Content="Depth" Style="{StaticResource ButtonStyle}" Click="Depth_Click" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>
