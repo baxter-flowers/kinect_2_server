@@ -3,7 +3,8 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
       xmlns:customName="xctk"
-      Width="Auto" Height="Auto">
+      Width="Auto" Height="Auto"
+      x:Name="yolo">
 
     <Grid>
         <Grid Margin="0,-154,0,153.6">

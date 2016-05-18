@@ -26,8 +26,6 @@ namespace Kinect2Server.View
             InitializeComponent();
         }
 
-
-
         // Turn off or on the speech recognition 
         private void switchSR(object sender, RoutedEventArgs e)
         {
@@ -48,10 +46,6 @@ namespace Kinect2Server.View
             {
                 setButtonOn(this.stackSR);
                 loadGrammarFile(sender, e);
-                if (this.sr.isSpeechEngineSet())
-                {
-                    this.sr.addSRListener(this.SpeechRecognized, this.SpeechRejected);
-                }
             }
             else if (sr.anyGrammarLoaded())
             {
@@ -96,8 +90,9 @@ namespace Kinect2Server.View
                 string sentence = e.Result.Text;
 
                 //Only sentence is active
-                if(sr.SentenceStatus && !sr.SemanticsStatus){
-                    //Fill the dictinnary
+                if(sr.SentenceStatus && !sr.SemanticsStatus)
+                {
+                    //Fill the dictionary
                     contentSentence.Add(sentence);
                     dico.Add("sentence", contentSentence);
                     //Update the text
@@ -218,6 +213,10 @@ namespace Kinect2Server.View
                 //Add as much languages as you want provided that the recognized is installed on the PC
                 //You also have to add a Ressource in the file Ressources.resx for exemple :
                 //        - Call your ressource German and fill it with "Current language : German"
+            }
+            if (this.sr.isSpeechEngineSet())
+            {
+                this.sr.addSRListener(this.SpeechRecognized, this.SpeechRejected);
             }
         }
 

@@ -139,7 +139,7 @@ namespace Kinect2Server
 
             if (sr.isSpeechEngineSet())
             {
-                sr.disableSpeechEngine();
+                this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
             }
 
             if (null != this.kinectSensor)

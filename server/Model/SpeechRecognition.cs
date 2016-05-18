@@ -128,17 +128,22 @@ namespace Kinect2Server
             }
         }
 
-        public void disableSpeechEngine()
+        public Stream GenerateStreamFromString(string s)
         {
-            this.speechEngine.RecognizeAsyncStop();
+            MemoryStream stream = new MemoryStream();
+            StreamWriter writer = new StreamWriter(stream);
+            writer.Write(s);
+            writer.Flush();
+            stream.Position = 0;
+            return stream;
         }
 
         
-        public void createGrammar(String fileLocation, String fileName)
+        public void createGrammar(String fileLocation, String fileName, String raw_grammar = null)
         {
             this.fileLocation = fileLocation;
             this.fileName = fileName;
-            RecognizerInfo ri = TryGetKinectRecognizer();
+            RecognizerInfo ri = TryGetKinectRecognizer(raw_grammar);
 
             if (speechEngine != null)
             {
@@ -150,12 +155,22 @@ namespace Kinect2Server
                 this.speechEngine = new SpeechRecognitionEngine(ri.Id);
 
                 // Create a grammar from grammar definition XML file.
-                using (var memoryStream = File.OpenRead(fileLocation))
+                if (raw_grammar != null)
                 {
-                    this.grammar = new Grammar(memoryStream);
-                    this.speechEngine.LoadGrammar(this.grammar);
+                    using (var memoryStream = this.GenerateStreamFromString(raw_grammar))
+                    {
+                        this.grammar = new Grammar(memoryStream);
+                    }
                 }
-
+                else
+                {
+                    using (var memoryStream = File.OpenRead(fileLocation))
+                    {
+                        this.grammar = new Grammar(memoryStream);
+                        this.speechEngine.LoadGrammar(this.grammar);
+                    }
+                }
+                
 
                 // let the convertStream know speech is going active
                 this.convertStream.SpeechActive = true;
@@ -167,7 +182,7 @@ namespace Kinect2Server
             }
         }
 
-        private RecognizerInfo TryGetKinectRecognizer()
+        private RecognizerInfo TryGetKinectRecognizer(String raw_grammar = null)
         {
             IEnumerable<RecognizerInfo> recognizers;
 

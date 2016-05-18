@@ -1,4 +1,5 @@
-﻿using Microsoft.Speech.Recognition;
+﻿using Kinect2Server.View;
+using Microsoft.Speech.Recognition;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Globalization;
@@ -19,6 +20,7 @@ namespace Kinect2Server
         private TextToSpeech tts;
         private SpeechRecognition sr;
         private SkeletonTracking st;
+        private SpeechRecognitionView srv;
 
         public NetworkResponder()
         {
@@ -29,6 +31,7 @@ namespace Kinect2Server
             this.context = new ZContext();
             this.socket = new ZSocket(this.context, ZSocketType.REP);
             this.binded = false;
+            this.srv = new SpeechRecognitionView();
             this.json_thread = new Thread(new ThreadStart(this.ReceiveJson));
             this.json_thread.IsBackground = true;
             this.json_thread.Start();
@@ -70,13 +73,16 @@ namespace Kinect2Server
                             if (this.sr.isSpeechEngineSet())
                             {
                                 if ((Boolean)on)
+                                {
                                     this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
+                                }
+                                    
                                 else
                                     this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
                             }
                             else if (grammar!=null)
                             {
-                                //this.sr.createGrammar(null, null, grammar);
+                                this.sr.createGrammar(null, null, grammar);
                             }
                             else
                             {
@@ -85,7 +91,11 @@ namespace Kinect2Server
                         }
                         Nullable<double> confidence = (Nullable<double>)parameters["speech_recognition"]["confidence"];
                         if (confidence != null && confidence != this.sr.ConfidenceThreshold)
+                        {
                             this.sr.ConfidenceThreshold = (double)confidence;
+                            //this.srv.confidenceSelector.Value = (int)this.sr.ConfidenceThreshold * 100;
+                        }
+                            
                         else if (confidence == this.sr.ConfidenceThreshold)
                             reply += " Confidence is the same";
                         Nullable<Boolean> sentence = (Nullable<Boolean>)parameters["speech_recognition"]["sentence"];
