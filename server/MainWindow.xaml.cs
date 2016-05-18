@@ -15,6 +15,7 @@ namespace Kinect2Server
         private NetworkPublisher depthPublisher;
         private NetworkPublisher audioPublisher;
         private NetworkSubscriber subscriber;
+        private NetworkResponder responder;
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
         private SpeechRecognition sr;
@@ -35,15 +36,17 @@ namespace Kinect2Server
             this.colorPublisher.Bind("33407");
             this.depthPublisher = new NetworkPublisher();
             this.depthPublisher.Bind("33408");
-            /*this.audioPublisher = new NetworkPublisher();
-            this.audioPublisher.Bind("33409");*/
+            this.audioPublisher = new NetworkPublisher();
+            this.audioPublisher.Bind("33409");
+            this.responder = new NetworkResponder();
+            this.responder.Bind("33410");
 
             this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
             this.st = new SkeletonTracking(this.kinectSensor, this.publisher);
             this.tts = new TextToSpeech(this.subscriber);
             this.ci = new ColorImage(this.kinectSensor, this.colorPublisher);
             this.di = new DepthImage(this.kinectSensor, this.depthPublisher);
-            //this.ab = new AudioFrame(this.kinectSensor, this.audioPublisher);
+            this.ab = new AudioFrame(this.kinectSensor, this.audioPublisher);
             
             InitializeComponent();
             

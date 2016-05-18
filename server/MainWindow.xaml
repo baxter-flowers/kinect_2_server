@@ -70,7 +70,7 @@
                     <TextBlock Grid.Row="0" Margin="0 0 -1 0" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontFamily="Segoe UI" FontSize="18">RGB-D Images</TextBlock>
                     <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5" />
 
-                    <View:ColorImageView Grid.Row="1"/>
+                    <View:RGBDplusMic Grid.Row="1"/>
                 </Grid>
             </TabItem>
         </TabControl>

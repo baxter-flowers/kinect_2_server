@@ -136,8 +136,8 @@
     <Compile Include="Model\NetworkPublisher.cs" />
     <Compile Include="Model\SpeechRecognition.cs" />
     <Compile Include="Model\TextToSpeech.cs" />
-    <Compile Include="View\DisplayImageView.xaml.cs">
-      <DependentUpon>DisplayImageView.xaml</DependentUpon>
+    <Compile Include="View\RGBDplusMic.xaml.cs">
+      <DependentUpon>RGBDplusMic.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SkeletonTrackingView.xaml.cs">
       <DependentUpon>SkeletonTrackingView.xaml</DependentUpon>
@@ -161,7 +161,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="View\DisplayImageView.xaml">
+    <Page Include="View\RGBDplusMic.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

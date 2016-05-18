@@ -25,7 +25,7 @@ namespace Kinect2Server.View
         Depth
     }
 
-    public partial class RGBDplusMic : UserControl
+    public partial class ColorImageView : UserControl
     {
         private MainWindow mw;
         private ColorImage ci;
@@ -40,7 +40,7 @@ namespace Kinect2Server.View
         private FrameDescription depthFrameDescription;
         private int size;
 
-        public RGBDplusMic()
+        public ColorImageView()
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.ci = this.mw.ColorImage;
@@ -69,7 +69,7 @@ namespace Kinect2Server.View
             
             InitializeComponent();
 
-            this.statusBarItem.Content = "Image display off";
+            this.status.Text = "RGB-D and Microphone streaming off";
         }
 
         private void switchDisplay(object sender, RoutedEventArgs e)
@@ -80,7 +80,7 @@ namespace Kinect2Server.View
                 this.setButtonOff(this.stackDisplay);
                 this.di.DepthFrameReader.IsPaused = true;
                 this.ci.ColorFrameReader.IsPaused = true;
-                this.statusBarItem.Content = "Image display off";
+                this.status.Text = "RGB-D and Microphone streaming off";
             }
             else
             {
@@ -88,7 +88,7 @@ namespace Kinect2Server.View
                 this.setButtonOn(this.stackDisplay);
                 this.di.DepthFrameReader.IsPaused = false;
                 this.ci.ColorFrameReader.IsPaused = false;
-                this.statusBarItem.Content = "Running";
+                this.status.Text = "Currently streaming RGB-D and Microphone";
             }
         }
 
@@ -122,11 +122,11 @@ namespace Kinect2Server.View
         {
             if (this.colorBitmap != null && this.depthBitmap != null)
             {
-                // create a png bitmap & a jpg encoder
-                BitmapEncoder colorEncoder = new JpegBitmapEncoder();
+                // create a png bitmap encoder which knows how to save a .png file
+                BitmapEncoder colorEncoder = new PngBitmapEncoder();
                 BitmapEncoder depthEncoder = new PngBitmapEncoder();
 
-                // create frames from the writable bitmaps and add to encoders
+                // create frame from the writable bitmap and add to encoder
                 colorEncoder.Frames.Add(BitmapFrame.Create(this.colorBitmap));
                 depthEncoder.Frames.Add(BitmapFrame.Create(this.depthBitmap));
 
@@ -134,10 +134,10 @@ namespace Kinect2Server.View
 
                 string myPhotos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
 
-                string colorPath = System.IO.Path.Combine(myPhotos, "KinectScreenshot-Color-" + time + ".jpeg");
+                string colorPath = System.IO.Path.Combine(myPhotos, "KinectScreenshot-Color-" + time + ".png");
                 string depthPath = System.IO.Path.Combine(myPhotos, "KinectScreenshot-Depth-" + time + ".png");
 
-                // write the new files to disk
+                // write the new file to disk
                 try
                 {
                     // FileStream is IDisposable
@@ -146,17 +146,16 @@ namespace Kinect2Server.View
                         colorEncoder.Save(fs);
                     }
 
-                    // FileStream is IDisposable
                     using (FileStream fs = new FileStream(depthPath, FileMode.Create))
                     {
                         depthEncoder.Save(fs);
                     }
 
-                    this.statusBarItem.Content = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, myPhotos);
+                    this.status.Text = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, myPhotos);
                 }
                 catch (IOException)
                 {
-                    this.statusBarItem.Content = string.Format(Properties.Resources.FailedScreenshotStatusTextFormat, myPhotos);
+                    this.status.Text = string.Format(Properties.Resources.FailedScreenshotStatusTextFormat, myPhotos);
                 }
             }
         }
@@ -183,7 +182,7 @@ namespace Kinect2Server.View
                                 size,
                                 ColorImageFormat.Bgra);
 
-                            //this.ci.SendColorFrame((int)size/2, colorFrame);
+                            this.ci.SendColorFrame((int)size/2, colorFrame);
                             if (this.mode == Mode.Color)
                             {
                                 this.camera.Source = this.colorBitmap;
@@ -216,7 +215,7 @@ namespace Kinect2Server.View
                             // we are setting maxDepth to the extreme potential depth threshold
                             ushort maxDepth = ushort.MaxValue;
 
-                            //this.di.SendDepthFrame(this.size, depthFrame);
+                            this.di.SendDepthFrame(this.size, depthFrame);
 
                             // If you wish to filter by reliable depth distance, uncomment the following line:
                             //// maxDepth = depthFrame.DepthMaxReliableDistance
