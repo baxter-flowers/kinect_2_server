@@ -38,8 +38,6 @@ namespace Kinect2Server
             this.depthPublisher.Bind("33408");
             this.audioPublisher = new NetworkPublisher();
             this.audioPublisher.Bind("33409");
-            this.responder = new NetworkResponder();
-            this.responder.Bind("33410");
 
             this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
             this.st = new SkeletonTracking(this.kinectSensor, this.publisher);
@@ -47,6 +45,10 @@ namespace Kinect2Server
             this.ci = new ColorImage(this.kinectSensor, this.colorPublisher);
             this.di = new DepthImage(this.kinectSensor, this.depthPublisher);
             this.ab = new AudioFrame(this.kinectSensor, this.audioPublisher);
+
+            // Need to create the responder after models because it's using instance of sr, st & tts
+            this.responder = new NetworkResponder();
+            this.responder.Bind("33410");
             
             InitializeComponent();
             
@@ -117,6 +119,14 @@ namespace Kinect2Server
             get
             {
                 return this.di;
+            }
+        }
+
+        public NetworkResponder NetworkResponder
+        {
+            get
+            {
+                return this.responder;
             }
         }
 

@@ -15,12 +15,14 @@ namespace Kinect2Server.View
     {
 
         private SpeechRecognition sr;
+        private NetworkResponder responder;
         private MainWindow mw;
 
         public SpeechRecognitionView()
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.sr = this.mw.SpeechRecogniton;
+            this.responder = this.mw.NetworkResponder;
             InitializeComponent();
         }
 

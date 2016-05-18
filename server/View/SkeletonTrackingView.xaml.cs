@@ -17,6 +17,7 @@ namespace Kinect2Server.View
     {
         private MainWindow mw;
         private SkeletonTracking st;
+        private NetworkResponder responder;
         private const double HandSize = 30;
         private const double JointThickness = 3;
         private const double ClipBoundsThickness = 10;
@@ -44,6 +45,7 @@ namespace Kinect2Server.View
             this.st = this.mw.SkeletonTracking;
             this.st.addSTListener(this.Reader_FrameArrived);
             this.st.BodyFrameReader.IsPaused = true;
+            this.responder = this.mw.NetworkResponder;
 
             // get the depth (display) extents
             FrameDescription frameDescription = this.mw.KinectSensor.DepthFrameSource.FrameDescription;
