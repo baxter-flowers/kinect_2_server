@@ -2,10 +2,10 @@
 """
 Created on Tue May 17 15:47:54 2016
 
-@author: perception
+@author: Lucas Gueze
 """
 
-from changing_params import *
+from kinect2.params import *
 
 p = Params()
 
