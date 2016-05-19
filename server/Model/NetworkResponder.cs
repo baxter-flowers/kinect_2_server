@@ -68,7 +68,7 @@ namespace Kinect2Server
                     {
                         ZFrame frame = this.socket.ReceiveFrame();
                         status = frame.ReadString();
-                        String reply="Reply:";
+                        String reply="";
 
                         JObject parameters = JObject.Parse(status);
                         //Speech Recognition
@@ -175,8 +175,17 @@ namespace Kinect2Server
                                 this.tts.Culture = new CultureInfo("fr-FR");
                         }
 
-                        ZFrame perfect = new ZFrame("Parameters updated");
-                        this.socket.Send(perfect);
+                        if (reply.Equals(""))
+                        {
+                            ZFrame perfect = new ZFrame("Parameters updated");
+                            this.socket.Send(perfect);
+                        }
+                        else
+                        {
+                            ZFrame message = new ZFrame(reply);
+                            this.socket.Send(message);
+                        }
+                        
                     }
                     catch (ZException e)
                     {
