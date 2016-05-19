@@ -74,6 +74,9 @@ class Params:
                 self.speech_recognition['sentence'] = False
             elif param == 'semantic':
                 self.speech_recognition['semantic'] = False
+                
+    def change_grammar(self,grammar):
+        self.speech_recognition['grammar'] = grammar
     
     def change_confidence_or_smoothing(self, param, value):
         '''
@@ -82,7 +85,7 @@ class Params:
         :param value  Type: float (from 0.0 to 1.0)
                             Represent the new value of the confidence or the smoothing
         '''
-        if value>=0.0 and value<=1.0:
+        if float(value)>=0.0 and float(value)<=1.0:
             if param == 'conf':
                 self.speech_recognition['confidence'] = value
             elif param == 'smoo':
@@ -96,7 +99,19 @@ class Params:
         if status == 'on':
             self.text_to_speech['queue'] = True
         elif status == 'off':
-            self.tex_to_speech['queue'] = False
+            self.text_to_speech['queue'] = False
+    
+    def change_gender(self,gender):
+        if gender == 'male':
+            self.text_to_speech['gender'] = 'male'
+        elif gender =='female':
+            self.text_to_speech['gender'] = 'female'
+            
+    def change_language(self,language):
+        if language == 'english':
+            self.text_to_speech['language'] = 'english'
+        elif language == 'french':
+            self.text_to_speech['language'] = 'french'
     
     def send_json(self):
         data ={'speech_recognition' : self.speech_recognition, 'skeleton_tracking' : self.skeleton_tracking, 'text_to_speech' : self.text_to_speech}
@@ -104,4 +119,4 @@ class Params:
         print('Sending: ', json_str)
         self.socket.send(json_str)
         message = self.socket.recv()
-        print('Received: ')
+        print('Received: ', message)
