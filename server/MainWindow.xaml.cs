@@ -1,4 +1,5 @@
-﻿using Microsoft.Kinect;
+﻿using Kinect2Server.View;
+using Microsoft.Kinect;
 using Microsoft.Speech.Recognition;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,7 @@ namespace Kinect2Server
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
         private SpeechRecognition sr;
+        private SpeechRecognitionView srv;
         private SkeletonTracking st;
         private TextToSpeech tts;
         private ColorImage ci;
@@ -46,12 +48,14 @@ namespace Kinect2Server
             this.di = new DepthImage(this.kinectSensor, this.depthPublisher);
             this.ab = new AudioFrame(this.kinectSensor, this.audioPublisher);
 
-            // Need to create the responder after models because it's using instance of sr, st & tts
-            this.responder = new NetworkResponder();
-            this.responder.Bind("33410");
             
             InitializeComponent();
-            
+
+            this.srv = this.srview;
+
+            // Need to create the responder after models because it's using instance of sr, srw, st & tts
+            this.responder = new NetworkResponder();
+            this.responder.Bind("33410");
         }
 
         private void setKinectSensor()
@@ -130,16 +134,19 @@ namespace Kinect2Server
             }
         }
 
+        public SpeechRecognitionView SpeechRecognitionView
+        {
+            get
+            {
+                return this.srv;
+            }
+        }
+
         private void WindowClosing(object sender, CancelEventArgs e)
         {
             if (null != this.convertStream)
             {
                 this.convertStream.SpeechActive = false;
-            }
-
-            if (sr.isSpeechEngineSet())
-            {
-                this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
             }
 
             if (null != this.kinectSensor)

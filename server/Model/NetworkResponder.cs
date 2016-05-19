@@ -31,8 +31,9 @@ namespace Kinect2Server
             this.context = new ZContext();
             this.socket = new ZSocket(this.context, ZSocketType.REP);
             this.binded = false;
-            this.srv = new SpeechRecognitionView();
+            this.srv = this.mw.SpeechRecognitionView;
             this.json_thread = new Thread(new ThreadStart(this.ReceiveJson));
+            this.json_thread.SetApartmentState(ApartmentState.STA);
             this.json_thread.IsBackground = true;
             this.json_thread.Start();
         }
@@ -66,34 +67,44 @@ namespace Kinect2Server
 
                         //Params time bitches
                         JObject parameters = JObject.Parse(status);
+                        Boolean hasChanged = false;
                         //Speech Recognition
                         Nullable<Boolean> on = (Nullable<Boolean>)parameters["speech_recognition"]["on"];
+                        String grammarFile = (String)parameters["speech_recognition"]["file_name"];
                         String grammar = (String)parameters["speech_recognition"]["grammar"];
                         if (on!=null) {
                             if (this.sr.isSpeechEngineSet())
                             {
-                                if ((Boolean)on)
+                                if ((Boolean)on && !hasChanged)
                                 {
                                     this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
+                                    this.RefreshStatus("speech",true);
+                                    hasChanged = true;
+                                }
+
+                                else
+                                {
+                                    this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
+                                    this.RefreshStatus("speech", false);
                                 }
                                     
-                                else
-                                    this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
                             }
-                            else if (grammar!=null)
-                            {
-                                this.sr.createGrammar(null, null, grammar);
-                            }
-                            else
+                            else if (grammar==null)
                             {
                                 reply += " Speech engine not set, you have to send grammar file.";
                             }
                         }
+                        if (grammar != null)
+                        {
+                            this.sr.createGrammar(null, null, grammar);
+                            this.srv.addlist();
+                            this.sr.FileName = grammarFile;
+                         }
                         Nullable<double> confidence = (Nullable<double>)parameters["speech_recognition"]["confidence"];
                         if (confidence != null && confidence != this.sr.ConfidenceThreshold)
                         {
                             this.sr.ConfidenceThreshold = (double)confidence;
-                            //this.srv.confidenceSelector.Value = (int)this.sr.ConfidenceThreshold * 100;
+                            this.srv.confidenceSelector.Value = (int)this.sr.ConfidenceThreshold * 100;
                         }
                             
                         else if (confidence == this.sr.ConfidenceThreshold)
@@ -155,6 +166,21 @@ namespace Kinect2Server
                 else
                 {
                     status = "Cannot receive message: Not connected";
+                }
+            }
+        }
+
+        private void RefreshStatus(String feature,Boolean state)
+        {
+            if (feature.Equals("speech"))
+            {
+                if (state)
+                {
+                    this.srv.setButtonOn(this.srv.stackSR);
+                }
+                else
+                {
+                    this.srv.setButtonOff(this.srv.stackSR);
                 }
             }
         }

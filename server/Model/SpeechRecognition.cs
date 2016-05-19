@@ -128,6 +128,18 @@ namespace Kinect2Server
             }
         }
 
+        public String FileName
+        {
+            get
+            {
+                return this.fileName;
+            }
+            set
+            {
+                this.fileName = value;
+            }
+        }
+
         public Stream GenerateStreamFromString(string s)
         {
             MemoryStream stream = new MemoryStream();
@@ -167,10 +179,9 @@ namespace Kinect2Server
                     using (var memoryStream = File.OpenRead(fileLocation))
                     {
                         this.grammar = new Grammar(memoryStream);
-                        this.speechEngine.LoadGrammar(this.grammar);
                     }
                 }
-                
+                this.speechEngine.LoadGrammar(this.grammar);
 
                 // let the convertStream know speech is going active
                 this.convertStream.SpeechActive = true;
@@ -197,7 +208,10 @@ namespace Kinect2Server
                 return null;
             }
 
-            setGrammarText(fileLocation);
+            if (raw_grammar == null)
+                setGrammarText(fileLocation);
+            else
+                this.grammarText = raw_grammar;
             setCurrentLanguage(grammarText);
 
             foreach (RecognizerInfo recognizer in recognizers)

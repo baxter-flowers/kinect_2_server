@@ -1,10 +1,7 @@
 ﻿<Window x:Class="Kinect2Server.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:winforms="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
         xmlns:View="clr-namespace:Kinect2Server.View"
-        xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
-        xmlns:customName="xctk"
         Title="Multimodal Kinect Platform" Height="825" Width="800"
         Closing="WindowClosing"
         WindowStartupLocation="CenterScreen"
@@ -23,7 +20,7 @@
                     <TextBlock Grid.Row="0" Margin="0 0 -1 0" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontFamily="Segoe UI" FontSize="18">Speech Recognition</TextBlock>
                     <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5" />
                     
-                    <View:SpeechRecognitionView Grid.Row="2"/>
+                    <View:SpeechRecognitionView Grid.Row="2" x:Name="srview"/>
 
                 </Grid>
             </TabItem>
