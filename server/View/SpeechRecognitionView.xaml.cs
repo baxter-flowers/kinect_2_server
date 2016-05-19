@@ -83,6 +83,7 @@ namespace Kinect2Server.View
                 stack.Children.Clear();
                 img.Source = new BitmapImage(new Uri(@"../Images/switch_on.png", UriKind.Relative));
                 stack.Children.Add(img);
+                this.browse.IsEnabled = true;
             });
             
         }
@@ -104,7 +105,11 @@ namespace Kinect2Server.View
                     contentSentence.Add(sentence);
                     dico.Add("sentence", contentSentence);
                     //Update the text
-                    this.lastSentence.Text = sentence;
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        this.lastSentence.Text = sentence;
+                    });
+                    
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
                     sr.NetworkPublisher.SendString(json, "recognized_speech");
@@ -119,11 +124,15 @@ namespace Kinect2Server.View
                     }
                     dico.Add("semantic", contentSemantic);
                     //Update the text
-                    this.lastSemantics.Text = "";
-                    for (int i = 0; i < contentSemantic.Count; i++)
+                    this.Dispatcher.Invoke(() =>
                     {
-                        this.lastSemantics.Text += contentSemantic[i];
-                    }
+                        this.lastSemantics.Text = "";
+                        for (int i = 0; i < contentSemantic.Count; i++)
+                        {
+                            this.lastSemantics.Text += contentSemantic[i];
+                        }
+                    });
+                    
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
                     sr.NetworkPublisher.SendString(json, "recognized_speech");
@@ -140,13 +149,17 @@ namespace Kinect2Server.View
                     }
                     dico.Add("semantic", contentSemantic);
                     //Update the text
-                    this.lastSentence.Text = sentence;
-                    this.lastSemantics.Text = "";
-                    for (int i = 1; i < contentSemantic.Count; i++)
+                    this.Dispatcher.Invoke(() =>
                     {
-                        this.lastSemantics.Text += contentSemantic[i];
+                        this.lastSentence.Text = sentence;
+                        this.lastSemantics.Text = "";
+                        for (int i = 1; i < contentSemantic.Count; i++)
+                        {
+                            this.lastSemantics.Text += contentSemantic[i];
 
-                    }
+                        }
+                    });
+                    
                     //Send the dictionary
                     string json = JsonConvert.SerializeObject(dico);
                     sr.NetworkPublisher.SendString(json, "recognized_speech");
@@ -158,9 +171,17 @@ namespace Kinect2Server.View
         {
             if (sr.SentenceStatus)
             {
-                this.lastSentence.Text = Properties.Resources.NoWordsRecognized;
+                this.Dispatcher.Invoke(() =>
+                {
+                    this.lastSentence.Text = Properties.Resources.NoWordsRecognized;
+                });
+                
             }
-            this.lastSemantics.Text = "";
+            this.Dispatcher.Invoke(() =>
+            {
+                this.lastSemantics.Text = "";
+            });
+            
         }
 
 
@@ -188,8 +209,6 @@ namespace Kinect2Server.View
                 // Create a new grammar for the file loaded
                 sr.createGrammar(dlg.FileName, dlg.SafeFileName);
 
-                //Enable the Browse button
-                this.browse.IsEnabled = true;
                 setButtonOn(this.stackSR);
 
             }

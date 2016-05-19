@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Tue May 17 15:12:43 2016
+Created on Thu May 19 15:21:18 2016
 
 @author: perception
 """
@@ -11,12 +11,13 @@ import sys
 
 class Params:
     
-    speech_recognition={}
-    skeleton_tracking={}
-    text_to_speech={}
-    port = None
-    context = None
-    socket = None
+    _port = None
+    _context = None
+    _socket = None
+    speech = None
+    skeleton = None
+    tts = None
+    
     
     def __init__(self):
         if len(sys.argv) > 1:
@@ -28,95 +29,103 @@ class Params:
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.REQ)
         self.socket.connect('tcp://BAXTERFLOWERS.local:%s' %port)
-    
-    def change_status(self, feature, status, param='start'):
-        '''
-        :param feature: Type: str (sr for Speech Recognition, st for Skeleton Tracking)
-                        Represent the feature we want to change a setting
-        :param status:  Type: str (on,off)
-                        
-        :param param:   Type: str (start, sentence, semantic)
-                        Represent the param we want to change : start: starting or stoping the feature
-                                                                sentence: displaying or not the full sentence of the recognized speech
-                                                                semantic: displaying or not the semantic of the recognized speech
-        '''
-        if status == 'on':
-            self.set_status_on(feature,param)
-        elif status == 'off':
-            self.set_status_off(feature,param)
-    
-    def set_status_on(self, feature, param):
-        '''
-        :param feature: See :param feature of change_status
-        :param param: See :param param of change_status
-        '''
-        if feature == 'st':
-            self.skeleton_tracking['on'] = True
-        elif feature == 'sr':
-            if param == 'start':
-                self.speech_recognition['on'] = True
-            elif param == 'sentence':
-                self.speech_recognition['sentence'] = True
-            elif param == 'semantic':
-                self.speech_recognition['semantic'] = True
-    
-    def set_status_off(self, feature, param):
-        '''
-        :param feature: See :param feature of change_status
-        :param param: See :param param of change_status
-        '''
-        if feature == 'st':
-            self.skeleton_tracking['on'] = False
-        elif feature == 'sr':
-            if param == 'start':
-               self.speech_recognition['on'] = False
-            elif param == 'sentence':
-                self.speech_recognition['sentence'] = False
-            elif param == 'semantic':
-                self.speech_recognition['semantic'] = False
-                
-    def change_grammar(self,grammar):
-        self.speech_recognition['grammar'] = grammar
-    
-    def change_confidence_or_smoothing(self, param, value):
-        '''
-        :param param: Type: str (conf for Confidence of Speech Recognition, smoo for Smoothing of Skeleton Tracking)
-                            Represente the param we want to change the value
-        :param value  Type: float (from 0.0 to 1.0)
-                            Represent the new value of the confidence or the smoothing
-        '''
-        if float(value)>=0.0 and float(value)<=1.0:
-            if param == 'conf':
-                self.speech_recognition['confidence'] = value
-            elif param == 'smoo':
-                self.skeleton_tracking['smoothing'] = value
-                
-    def change_queue(self, status):
-        '''
-        :param status:  Type: str (on or off)
-                        Enable of disable queued messages for Text To Speech
-        '''
-        if status == 'on':
-            self.text_to_speech['queue'] = True
-        elif status == 'off':
-            self.text_to_speech['queue'] = False
-    
-    def change_gender(self,gender):
-        if gender == 'male':
-            self.text_to_speech['gender'] = 'male'
-        elif gender =='female':
-            self.text_to_speech['gender'] = 'female'
-            
-    def change_language(self,language):
-        if language == 'english':
-            self.text_to_speech['language'] = 'english'
-        elif language == 'french':
-            self.text_to_speech['language'] = 'french'
-    
-    def send_json(self):
-        data ={'speech_recognition' : self.speech_recognition, 'skeleton_tracking' : self.skeleton_tracking, 'text_to_speech' : self.text_to_speech}
+        
+    def send_params(self):
+        data = {'speech_recognition' : self.speech.get_array(), 'skeleton_tracking' : self.skeleton.get_array(), 'text_to_speech' : self.tts.get_array()}
         json_str = json.dumps(data)
         print('Sending: ', json_str)
         self.socket.send(json_str)
         message = self.socket.recv()
         print('Received: ', message)
+    
+    class SpeechParams:
+        
+        _speech_recognition= {}
+        
+        def __init__(self):
+            pass
+        
+        def get_array(self):
+            return self._speech_recognition
+        
+        def on(self):
+            self._speech_recognition['on'] = True
+        
+        def off(self):
+            self._speech_recognition['on'] = False
+            
+        def sentence_on(self):
+            self._speech_recognition['sentence'] = True
+            
+        def sentence_off(self):
+            self._speech_recognition['sentence'] = False
+        
+        def semantic_on(self):
+            self._speech_recognition['semantic'] = True
+            
+        def semantic_off(self):
+            self._speech_recognition['semantic'] = False
+            
+        def set_confidence(self, value):
+            if float(value)>=0.0 and float(value)<=1.0:
+                self._speech_recognition['confidence'] = value
+        
+        def set_grammar(self, grammar, grammarfile = None):
+            self._speech_recognition['grammar'] = grammar
+            if grammarFile is not None:
+                self._speech_recognition['fileName'] = grammarFile
+    
+    class SkeletonParams:
+        
+        _skeleton_tracking= {}
+        
+        def __init__(self):
+            pass
+            
+        def get_array(self):
+            return self._skeleton_tracking
+         
+        def on(self):
+             self._skeleton_tracking['on'] = True
+             
+        def off(self):
+             self._skeleton_tracking['on'] = False
+        
+        def set_smoothing(self, value):
+            if float(value)>=0.0 and float(value)<=1.0:
+                self._skeleton_tracking['smoothing'] = value
+         
+    class TextToSpeechParams:
+        
+        _text_to_speech= {}
+        
+        def __init__(self):
+            pass
+            
+        def get_array(self):
+            return self._text_to_speech
+        
+        def queue_on(self):
+            self._text_to_speech['queue'] = True
+            
+        def queue_off(self):
+            self._text_to_speech['queue'] = False
+        
+        def set_gender(self, gender):
+            '''
+            gender : str, values can be 'male' or 'female'
+            '''
+            if gender == 'male':
+                self._text_to_speech['gender'] = 'male'
+            elif gender =='female':
+                self._text_to_speech['gender'] = 'female'
+        
+        def set_language(self, language):
+            '''
+            language : str, values can be 'english' or 'french'
+            '''
+            if language == 'english':
+                self._text_to_speech['language'] = 'english'
+            elif language == 'french':
+                self._text_to_speech['language'] = 'french'
+        

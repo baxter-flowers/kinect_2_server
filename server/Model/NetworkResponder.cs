@@ -15,12 +15,15 @@ namespace Kinect2Server
         private ZContext context;
         private ZSocket socket;
         private Boolean binded;
+        private Boolean isOn = false;
         private Thread json_thread;
         private MainWindow mw;
         private TextToSpeech tts;
         private SpeechRecognition sr;
         private SkeletonTracking st;
         private SpeechRecognitionView srv;
+        private SkeletonTrackingView stv;
+        private TextToSpeechView ttsv;
 
         public NetworkResponder()
         {
@@ -32,6 +35,8 @@ namespace Kinect2Server
             this.socket = new ZSocket(this.context, ZSocketType.REP);
             this.binded = false;
             this.srv = this.mw.SpeechRecognitionView;
+            this.stv = this.mw.SkeletonTrackingView;
+            this.ttsv = this.mw.TextToSpeechView;
             this.json_thread = new Thread(new ThreadStart(this.ReceiveJson));
             this.json_thread.SetApartmentState(ApartmentState.STA);
             this.json_thread.IsBackground = true;
@@ -65,9 +70,7 @@ namespace Kinect2Server
                         status = frame.ReadString();
                         String reply="Reply:";
 
-                        //Params time bitches
                         JObject parameters = JObject.Parse(status);
-                        Boolean hasChanged = false;
                         //Speech Recognition
                         Nullable<Boolean> on = (Nullable<Boolean>)parameters["speech_recognition"]["on"];
                         String grammarFile = (String)parameters["speech_recognition"]["file_name"];
@@ -75,17 +78,18 @@ namespace Kinect2Server
                         if (on!=null) {
                             if (this.sr.isSpeechEngineSet())
                             {
-                                if ((Boolean)on && !hasChanged)
+                                if ((Boolean)on && !this.isOn)
                                 {
                                     this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
-                                    this.RefreshStatus("speech",true);
-                                    hasChanged = true;
+                                    this.RefreshStatus("speech", "on/off", true);
+                                    this.isOn = true;
                                 }
 
                                 else
                                 {
                                     this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
-                                    this.RefreshStatus("speech", false);
+                                    this.RefreshStatus("speech", "on/off", false);
+                                    this.isOn = false;
                                 }
                                     
                             }
@@ -99,6 +103,11 @@ namespace Kinect2Server
                             this.sr.createGrammar(null, null, grammar);
                             this.srv.addlist();
                             this.sr.FileName = grammarFile;
+                            if ((Boolean)on)
+                            {
+                                this.RefreshStatus("speech", "on/off", true);
+                                this.isOn = true;
+                            }
                          }
                         Nullable<double> confidence = (Nullable<double>)parameters["speech_recognition"]["confidence"];
                         if (confidence != null && confidence != this.sr.ConfidenceThreshold)
@@ -111,22 +120,37 @@ namespace Kinect2Server
                             reply += " Confidence is the same";
                         Nullable<Boolean> sentence = (Nullable<Boolean>)parameters["speech_recognition"]["sentence"];
                         if (sentence != null)
+                        {
                             this.sr.SentenceStatus = (Boolean)sentence;
+                            this.RefreshStatus("speech", "sentence", (Boolean)sentence);
+                        }
                         Nullable<Boolean> semantic = (Nullable<Boolean>)parameters["speech_recognition"]["semantic"];
                         if (semantic != null)
+                        {
                             this.sr.SemanticsStatus = (Boolean)semantic;
+                            this.RefreshStatus("speech", "semantic", (Boolean)semantic);
+                        }
                         //Skeleton Tracking
                         on = (Nullable<Boolean>)parameters["skeleton_tracking"]["on"];
                         if (on != null)
                         {
                             if ((Boolean)on)
+                            {
                                 this.st.BodyFrameReader.IsPaused = false;
+                                this.RefreshStatus("skeleton", "on/off", true);
+                            }
                             else
+                            {
                                 this.st.BodyFrameReader.IsPaused = true;
+                                this.RefreshStatus("skeleton", "on/off", false);
+                            }
                         }
                         Nullable<float> smoothing = (Nullable<float>)parameters["skeleton_tracking"]["smoothing"];
-                        if (smoothing != null && smoothing != this.st.SmoothingParam)
+                        if (smoothing != null && smoothing != this.st.SmoothingParam) 
+                        {
                             this.st.SmoothingParam = (float)smoothing;
+                            this.stv.refreshSmoothingSelectorValue();
+                        }
                         else if (smoothing == this.st.SmoothingParam)
                             reply += " Smoothing is the same";
                         //Text To Speech
@@ -170,19 +194,45 @@ namespace Kinect2Server
             }
         }
 
-        private void RefreshStatus(String feature,Boolean state)
+        private void RefreshStatus(String feature,String param, Boolean state)
         {
             if (feature.Equals("speech"))
             {
                 if (state)
                 {
-                    this.srv.setButtonOn(this.srv.stackSR);
+                    if (param.Equals("on/off"))
+                        this.srv.setButtonOn(this.srv.stackSR);
+                    else if (param.Equals("sentence"))
+                        this.srv.setButtonOn(this.srv.stackSen);
+                    else if (param.Equals("semantic"))
+                        this.srv.setButtonOn(this.srv.stackSem);
                 }
                 else
                 {
-                    this.srv.setButtonOff(this.srv.stackSR);
+                    if (param.Equals("on/off"))
+                        this.srv.setButtonOff(this.srv.stackSR);
+                    else if (param.Equals("sentence"))
+                        this.srv.setButtonOff(this.srv.stackSen);
+                    else if (param.Equals("semantic"))
+                        this.srv.setButtonOff(this.srv.stackSem);
                 }
             }
+            else if(feature.Equals("skeleton"))
+            {
+                if (state)
+                    this.stv.setButtonOn(this.stv.stackGR);
+                else
+                    this.stv.setButtonOff(this.stv.stackGR);
+            }
+            else if (feature.Equals("tts"))
+            {
+                if (state)
+                    this.ttsv.setButtonOn(this.ttsv.stackQueue);
+                else
+                    this.ttsv.setButtonOff(this.ttsv.stackQueue);
+            }
+
+
         }
 
         public void Close()

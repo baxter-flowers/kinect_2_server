@@ -8,15 +8,18 @@ Created on Tue May 17 15:47:54 2016
 from kinect2.params import *
 
 p = Params()
+p.speech=p.SpeechParams()
+p.skeleton=p.SkeletonParams()
+p.tts=p.TextToSpeechParams()
 
 while True:
     var = raw_input('> ')
     args = var.split()
     #Speech recognition
     if var == 'sr_start':
-        p.change_status('sr','on')
+        p.speech.on()
     elif var == 'sr_stop':
-        p.change_status('sr','off')
+        p.speech.off()
     elif len(args)>1 and args[0] =='sr_grammar':
         grammarFile = args[1]
         grammar = open(grammarFile)
@@ -24,35 +27,35 @@ while True:
         p.change_grammar(grammar)
     elif len(args)>1 and args[0] =='sr_confidence':
         value = args[1]
-        p.change_confidence_or_smoothing('conf',value)
+        p.speech.set_confidence(value)
     elif var == 'sr_sen_on':
-        p.change_status('sr','on','sentence')
+        p.speech.sentence_on()
     elif var == 'sr_sen_off':
-        p.change_status('sr','off','sentence')
+        p.speech.sentence_off()
     elif var == 'sr_sem_on':
-        p.change_status('sr','on','semantic')
+        p.speech.semantic_on()
     elif var == 'sr_sem_off':
-        p.change_status('sr','off','semantic')
+        p.speech.semantic_off()
     #Skeleton tracking
     elif var == 'st_start':
-        p.change_status('st','on')
+        p.skeleton.on()
     elif var == 'st_stop':
-        p.change_status('st','off')
+        p.skeleton.off()
     elif len(args)>1 and args[0] =='st_smoothing':
         value = args[1]
-        p.change_confidence_or_smoothing('smoo',value)
+        p.skeleton.set_smoothing(value)
     #Text to speech
     elif var == 'tts_queue_on':
-        p.change_queue('on')
+        p.tts.queue_on
     elif var == 'tts_queue_off':
-        p.change_queue('off')
+        p.tts.queue_off
     elif var =='tts_gender_male':
-        p.change_gender('male')
+        p.tts.set_gender('male')
     elif var == 'tts_gender_female':
-        p.change_gender('female')
+        p.tts.set_gender('female')
     elif var == 'tts_language_english':
-        p.change_language('english')
+        p.tts.set_language('english')
     elif var == 'tts_language_french':
-        p.change_language('french')
-    elif var == 'send_json':
-        p.send_json()
+        p.tss.set_language('french')
+    elif var == 'send_params':
+        p.send_params()

@@ -141,7 +141,7 @@ namespace Kinect2Server.View
         {
             if (this.smoothingSelector.Value == null)
             {
-                this.smoothingSelector.Value = (double)this.st.SmoothingParam;
+                this.refreshSmoothingSelectorValue();
             }
             else
             {
@@ -149,20 +149,34 @@ namespace Kinect2Server.View
             }
         }
 
-        private void setButtonOff(StackPanel stack)
+        public void refreshSmoothingSelectorValue()
         {
-            Image img = new Image();
-            stack.Children.Clear();
-            img.Source = new BitmapImage(new Uri(@"../Images/switch_off.png", UriKind.Relative));
-            stack.Children.Add(img);
+            Dispatcher.Invoke(() =>
+            {
+                this.smoothingSelector.Value = (double)Math.Round(this.st.SmoothingParam,1);
+            });
         }
 
-        private void setButtonOn(StackPanel stack)
+        public void setButtonOff(StackPanel stack)
         {
-            Image img = new Image();
-            stack.Children.Clear();
-            img.Source = new BitmapImage(new Uri(@"../Images/switch_on.png", UriKind.Relative));
-            stack.Children.Add(img);
+            Dispatcher.Invoke(() =>
+            {
+                Image img = new Image();
+                stack.Children.Clear();
+                img.Source = new BitmapImage(new Uri(@"../Images/switch_off.png", UriKind.Relative));
+                stack.Children.Add(img);
+            });
+        }
+
+        public void setButtonOn(StackPanel stack)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                Image img = new Image();
+                stack.Children.Clear();
+                img.Source = new BitmapImage(new Uri(@"../Images/switch_on.png", UriKind.Relative));
+                stack.Children.Add(img);
+            });
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

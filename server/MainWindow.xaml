@@ -36,7 +36,7 @@
                     <TextBlock Grid.Row="0" Margin="0 0 -1 0" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontFamily="Segoe UI" FontSize="18">Skeleton Tracking</TextBlock>
                     <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5" />
                     
-                    <View:SkeletonTrackingView Grid.Row="1"/>
+                    <View:SkeletonTrackingView Grid.Row="1" x:Name="stview"/>
                 </Grid>
             </TabItem>
 
@@ -51,7 +51,7 @@
                     <TextBlock Grid.Row="0" Margin="0 0 -1 0" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontFamily="Segoe UI" FontSize="18">Text To Speech</TextBlock>
                     <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5" />
 
-                    <View:TextToSpeechView Grid.Row="1"/>
+                    <View:TextToSpeechView Grid.Row="1" x:Name="ttsview"/>
 
                 </Grid>
             </TabItem>
@@ -67,7 +67,7 @@
                     <TextBlock Grid.Row="0" Margin="0 0 -1 0" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontFamily="Segoe UI" FontSize="18">RGB-D Images</TextBlock>
                     <Image Grid.Row="0" Source="Images\Status.png" Stretch="None" HorizontalAlignment="Center" Margin="0 0 0 5" />
 
-                    <View:RGBDplusMic Grid.Row="1"/>
+                    <View:RGBDplusMic Grid.Row="1" x:Name="rgbdmicview"/>
                 </Grid>
             </TabItem>
         </TabControl>
