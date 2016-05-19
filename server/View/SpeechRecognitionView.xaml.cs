@@ -256,13 +256,21 @@ namespace Kinect2Server.View
         {
             if (this.confidenceSelector.Value == null)
             {
-                this.confidenceSelector.Value = (int)sr.ConfidenceThreshold*100;
+                this.refreshConfidenceSelectorValue();
             }
             else
             {
-                sr.ConfidenceThreshold = ((Double)this.confidenceSelector.Value);
+                sr.ConfidenceThreshold = (float)this.confidenceSelector.Value;
                 this.clearRecognitionText();
             }
+        }
+
+        public void refreshConfidenceSelectorValue()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.confidenceSelector.Value = (double)Math.Round(sr.ConfidenceThreshold,1);
+            });
         }
 
         private void submitListeningPort(object sender, RoutedEventArgs e)

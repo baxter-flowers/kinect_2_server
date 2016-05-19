@@ -9,44 +9,46 @@ import json
 import zmq
 import sys
 
-class Params:
+class Params(object):
     
-    _port = None
-    _context = None
-    _socket = None
     speech = None
     skeleton = None
     tts = None
     
-    
     def __init__(self):
         if len(sys.argv) > 1:
-            port = sys.argv[1]
-            int(port)
+            self._port = sys.argv[1]
+            int(self._port)
         else:
-            port='33410'
+            self._port='33410'
             
-        self.context = zmq.Context()
-        self.socket = self.context.socket(zmq.REQ)
-        self.socket.connect('tcp://BAXTERFLOWERS.local:%s' %port)
+        self._context = zmq.Context()
+        self._socket = self._context.socket(zmq.REQ)
+        self._socket.connect('tcp://BAXTERFLOWERS.local:%s' %self._port)
         
     def send_params(self):
-        data = {'speech_recognition' : self.speech.get_array(), 'skeleton_tracking' : self.skeleton.get_array(), 'text_to_speech' : self.tts.get_array()}
+        data = {'speech_recognition' : self.speech.get_params(), 'skeleton_tracking' : self.skeleton.get_params(), 'text_to_speech' : self.tts.get_params()}
         json_str = json.dumps(data)
         print('Sending: ', json_str)
-        self.socket.send(json_str)
-        message = self.socket.recv()
+        self._socket.send(json_str)
+        message = self._socket.recv()
         print('Received: ', message)
-    
-    class SpeechParams:
         
-        _speech_recognition= {}
+    def reset_params(self):
+        self.speech.set_params({})
+        self.skeleton.set_params({})
+        self.tts.set_params({})
+    
+    class SpeechParams(object):
         
         def __init__(self):
-            pass
+            self._speech_recognition = {}
         
-        def get_array(self):
+        def get_params(self):
             return self._speech_recognition
+            
+        def set_params(self,value):
+            self._speech_recognition={}
         
         def on(self):
             self._speech_recognition['on'] = True
@@ -75,15 +77,16 @@ class Params:
             if grammarFile is not None:
                 self._speech_recognition['fileName'] = grammarFile
     
-    class SkeletonParams:
-        
-        _skeleton_tracking= {}
+    class SkeletonParams(object):
         
         def __init__(self):
-            pass
-            
-        def get_array(self):
+            self._skeleton_tracking = {}
+        
+        def get_params(self):
             return self._skeleton_tracking
+            
+        def set_params(self,value):
+            self._skeleton_tracking={}
          
         def on(self):
              self._skeleton_tracking['on'] = True
@@ -92,18 +95,19 @@ class Params:
              self._skeleton_tracking['on'] = False
         
         def set_smoothing(self, value):
-            if float(value)>=0.0 and float(value)<=1.0:
+            if float(value)>=0.0 and float(value)<=0.9:
                 self._skeleton_tracking['smoothing'] = value
          
-    class TextToSpeechParams:
-        
-        _text_to_speech= {}
+    class TextToSpeechParams(object):
         
         def __init__(self):
-            pass
-            
-        def get_array(self):
+            self._text_to_speech = {}
+        
+        def get_params(self):
             return self._text_to_speech
+            
+        def set_params(self,value):
+            self._text_to_speech={}
         
         def queue_on(self):
             self._text_to_speech['queue'] = True

@@ -109,11 +109,11 @@ namespace Kinect2Server
                                 this.isOn = true;
                             }
                          }
-                        Nullable<double> confidence = (Nullable<double>)parameters["speech_recognition"]["confidence"];
+                        Nullable<float> confidence = (Nullable<float>)parameters["speech_recognition"]["confidence"];
                         if (confidence != null && confidence != this.sr.ConfidenceThreshold)
                         {
-                            this.sr.ConfidenceThreshold = (double)confidence;
-                            this.srv.confidenceSelector.Value = (int)this.sr.ConfidenceThreshold * 100;
+                            this.sr.ConfidenceThreshold = (float)confidence;
+                            this.srv.refreshConfidenceSelectorValue();
                         }
                             
                         else if (confidence == this.sr.ConfidenceThreshold)
@@ -135,15 +135,10 @@ namespace Kinect2Server
                         if (on != null)
                         {
                             if ((Boolean)on)
-                            {
                                 this.st.BodyFrameReader.IsPaused = false;
-                                this.RefreshStatus("skeleton", "on/off", true);
-                            }
                             else
-                            {
                                 this.st.BodyFrameReader.IsPaused = true;
-                                this.RefreshStatus("skeleton", "on/off", false);
-                            }
+                            this.RefreshStatus("skeleton", null, (Boolean)on);
                         }
                         Nullable<float> smoothing = (Nullable<float>)parameters["skeleton_tracking"]["smoothing"];
                         if (smoothing != null && smoothing != this.st.SmoothingParam) 
@@ -161,6 +156,7 @@ namespace Kinect2Server
                                 this.tts.QueuedMessages = true;
                             else
                                 this.tts.QueuedMessages = false;
+                            this.RefreshStatus("tts", null, (Boolean)queue);
                         }
                         String gender = (String)parameters["text_to_speech"]["gender"];
                         if (gender != null)

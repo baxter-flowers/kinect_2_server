@@ -77,8 +77,8 @@
                     </Style>
                 </Button.Style>
             </Button>
-            <xctk:IntegerUpDown Name="confidenceSelector"  Value="30" Minimum="0" Maximum="100"
-                                Increment="1" Height="20" Width="50" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left"/>
+            <xctk:DoubleUpDown Name="confidenceSelector"  Value="0.3" Minimum="0" Maximum="1"
+                                Increment="0.1" Height="20" Width="50" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left"/>
             <Button Click="submitConfidence" Content="OK" Height="20" Width="20" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Right"/>
             <Button Click="switchSem" Height="32" Width="81" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" BorderThickness="0">
                 <StackPanel Name="stackSem">

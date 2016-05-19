@@ -20,7 +20,7 @@ namespace Kinect2Server
         private String fileLocation;
         private String fileName;
         private String currentLanguage;
-        private Double confidenceThreshold = 0.30;
+        private float confidenceThreshold = 0.3f;
         private Boolean semanticsStatus;
         private Boolean sentenceStatus;
 
@@ -75,7 +75,7 @@ namespace Kinect2Server
             }
         }
 
-        public Double ConfidenceThreshold
+        public float ConfidenceThreshold
         {
             get
             {
@@ -83,7 +83,7 @@ namespace Kinect2Server
             }
             set
             {
-                this.confidenceThreshold = value / 100;
+                this.confidenceThreshold = value;
             }
         }
 

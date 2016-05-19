@@ -46,9 +46,9 @@ while True:
         p.skeleton.set_smoothing(value)
     #Text to speech
     elif var == 'tts_queue_on':
-        p.tts.queue_on
+        p.tts.queue_on()
     elif var == 'tts_queue_off':
-        p.tts.queue_off
+        p.tts.queue_off()
     elif var =='tts_gender_male':
         p.tts.set_gender('male')
     elif var == 'tts_gender_female':
@@ -59,3 +59,5 @@ while True:
         p.tss.set_language('french')
     elif var == 'send_params':
         p.send_params()
+    elif var == 'reset_params':
+        p.reset_params()
