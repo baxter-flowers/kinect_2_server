@@ -28,6 +28,7 @@ namespace Kinect2Server
         private TextToSpeech tts;
         private ColorImage ci;
         private DepthImage di;
+        private MultiSourceImage msi;
         private AudioFrame ab;
 
         public MainWindow()
@@ -50,6 +51,7 @@ namespace Kinect2Server
             this.ci = new ColorImage(this.kinectSensor, this.colorPublisher);
             this.di = new DepthImage(this.kinectSensor, this.depthPublisher);
             this.ab = new AudioFrame(this.kinectSensor, this.audioPublisher);
+            this.msi = new MultiSourceImage(this.kinectSensor, this.depthPublisher, this.colorPublisher);
 
             
             InitializeComponent();
@@ -129,6 +131,14 @@ namespace Kinect2Server
             get
             {
                 return this.di;
+            }
+        }
+
+        public MultiSourceImage MultiSourceImage
+        {
+            get
+            {
+                return this.msi;
             }
         }
 
