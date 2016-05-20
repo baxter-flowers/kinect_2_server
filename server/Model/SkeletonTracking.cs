@@ -198,9 +198,10 @@ namespace Kinect2Server
                 this.jointPoints[jointType] = new Point(depthSpacePoint.X, depthSpacePoint.Y);
 
                 this.dicoBodies[body.TrackingId] = this.dicoPos;
-                string json = JsonConvert.SerializeObject(this.dicoBodies);
-                this.NetworkPublisher.SendString(json, "skeleton");
+                
             }
+            string json = JsonConvert.SerializeObject(this.dicoBodies);
+            this.NetworkPublisher.SendString(json, "skeleton");
             return this.jointPoints;
         }
     }

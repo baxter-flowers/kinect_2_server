@@ -138,7 +138,7 @@ namespace Kinect2Server.View
                     sr.NetworkPublisher.SendString(json, "recognized_speech");
                 }
                 //Both sentence and semantic are active
-                if (sr.SentenceStatus && sr.SemanticsStatus)
+                else if (sr.SentenceStatus && sr.SemanticsStatus)
                 {
                     //Fill the dictionary
                     contentSentence.Add(sentence);

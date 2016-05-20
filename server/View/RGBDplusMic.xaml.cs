@@ -214,7 +214,7 @@ namespace Kinect2Server.View
                     // the underlying buffer
                     using (KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
                     {
-                        // verify data and write the color data to the display bitmap
+                        // verify data and write the depth data to the display bitmap
                         if (((this.size) == (depthBuffer.Size / this.depthFrameDescription.BytesPerPixel)) &&
                             (this.depthFrameDescription.Width == this.depthBitmap.PixelWidth) && (this.depthFrameDescription.Height == this.depthBitmap.PixelHeight))
                         {
@@ -238,6 +238,18 @@ namespace Kinect2Server.View
             {
                 this.camera.Source=this.depthBitmap;
                 this.RenderDepthPixels();
+            }
+        }
+
+        private void Frame_Arrived(object sender, MultiSourceFrameArrivedEventArgs e)
+        {
+            var reference = e.FrameReference.AcquireFrame();
+
+            //Depth
+            using (var depthFrame = reference.DepthFrameReference.AcquireFrame())
+            {
+                if (depthFrame == null)
+                    return;
             }
         }
 
