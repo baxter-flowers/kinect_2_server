@@ -33,29 +33,66 @@ namespace Kinect2Server.View
 
         private void Male_Checked(object sender, RoutedEventArgs e)
         {
-            this.Female.IsChecked = false;
-            this.tts.VoiceGender = VoiceGender.Male;
+            this.Male_C();
+        }
+
+        public void Male_C()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.Female.IsChecked = false;
+                this.Male.IsChecked = true;
+                this.tts.VoiceGender = VoiceGender.Male;
+            });
         }
 
         private void Female_Checked(object sender, RoutedEventArgs e)
         {
-            this.Male.IsChecked = false;
-            this.tts.VoiceGender = VoiceGender.Female;
+            this.Female_C();
+        }
+
+        public void Female_C()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.Male.IsChecked = false;
+                this.Female.IsChecked = true;
+                this.tts.VoiceGender = VoiceGender.Female;
+            });
+            
         }
 
         private void enUS_Checked(object sender, RoutedEventArgs e)
         {
-            this.frFR.IsChecked = false;
-            this.Male.IsEnabled = true;
-            this.tts.Culture = new CultureInfo("en-US");
+            this.enUS_C();
+        }
+
+        public void enUS_C()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.frFR.IsChecked = false;
+                this.enUS.IsChecked = true;
+                this.Male.IsEnabled = true;
+                this.tts.Culture = new CultureInfo("en-US");
+            });
         }
 
         private void frFR_Checked(object sender, RoutedEventArgs e)
         {
-            this.enUS.IsChecked = false;
-            this.Female.IsChecked = true;
-            this.Male.IsEnabled = false;
-            this.tts.Culture = new CultureInfo("fr-FR");
+            this.frFR_C();
+        }
+
+        public void frFR_C()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.enUS.IsChecked = false;
+                this.frFR.IsChecked = true;
+                this.Female.IsChecked = true;
+                this.Male.IsEnabled = false;
+                this.tts.Culture = new CultureInfo("fr-FR");
+            });
         }
 
         private void switchQueue(object sender, RoutedEventArgs e)

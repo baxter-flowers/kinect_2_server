@@ -70,7 +70,7 @@
             <xctk:IntegerUpDown Name="listeningPortSelector"  Value="33405" Minimum="1024" Maximum="65535"
                                 Increment="1" Height="20" Width="60" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Left"/>
             <Button Click="submitListeningPort" Content="OK" Height="20" Width="20" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right"/>
-            <Button Name="browse" Click="loadGrammarFile" Content="Browse" Width="75" Height="32" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left">
+            <Button Name="browse" Click="LoadGrammarFile" Content="Browse" Width="75" Height="32" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left">
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="IsEnabled" Value="False" />
@@ -79,13 +79,13 @@
             </Button>
             <xctk:DoubleUpDown Name="confidenceSelector"  Value="0.3" Minimum="0" Maximum="1"
                                 Increment="0.1" Height="20" Width="50" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left"/>
-            <Button Click="submitConfidence" Content="OK" Height="20" Width="20" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Right"/>
-            <Button Click="switchSem" Height="32" Width="81" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" BorderThickness="0">
+            <Button Click="SubmitConfidence" Content="OK" Height="20" Width="20" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Right"/>
+            <Button Click="SwitchSem" Height="32" Width="81" Grid.Column="1" Grid.Row="4" HorizontalAlignment="Left" BorderThickness="0">
                 <StackPanel Name="stackSem">
                     <Image Source="..\Images\switch_off.png"/>
                 </StackPanel>
             </Button>
-            <Button Click="switchSen" Height="32" Width="81" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Left" BorderThickness="0">
+            <Button Click="SwitchSen" Height="32" Width="81" Grid.Column="1" Grid.Row="5" HorizontalAlignment="Left" BorderThickness="0">
                 <StackPanel Name="stackSen">
                     <Image Source="..\Images\switch_off.png"/>
                 </StackPanel>
