@@ -7,12 +7,14 @@ Created on Thu May 19 15:21:18 2016
 
 import json
 import zmq
+from threading import RLock
 
 class SpeechParams(object):
     
     def __init__(self):
         self._speech_recognition = {}
-    
+        self._lock = RLock()
+
     def get_params(self):
         return self._speech_recognition
         
@@ -41,10 +43,10 @@ class SpeechParams(object):
         if float(value)>=0.0 and float(value)<=1.0:
             self._speech_recognition['confidence'] = value
     
-    def set_grammar(self, grammar, grammarfile = None):
+    def set_grammar(self, grammar, grammar_file = None):
         self._speech_recognition['grammar'] = grammar
-        if grammarFile is not None:
-            self._speech_recognition['fileName'] = grammarFile
+        if grammar_file is not None:
+            self._speech_recognition['fileName'] = grammar_file
 
 class SkeletonParams(object):
     
@@ -125,16 +127,24 @@ class Params(object):
         self._context = zmq.Context() if context is None else context
         self._socket = self._context.socket(zmq.REQ)
         self._socket.connect('tcp://{}:{}'.format(ip, port))
+        self._lock = RLock()
         self.speech = SpeechParams()
         self.skeleton = SkeletonParams()
         self.tts = TextToSpeechParams()
         self.rgbd_mic = RGBDMicParams()
         
+    def __enter__(self):
+        self._lock.acquire()
+    
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._lock.release()
+    
     def send_params(self):
         data = {'speech_recognition' : self.speech.get_params(), 'skeleton_tracking' : self.skeleton.get_params(), 'text_to_speech' : self.tts.get_params(), 'rgbd_mic' : self.rgbd_mic.get_params()}
         json_str = json.dumps(data)
-        self._socket.send(json_str)
-        message = self._socket.recv()
+        with self:
+            self._socket.send(json_str)
+            message = self._socket.recv()
         return message
         
     def reset_params(self):
