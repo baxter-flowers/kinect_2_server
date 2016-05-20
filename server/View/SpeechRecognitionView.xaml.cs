@@ -29,7 +29,7 @@ namespace Kinect2Server.View
         // Turn off or on the speech recognition 
         private void switchSR(object sender, RoutedEventArgs e)
         {
-            switchSpeechRecognition(sender, e);
+            SwitchSpeechRecognition(sender, e);
         }
 
         public void clearRecognitionText()
@@ -38,14 +38,14 @@ namespace Kinect2Server.View
             this.lastSentence.Text = "";
         }
 
-        private void switchSpeechRecognition(object sender, RoutedEventArgs e)
+        private void SwitchSpeechRecognition(object sender, RoutedEventArgs e)
         {
             clearRecognitionText();
 
             if (!sr.isSpeechEngineSet())
             {
                 setButtonOn(this.stackSR);
-                loadGrammarFile(sender, e);
+                LoadGrammarFile(sender, e);
             }
             else if (sr.anyGrammarLoaded())
             {
@@ -186,7 +186,7 @@ namespace Kinect2Server.View
 
 
         // Update the XML file when the user opens a file
-        private void loadGrammarFile(object sender, RoutedEventArgs e)
+        private void LoadGrammarFile(object sender, RoutedEventArgs e)
         {
             // Create OpenFileDialog
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
@@ -201,21 +201,18 @@ namespace Kinect2Server.View
             // Get the selected file path and set it in location if it is different from the actual file
             if (result == true && sr.isFileNew(dlg.FileName))
             {
-                this.currentLanguage.Text = "";
-
-                this.currentFile.Text = dlg.SafeFileName;
                 clearRecognitionText();
 
                 // Create a new grammar for the file loaded
                 sr.createGrammar(dlg.FileName, dlg.SafeFileName);
 
+                this.sr.FileName = dlg.SafeFileName;
+                this.RefreshGrammarFile();
                 setButtonOn(this.stackSR);
 
             }
             else if (result == false && !sr.isGrammarLoaded())
-            {
                 setButtonOff(this.stackSR);
-            }
 
             if (!sr.isGrammarLoaded() || sr.CurrentLanguage.Equals(""))
             {
@@ -223,28 +220,32 @@ namespace Kinect2Server.View
                 this.status.Text = Properties.Resources.BadFile;
             }
             else
-            {
                 this.status.Text = Properties.Resources.GoOn;
-            }
-
-            switch (sr.CurrentLanguage)
-            {
-                case "en-US":
-                    this.currentLanguage.Text = Properties.Resources.AmericanEnglish;
-                    break;
-
-                case "fr-FR":
-                    this.currentLanguage.Text = Properties.Resources.French;
-                    break;
-
-                //Add as much languages as you want provided that the recognized is installed on the PC
-                //You also have to add a Ressource in the file Ressources.resx for exemple :
-                //        - Call your ressource German and fill it with "Current language : German"
-            }
+            
             if (this.sr.isSpeechEngineSet())
-            {
                 this.addlist();
-            }
+        }
+
+        public void RefreshGrammarFile()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.currentFile.Text = this.sr.FileName;
+                switch (sr.CurrentLanguage)
+                {
+                    case "en-US":
+                        this.currentLanguage.Text = Properties.Resources.AmericanEnglish;
+                        break;
+
+                    case "fr-FR":
+                        this.currentLanguage.Text = Properties.Resources.French;
+                        break;
+
+                    //Add as much languages as you want provided that the recognized is installed on the PC
+                    //You also have to add a Ressource in the file Ressources.resx for exemple :
+                    //        - Call your ressource German and fill it with "Current language : German"
+                }
+            });
         }
 
         public void addlist()
@@ -252,11 +253,11 @@ namespace Kinect2Server.View
             this.sr.addSRListener(this.SpeechRecognized, this.SpeechRejected);
         }
 
-        private void submitConfidence(object sender, RoutedEventArgs e)
+        private void SubmitConfidence(object sender, RoutedEventArgs e)
         {
             if (this.confidenceSelector.Value == null)
             {
-                this.refreshConfidenceSelectorValue();
+                this.RefreshConfidenceSelectorValue();
             }
             else
             {
@@ -265,7 +266,7 @@ namespace Kinect2Server.View
             }
         }
 
-        public void refreshConfidenceSelectorValue()
+        public void RefreshConfidenceSelectorValue()
         {
             Dispatcher.Invoke(() =>
             {
@@ -283,7 +284,7 @@ namespace Kinect2Server.View
             }
         }
 
-        private void switchSem(object sender, RoutedEventArgs e)
+        private void SwitchSem(object sender, RoutedEventArgs e)
         {
             this.lastSemantics.Text = "";
             if (sr.SemanticsStatus)
@@ -300,7 +301,7 @@ namespace Kinect2Server.View
             }
         }
 
-        private void switchSen(object sender, RoutedEventArgs e)
+        private void SwitchSen(object sender, RoutedEventArgs e)
         {
             this.lastSentence.Text = "";
             if (sr.SentenceStatus)
