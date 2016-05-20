@@ -26,8 +26,6 @@ namespace Kinect2Server
         private RGBDplusMic rgbdplusmicv;
         private SkeletonTracking st;
         private TextToSpeech tts;
-        private ColorImage ci;
-        private DepthImage di;
         private MultiSourceImage msi;
         private AudioFrame ab;
 
@@ -48,8 +46,6 @@ namespace Kinect2Server
             this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
             this.st = new SkeletonTracking(this.kinectSensor, this.publisher);
             this.tts = new TextToSpeech(this.subscriber);
-            this.ci = new ColorImage(this.kinectSensor, this.colorPublisher);
-            this.di = new DepthImage(this.kinectSensor, this.depthPublisher);
             this.ab = new AudioFrame(this.kinectSensor, this.audioPublisher);
             this.msi = new MultiSourceImage(this.kinectSensor, this.depthPublisher, this.colorPublisher);
 
@@ -115,22 +111,6 @@ namespace Kinect2Server
             get
             {
                 return this.tts;
-            }
-        }
-
-        public ColorImage ColorImage
-        {
-            get
-            {
-                return this.ci;
-            }
-        }
-
-        public DepthImage DepthImage
-        {
-            get
-            {
-                return this.di;
             }
         }
 

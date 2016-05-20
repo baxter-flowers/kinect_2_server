@@ -21,8 +21,7 @@ namespace Kinect2Server
         private TextToSpeech tts;
         private SpeechRecognition sr;
         private SkeletonTracking st;
-        private ColorImage ci;
-        private DepthImage di;
+        private MultiSourceImage msi;
         private SpeechRecognitionView srv;
         private SkeletonTrackingView stv;
         private TextToSpeechView ttsv;
@@ -34,8 +33,7 @@ namespace Kinect2Server
             this.tts = this.mw.TextToSpeech;
             this.sr = this.mw.SpeechRecogniton;
             this.st = this.mw.SkeletonTracking;
-            this.di = this.mw.DepthImage;
-            this.ci = this.mw.ColorImage;
+            this.msi = this.mw.MultiSourceImage;
             this.context = new ZContext();
             this.socket = new ZSocket(this.context, ZSocketType.REP);
             this.binded = false;
@@ -250,17 +248,14 @@ namespace Kinect2Server
             {
                 if ((Boolean)on) 
                 {
-                    this.di.DepthFrameReader.IsPaused = false;
-                    this.ci.ColorFrameReader.IsPaused = false;
+                    this.msi.MultiSourceFrameReader.IsPaused = false;
                 }
 
                 else
                 {
-                    this.di.DepthFrameReader.IsPaused = true;
-                    this.ci.ColorFrameReader.IsPaused = true;
+                    this.msi.MultiSourceFrameReader.IsPaused = true;
                 }
-                    
-                this.RefreshStatus("skeleton", null, (Boolean)on);
+                this.RefreshStatus("rgbd_mic", null, (Boolean)on);
             }
 
             return reply;
@@ -303,7 +298,7 @@ namespace Kinect2Server
                 else
                     this.ttsv.setButtonOff(this.ttsv.stackQueue);
             }
-            else if (feature.Equals("rgb-d_mic"))
+            else if (feature.Equals("rgbd_mic"))
             {
                 if (state)
                     this.rgbdmicv.setButtonOn(this.rgbdmicv.stackDisplay);

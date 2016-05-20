@@ -18,8 +18,6 @@ namespace Kinect2Server.View
     public partial class RGBDplusMic : UserControl
     {
         private MainWindow mw;
-        private ColorImage ci;
-        private DepthImage di;
         private MultiSourceImage msi;
         private Boolean display;
         private Mode mode;
@@ -30,18 +28,13 @@ namespace Kinect2Server.View
         private Byte[] depthPixels;
         private FrameDescription depthFrameDescription;
         private int size;
+        private Image img;
 
         public RGBDplusMic()
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
-            this.ci = this.mw.ColorImage;
-            this.di = this.mw.DepthImage;
             this.msi = this.mw.MultiSourceImage;
-            //this.ci.addCIListener(this.Reader_ColorFrameArrived);
-            //this.di.addDIListener(this.Reader_DepthFrameArrived);
             this.msi.addMSIListener(this.Reader_MultiSourceFrameArrive);
-            this.ci.ColorFrameReader.IsPaused = true;
-            this.di.DepthFrameReader.IsPaused = true;
             this.msi.MultiSourceFrameReader.IsPaused = true;
             this.mode = Mode.Color;
             
@@ -60,6 +53,7 @@ namespace Kinect2Server.View
             this.DataContext = this;
 
             this.display = false;
+            this.img = new Image();
             
             InitializeComponent();
 
@@ -72,8 +66,6 @@ namespace Kinect2Server.View
             {
                 this.display = false;
                 this.setButtonOff(this.stackDisplay);
-                /*this.di.DepthFrameReader.IsPaused = true;
-                this.ci.ColorFrameReader.IsPaused = true;*/
                 this.msi.MultiSourceFrameReader.IsPaused = true;
                 this.statusBarItem.Content = "Streaming off";
             }
@@ -81,8 +73,6 @@ namespace Kinect2Server.View
             {
                 this.display = true;
                 this.setButtonOn(this.stackDisplay);
-                /*this.di.DepthFrameReader.IsPaused = false;
-                this.ci.ColorFrameReader.IsPaused = false;*/
                 this.msi.MultiSourceFrameReader.IsPaused = false;
                 this.statusBarItem.Content = "Streaming RGB-D + microphone";
             }
@@ -102,7 +92,6 @@ namespace Kinect2Server.View
         {
             Dispatcher.Invoke(() =>
             {
-                Image img = new Image();
                 stack.Children.Clear();
                 img.Source = new BitmapImage(new Uri(@"../Images/switch_off.png", UriKind.Relative));
                 stack.Children.Add(img);
@@ -113,7 +102,6 @@ namespace Kinect2Server.View
         {
             Dispatcher.Invoke(() =>
             {
-                Image img = new Image();
                 stack.Children.Clear();
                 img.Source = new BitmapImage(new Uri(@"../Images/switch_on.png", UriKind.Relative));
                 stack.Children.Add(img);
@@ -236,81 +224,6 @@ namespace Kinect2Server.View
             }
         }
 
-
-
-        /*private void Reader_ColorFrameArrived(object sender, ColorFrameArrivedEventArgs e)
-        {
-            // ColorFrame is IDisposable
-            using (ColorFrame colorFrame = e.FrameReference.AcquireFrame())
-            {
-                if (colorFrame != null)
-                {
-                    FrameDescription colorFrameDescription = colorFrame.FrameDescription;
-
-                    using (KinectBuffer colorBuffer = colorFrame.LockRawImageBuffer())
-                    {
-                        this.colorBitmap.Lock();
-
-                        // verify data and write the new color frame data to the display bitmap
-                        if ((colorFrameDescription.Width == this.colorBitmap.PixelWidth) && (colorFrameDescription.Height == this.colorBitmap.PixelHeight))
-                        {
-                            uint size = (uint)(colorFrameDescription.Width * colorFrameDescription.Height * 4);
-                            colorFrame.CopyConvertedFrameDataToIntPtr(
-                                this.colorBitmap.BackBuffer,
-                                size,
-                                ColorImageFormat.Bgra);
-
-                            //this.ci.SendColorFrame((int)size/2, colorFrame);
-                            if (this.mode == Mode.Color)
-                            {
-                                this.camera.Source = this.colorBitmap;
-                                this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
-                            }
-                        }
-                        this.colorBitmap.Unlock();
-                    }
-                }
-            }
-        }
-
-        private void Reader_DepthFrameArrived(object sender, DepthFrameArrivedEventArgs e)
-        {
-            bool depthFrameProcessed = false;
-
-            using (DepthFrame depthFrame = e.FrameReference.AcquireFrame())
-            {
-                if (depthFrame != null)
-                {
-                    // the fastest way to process the body index data is to directly access 
-                    // the underlying buffer
-                    using (KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
-                    {
-                        // verify data and write the depth data to the display bitmap
-                        if (((this.size) == (depthBuffer.Size / this.depthFrameDescription.BytesPerPixel)) &&
-                            (this.depthFrameDescription.Width == this.depthBitmap.PixelWidth) && (this.depthFrameDescription.Height == this.depthBitmap.PixelHeight))
-                        {
-                            // Note: In order to see the full range of depth (including the less reliable far field depth)
-                            // we are setting maxDepth to the extreme potential depth threshold
-                            ushort maxDepth = ushort.MaxValue;
-
-                            //this.di.SendDepthFrame(this.size, depthFrame);
-
-                            // If you wish to filter by reliable depth distance, uncomment the following line:
-                            //// maxDepth = depthFrame.DepthMaxReliableDistance
-
-                            this.ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth);
-                            depthFrameProcessed = true;
-                        }
-                    }
-                }
-            }
-
-            if (depthFrameProcessed && this.mode==Mode.Depth)
-            {
-                this.camera.Source=this.depthBitmap;
-                this.RenderDepthPixels();
-            }
-        }*/
 
         private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth)
         {

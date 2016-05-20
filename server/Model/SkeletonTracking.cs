@@ -22,6 +22,8 @@ namespace Kinect2Server
         private Dictionary<JointType, Vector4> dicoOr;
         private Dictionary<ulong, Dictionary<JointType, object>> dicoBodies;
         private Dictionary<JointType, Point> jointPoints;
+        private Quaternion qChild;
+        private Quaternion qParent;
         private const float InferredZPositionClamp = 0.1f;
 
         private KinectJointFilter filter;
@@ -37,6 +39,13 @@ namespace Kinect2Server
 
             this.filter = new KinectJointFilter(smoothingParam, smoothingParam, smoothingParam);
             this.filter.Init(smoothingParam, smoothingParam, smoothingParam);
+
+            this.dicoPos = new Dictionary<JointType, object>(25);
+            this.jointPoints = new Dictionary<JointType, Point>(25);
+            this.dicoBodies = new Dictionary<ulong, Dictionary<JointType, object>>(25);
+            this.dicoOr = new Dictionary<JointType, Vector4>(25);
+            this.qChild = new Quaternion();
+            this.qParent = new Quaternion();
         }
 
         public void addSTListener(EventHandler<BodyFrameArrivedEventArgs> f1)
@@ -101,58 +110,53 @@ namespace Kinect2Server
             }
         }
 
-        public Dictionary<JointType, Vector4> chainQuat(Body body)
+        public void chainQuat(Body body)
         {
-            Dictionary<JointType, Vector4> dicoPos = new Dictionary<JointType, Vector4>();
 
             // Really really really ugly
-            dicoPos[JointType.SpineBase] = body.JointOrientations[JointType.SpineBase].Orientation;
-            dicoPos[JointType.Neck] = changeQuaternion(JointType.Neck, JointType.SpineShoulder, body);
-            dicoPos[JointType.SpineShoulder] = changeQuaternion(JointType.SpineShoulder, JointType.SpineMid, body);
-            dicoPos[JointType.SpineMid] = changeQuaternion(JointType.SpineMid, JointType.SpineBase, body);
-            dicoPos[JointType.HandRight] = changeQuaternion(JointType.HandRight, JointType.WristRight, body);
-            dicoPos[JointType.WristRight] = changeQuaternion(JointType.WristRight, JointType.ElbowRight, body);
-            dicoPos[JointType.ElbowRight] = changeQuaternion(JointType.ElbowRight, JointType.ShoulderRight, body);
-            dicoPos[JointType.ShoulderRight] = changeQuaternion(JointType.ShoulderRight, JointType.SpineShoulder, body);
-            dicoPos[JointType.HandLeft] = changeQuaternion(JointType.HandLeft, JointType.WristLeft, body);
-            dicoPos[JointType.WristLeft] = changeQuaternion(JointType.WristLeft, JointType.ElbowLeft, body);
-            dicoPos[JointType.ElbowLeft] = changeQuaternion(JointType.ElbowLeft, JointType.ShoulderLeft, body);
-            dicoPos[JointType.ShoulderLeft] = changeQuaternion(JointType.ShoulderLeft, JointType.SpineShoulder, body);
-            dicoPos[JointType.AnkleRight] = changeQuaternion(JointType.AnkleRight, JointType.KneeRight, body);
-            dicoPos[JointType.KneeRight] = changeQuaternion(JointType.KneeRight, JointType.HipRight, body);
-            dicoPos[JointType.HipRight] = changeQuaternion(JointType.HipRight, JointType.SpineBase, body);
-            dicoPos[JointType.AnkleLeft] = changeQuaternion(JointType.AnkleLeft, JointType.KneeLeft, body);
-            dicoPos[JointType.KneeLeft] = changeQuaternion(JointType.KneeLeft, JointType.HipLeft, body);
-            dicoPos[JointType.HipLeft] = changeQuaternion(JointType.HipLeft, JointType.SpineBase, body);
-            dicoPos[JointType.HandTipRight] = dicoPos[JointType.HandRight];
-            dicoPos[JointType.ThumbRight] = dicoPos[JointType.WristRight];
-            dicoPos[JointType.HandTipLeft] = dicoPos[JointType.HandLeft];
-            dicoPos[JointType.ThumbLeft] = dicoPos[JointType.WristLeft];
-            dicoPos[JointType.FootRight] = dicoPos[JointType.AnkleRight];
-            dicoPos[JointType.FootLeft] = dicoPos[JointType.AnkleLeft];
-            dicoPos[JointType.Head] = dicoPos[JointType.Neck];
-
-            return dicoPos;
+            this.dicoOr[JointType.SpineBase] = body.JointOrientations[JointType.SpineBase].Orientation;
+            this.dicoOr[JointType.Neck] = changeQuaternion(JointType.Neck, JointType.SpineShoulder, body);
+            this.dicoOr[JointType.SpineShoulder] = changeQuaternion(JointType.SpineShoulder, JointType.SpineMid, body);
+            this.dicoOr[JointType.SpineMid] = changeQuaternion(JointType.SpineMid, JointType.SpineBase, body);
+            this.dicoOr[JointType.HandRight] = changeQuaternion(JointType.HandRight, JointType.WristRight, body);
+            this.dicoOr[JointType.WristRight] = changeQuaternion(JointType.WristRight, JointType.ElbowRight, body);
+            this.dicoOr[JointType.ElbowRight] = changeQuaternion(JointType.ElbowRight, JointType.ShoulderRight, body);
+            this.dicoOr[JointType.ShoulderRight] = changeQuaternion(JointType.ShoulderRight, JointType.SpineShoulder, body);
+            this.dicoOr[JointType.HandLeft] = changeQuaternion(JointType.HandLeft, JointType.WristLeft, body);
+            this.dicoOr[JointType.WristLeft] = changeQuaternion(JointType.WristLeft, JointType.ElbowLeft, body);
+            this.dicoOr[JointType.ElbowLeft] = changeQuaternion(JointType.ElbowLeft, JointType.ShoulderLeft, body);
+            this.dicoOr[JointType.ShoulderLeft] = changeQuaternion(JointType.ShoulderLeft, JointType.SpineShoulder, body);
+            this.dicoOr[JointType.AnkleRight] = changeQuaternion(JointType.AnkleRight, JointType.KneeRight, body);
+            this.dicoOr[JointType.KneeRight] = changeQuaternion(JointType.KneeRight, JointType.HipRight, body);
+            this.dicoOr[JointType.HipRight] = changeQuaternion(JointType.HipRight, JointType.SpineBase, body);
+            this.dicoOr[JointType.AnkleLeft] = changeQuaternion(JointType.AnkleLeft, JointType.KneeLeft, body);
+            this.dicoOr[JointType.KneeLeft] = changeQuaternion(JointType.KneeLeft, JointType.HipLeft, body);
+            this.dicoOr[JointType.HipLeft] = changeQuaternion(JointType.HipLeft, JointType.SpineBase, body);
+            this.dicoOr[JointType.HandTipRight] = this.dicoOr[JointType.HandRight];
+            this.dicoOr[JointType.ThumbRight] = this.dicoOr[JointType.WristRight];
+            this.dicoOr[JointType.HandTipLeft] = this.dicoOr[JointType.HandLeft];
+            this.dicoOr[JointType.ThumbLeft] = this.dicoOr[JointType.WristLeft];
+            this.dicoOr[JointType.FootRight] = this.dicoOr[JointType.AnkleRight];
+            this.dicoOr[JointType.FootLeft] = this.dicoOr[JointType.AnkleLeft];
+            this.dicoOr[JointType.Head] = this.dicoOr[JointType.Neck];
             
         }
 
         private Vector4 changeQuaternion(JointType jChild, JointType jParent, Body body)
         {
             Vector4 orientation = body.JointOrientations[jChild].Orientation;
-            Quaternion q = new Quaternion();
-            q.X = orientation.X;
-            q.Y = orientation.Y;
-            q.Z = orientation.Z;
-            q.W = orientation.W;
+            this.qChild.X = orientation.X;
+            this.qChild.Y = orientation.Y;
+            this.qChild.Z = orientation.Z;
+            this.qChild.W = orientation.W;
 
             Vector4 orientation2 = body.JointOrientations[jParent].Orientation;
-            Quaternion q2 = new Quaternion();
-            q2.X = orientation2.X;
-            q2.Y = orientation2.Y;
-            q2.Z = orientation2.Z;
-            q2.W = orientation2.W;
+            this.qParent.X = orientation2.X;
+            this.qParent.Y = orientation2.Y;
+            this.qParent.Z = orientation2.Z;
+            this.qParent.W = orientation2.W;
 
-            Quaternion final = Quaternion.Multiply(q, q2);
+            Quaternion final = Quaternion.Multiply(this.qChild, this.qParent);
             orientation.X = (float)final.X;
             orientation.Y = (float)final.Y;
             orientation.Z = (float)final.Z;
@@ -163,10 +167,7 @@ namespace Kinect2Server
 
         public Dictionary<JointType, Point> frameTreatement(IReadOnlyDictionary<JointType, Joint> joints, Body body)
         {
-            this.dicoPos = new Dictionary<JointType, object>();
-            this.jointPoints = new Dictionary<JointType, Point>();
-            this.dicoBodies = new Dictionary<ulong, Dictionary<JointType, object>>();
-            this.dicoOr = this.chainQuat(body);
+            this.chainQuat(body);
 
             foreach (JointType jointType in joints.Keys)
             {

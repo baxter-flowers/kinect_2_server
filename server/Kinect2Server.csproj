@@ -126,8 +126,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Model\AudioFrame.cs" />
-    <Compile Include="Model\ColorImage.cs" />
-    <Compile Include="Model\DepthImage.cs" />
     <Compile Include="Model\MultiSourceImage.cs" />
     <Compile Include="Model\NetworkResponder.cs" />
     <Compile Include="Model\NetworkSubscriber.cs" />
