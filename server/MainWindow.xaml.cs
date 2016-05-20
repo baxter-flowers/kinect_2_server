@@ -23,6 +23,7 @@ namespace Kinect2Server
         private SpeechRecognitionView srv;
         private SkeletonTrackingView stv;
         private TextToSpeechView ttsv;
+        private RGBDplusMic rgbdplusmicv;
         private SkeletonTracking st;
         private TextToSpeech tts;
         private ColorImage ci;
@@ -56,6 +57,7 @@ namespace Kinect2Server
             this.srv = this.srview;
             this.stv = this.stview;
             this.ttsv = this.ttsview;
+            this.rgbdplusmicv = this.rgbdmicview;
 
             // Need to create the responder after models because it's using instance of sr, srw, st & tts
             this.responder = new NetworkResponder();
@@ -159,6 +161,14 @@ namespace Kinect2Server
             get
             {
                 return this.stv;
+            }
+        }
+
+        public RGBDplusMic RGBDplusMic
+        {
+            get
+            {
+                return this.rgbdplusmicv;
             }
         }
 

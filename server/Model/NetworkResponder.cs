@@ -21,9 +21,12 @@ namespace Kinect2Server
         private TextToSpeech tts;
         private SpeechRecognition sr;
         private SkeletonTracking st;
+        private ColorImage ci;
+        private DepthImage di;
         private SpeechRecognitionView srv;
         private SkeletonTrackingView stv;
         private TextToSpeechView ttsv;
+        private RGBDplusMic rgbdmicv;
 
         public NetworkResponder()
         {
@@ -31,12 +34,15 @@ namespace Kinect2Server
             this.tts = this.mw.TextToSpeech;
             this.sr = this.mw.SpeechRecogniton;
             this.st = this.mw.SkeletonTracking;
+            this.di = this.mw.DepthImage;
+            this.ci = this.mw.ColorImage;
             this.context = new ZContext();
             this.socket = new ZSocket(this.context, ZSocketType.REP);
             this.binded = false;
             this.srv = this.mw.SpeechRecognitionView;
             this.stv = this.mw.SkeletonTrackingView;
             this.ttsv = this.mw.TextToSpeechView;
+            this.rgbdmicv = this.mw.RGBDplusMic;
             this.json_thread = new Thread(new ThreadStart(this.ReceiveJson));
             this.json_thread.SetApartmentState(ApartmentState.STA);
             this.json_thread.IsBackground = true;
@@ -100,7 +106,7 @@ namespace Kinect2Server
 
             JObject json_params = JObject.Parse(parameters);
 
-            //Speech Recognition
+            // Speech Recognition
             // On/off + grammar
             Nullable<Boolean> on = (Nullable<Boolean>)json_params["speech_recognition"]["on"];
             String grammarFile = (String)json_params["speech_recognition"]["fileName"];
@@ -161,7 +167,7 @@ namespace Kinect2Server
                 this.RefreshStatus("speech", "sentence", (Boolean)sentence);
             }
 
-            //Semantic on/off
+            // Semantic on/off
             Nullable<Boolean> semantic = (Nullable<Boolean>)json_params["speech_recognition"]["semantic"];
             if (semantic != null)
             {
@@ -169,7 +175,7 @@ namespace Kinect2Server
                 this.RefreshStatus("speech", "semantic", (Boolean)semantic);
             }
 
-            //Skeleton Tracking
+            // Skeleton Tracking
             // On/off
             on = (Nullable<Boolean>)json_params["skeleton_tracking"]["on"];
             if (on != null)
@@ -190,7 +196,7 @@ namespace Kinect2Server
             }
 
 
-            //Text To Speech
+            // Text To Speech
             // Queue on/off
             Nullable<Boolean> queue = (Nullable<Boolean>)json_params["text_to_speech"]["queue"];
             if (queue != null)
@@ -220,7 +226,7 @@ namespace Kinect2Server
                     
             }
 
-            //Language
+            // Language
             String language = (String)json_params["text_to_speech"]["language"];
             if (language != null)
             {
@@ -235,6 +241,26 @@ namespace Kinect2Server
                     this.ttsv.frFR_C();
                 }
                     
+            }
+
+            // RGB-D/Mic
+            // On/off
+            on = (Nullable<Boolean>)json_params["rgbd_mic"]["on"];
+            if (on != null)
+            {
+                if ((Boolean)on) 
+                {
+                    this.di.DepthFrameReader.IsPaused = false;
+                    this.ci.ColorFrameReader.IsPaused = false;
+                }
+
+                else
+                {
+                    this.di.DepthFrameReader.IsPaused = true;
+                    this.ci.ColorFrameReader.IsPaused = true;
+                }
+                    
+                this.RefreshStatus("skeleton", null, (Boolean)on);
             }
 
             return reply;
@@ -276,6 +302,13 @@ namespace Kinect2Server
                     this.ttsv.setButtonOn(this.ttsv.stackQueue);
                 else
                     this.ttsv.setButtonOff(this.ttsv.stackQueue);
+            }
+            else if (feature.Equals("rgb-d_mic"))
+            {
+                if (state)
+                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackDisplay);
+                else
+                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackDisplay);
             }
 
 

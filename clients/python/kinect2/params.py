@@ -101,6 +101,24 @@ class TextToSpeechParams(object):
             self._text_to_speech['language'] = 'english'
         elif language == 'french':
             self._text_to_speech['language'] = 'french'
+            
+class RGBDMicParams(object):
+    
+    def __init__(self):
+        self._rgbd_mic ={}
+        
+    def get_params(self):
+        return self._rgbd_mic
+        
+    def set_params(self,value):
+        self._rgbd_mic={}
+        
+    def on(self):
+         self._rgbd_mic['on'] = True
+         
+    def off(self):
+         self._rgbd_mic['on'] = False
+        
 
 class Params(object):
     def __init__(self, ip, port=33410, context=None):          
@@ -110,9 +128,10 @@ class Params(object):
         self.speech = SpeechParams()
         self.skeleton = SkeletonParams()
         self.tts = TextToSpeechParams()
+        self.rgbd_mic = RGBDMicParams()
         
     def send_params(self):
-        data = {'speech_recognition' : self.speech.get_params(), 'skeleton_tracking' : self.skeleton.get_params(), 'text_to_speech' : self.tts.get_params()}
+        data = {'speech_recognition' : self.speech.get_params(), 'skeleton_tracking' : self.skeleton.get_params(), 'text_to_speech' : self.tts.get_params(), 'rgbd_mic' : self.rgbd_mic.get_params()}
         json_str = json.dumps(data)
         self._socket.send(json_str)
         message = self._socket.recv()
@@ -122,5 +141,6 @@ class Params(object):
         self.speech.set_params({})
         self.skeleton.set_params({})
         self.tts.set_params({})
+        self.rgbd_mic.set_params({})
     
         

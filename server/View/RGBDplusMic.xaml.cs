@@ -69,7 +69,7 @@ namespace Kinect2Server.View
             
             InitializeComponent();
 
-            this.statusBarItem.Content = "Image display off";
+            this.statusBarItem.Content = "Streaming off";
         }
 
         private void switchDisplay(object sender, RoutedEventArgs e)
@@ -80,7 +80,7 @@ namespace Kinect2Server.View
                 this.setButtonOff(this.stackDisplay);
                 this.di.DepthFrameReader.IsPaused = true;
                 this.ci.ColorFrameReader.IsPaused = true;
-                this.statusBarItem.Content = "Image display off";
+                this.statusBarItem.Content = "Streaming off";
             }
             else
             {
@@ -88,7 +88,7 @@ namespace Kinect2Server.View
                 this.setButtonOn(this.stackDisplay);
                 this.di.DepthFrameReader.IsPaused = false;
                 this.ci.ColorFrameReader.IsPaused = false;
-                this.statusBarItem.Content = "Running";
+                this.statusBarItem.Content = "Streaming RGB-D + microphone";
             }
         }
 
@@ -102,20 +102,26 @@ namespace Kinect2Server.View
             this.mode = Mode.Depth;
         }
 
-        private void setButtonOff(StackPanel stack)
+        public void setButtonOff(StackPanel stack)
         {
-            Image img = new Image();
-            stack.Children.Clear();
-            img.Source = new BitmapImage(new Uri(@"../Images/switch_off.png", UriKind.Relative));
-            stack.Children.Add(img);
+            Dispatcher.Invoke(() =>
+            {
+                Image img = new Image();
+                stack.Children.Clear();
+                img.Source = new BitmapImage(new Uri(@"../Images/switch_off.png", UriKind.Relative));
+                stack.Children.Add(img);
+            });
         }
 
-        private void setButtonOn(StackPanel stack)
+        public void setButtonOn(StackPanel stack)
         {
-            Image img = new Image();
-            stack.Children.Clear();
-            img.Source = new BitmapImage(new Uri(@"../Images/switch_on.png", UriKind.Relative));
-            stack.Children.Add(img);
+            Dispatcher.Invoke(() =>
+            {
+                Image img = new Image();
+                stack.Children.Clear();
+                img.Source = new BitmapImage(new Uri(@"../Images/switch_on.png", UriKind.Relative));
+                stack.Children.Add(img);
+            });
         }
 
         private void ScreenshotButton_Click(object sender, RoutedEventArgs e)

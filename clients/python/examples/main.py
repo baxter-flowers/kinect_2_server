@@ -7,10 +7,7 @@ Created on Tue May 17 15:47:54 2016
 
 from kinect2.params import *
 
-p = Params()
-p.speech=p.SpeechParams()
-p.skeleton=p.SkeletonParams()
-p.tts=p.TextToSpeechParams()
+p = Params('BAXTERFLOWERS.local')
 
 while True:
     var = raw_input('> ')
@@ -24,7 +21,7 @@ while True:
         grammarFile = args[1]
         grammar = open(grammarFile)
         grammar = grammar.read()
-        p.change_grammar(grammar)
+        p.speech.set_grammar(grammar, grammarFile)
     elif len(args)>1 and args[0] =='sr_confidence':
         value = args[1]
         p.speech.set_confidence(value)
@@ -56,8 +53,12 @@ while True:
     elif var == 'tts_language_english':
         p.tts.set_language('english')
     elif var == 'tts_language_french':
-        p.tss.set_language('french')
+        p.tts.set_language('french')
+    elif var =='rm_start':
+        p.rgbd_mic.on()
+    elif var =='rm_stop':
+        p.rgbd_mic.off()
     elif var == 'send_params':
-        p.send_params()
+        print(p.send_params())
     elif var == 'reset_params':
         p.reset_params()
