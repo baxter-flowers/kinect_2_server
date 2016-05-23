@@ -110,6 +110,14 @@ namespace Kinect2Server
             }
         }
 
+        public Dictionary<ulong, Dictionary<JointType, object>> DicoBodies
+        {
+            get
+            {
+                return this.dicoBodies;
+            }
+        }
+
         public void chainQuat(Body body)
         {
 
@@ -183,11 +191,11 @@ namespace Kinect2Server
                 object ob;
                 if (jointType == JointType.HandRight)
                 {
-                    ob = new { Position = point, Orientation = dicoOr[jointType], HandState = body.HandRightState.ToString().ToLower() };
+                    ob = new { Position = point, Orientation = dicoOr[jointType], HandState = body.HandRightState.ToString() };
                 }
                 else if (jointType == JointType.HandLeft)
                 {
-                    ob = new { Position = point, Orientation = dicoOr[jointType], HandState = body.HandLeftState.ToString().ToLower() };
+                    ob = new { Position = point, Orientation = dicoOr[jointType], HandState = body.HandLeftState.ToString() };
                 }
                 else
                 {

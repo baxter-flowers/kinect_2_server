@@ -275,6 +275,7 @@ namespace Kinect2Server.View
                             this.drawingGroup.ClipGeometry = new RectangleGeometry(new Rect(0.0, 0.0, this.displayWidth, this.displayHeight));
                         }
                     }
+                    this.st.DicoBodies.Clear();
                     for (int i = 1; i <= this.st.Bodies.Length; i++)
                     {
                         string slot = "slot" + i;

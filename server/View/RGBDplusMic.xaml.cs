@@ -169,13 +169,12 @@ namespace Kinect2Server.View
                         // verify data and write the new color frame data to the display bitmap
                         if ((colorFrameDescription.Width == this.colorBitmap.PixelWidth) && (colorFrameDescription.Height == this.colorBitmap.PixelHeight))
                         {
-                            int size = colorFrameDescription.Width * colorFrameDescription.Height * 4;
                             colorFrame.CopyConvertedFrameDataToIntPtr(
                                 this.colorBitmap.BackBuffer,
-                                (uint)size,
+                                (uint)(colorFrameDescription.Width * colorFrameDescription.Height * 4),
                                 ColorImageFormat.Bgra);
 
-                            this.msi.SendColorFrame(size/2, colorFrame);
+                            this.msi.SendColorFrame(colorFrame, this.colorBitmap);
                             if (this.mode == Mode.Color)
                             {
                                 this.camera.Source = this.colorBitmap;
@@ -205,7 +204,7 @@ namespace Kinect2Server.View
                             // we are setting maxDepth to the extreme potential depth threshold
                             ushort maxDepth = ushort.MaxValue;
 
-                            this.msi.SendDepthFrame(this.size, depthFrame);
+                            this.msi.SendDepthFrame(depthFrame);
 
                             // If you wish to filter by reliable depth distance, uncomment the following line:
                             //// maxDepth = depthFrame.DepthMaxReliableDistance
