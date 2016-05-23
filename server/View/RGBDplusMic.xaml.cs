@@ -174,7 +174,7 @@ namespace Kinect2Server.View
                                 (uint)(colorFrameDescription.Width * colorFrameDescription.Height * 4),
                                 ColorImageFormat.Bgra);
 
-                            this.msi.SendColorFrame(colorFrame, this.colorBitmap);
+                            this.msi.SendColorFrame(colorFrame);
                             if (this.mode == Mode.Color)
                             {
                                 this.camera.Source = this.colorBitmap;
