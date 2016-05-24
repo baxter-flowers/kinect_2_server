@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
-from zmq import ZMQError, Context, SUB, SUBSCRIBE
+from zmq import ZMQError, Context, SUB, SUBSCRIBE, CONFLATE
 from threading import Thread
 
 class StreamSubscriber(object):
@@ -21,7 +21,8 @@ class StreamSubscriber(object):
             if e.errno == EAGAIN:
                 return None
         else:
-            return " ".join(msg.split(' ')[1:])
+            str_msg = " ".join(msg.split(' ')[1:])
+            return json.loads(str_msg)
 
     def set_callback(self, callback_func):
         self._cb = callback_func
@@ -44,6 +45,7 @@ class StreamSubscriber(object):
 class SkeletonSubscriber(StreamSubscriber):
     def __init__(self, filter, ip, port, params, context=None):
         StreamSubscriber.__init__(self, filter, ip, port, params, context)
+        self._socket.setsockopt(CONFLATE, 1)
     
     @property
     def params(self):
