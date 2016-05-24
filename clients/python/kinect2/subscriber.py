@@ -3,15 +3,15 @@
 import json
 from zmq import ZMQError, Context, SUB, SUBSCRIBE, CONFLATE
 from threading import Thread
+from .params import SkeletonParams, SpeechParams
 
 class StreamSubscriber(object):
-    def __init__(self, filter, ip, port, params, context=None):
-        self._context = Context() if context is None else context
+    def __init__(self, context, filter, ip, port):
+        self._context = context
         self._socket = self._context.socket(SUB)
         self._socket.connect('tcp://{}:{}'.format(ip, port))
         self._socket.setsockopt(SUBSCRIBE, filter)
         self._cb = None
-        self._params = params
         self.running = False
           
     def _get(self):
@@ -43,32 +43,26 @@ class StreamSubscriber(object):
                 self._cb(msg)
                 
 class SkeletonSubscriber(StreamSubscriber):
-    def __init__(self, filter, ip, port, params, context=None):
-        StreamSubscriber.__init__(self, filter, ip, port, params, context)
+    def __init__(self, context, filter, ip, port, config_port):
+        StreamSubscriber.__init__(self, context, filter, ip, port)
         self._socket.setsockopt(CONFLATE, 1)
-    
-    @property
-    def params(self):
-        return self._params.skeleton
+        self.params = SkeletonParams(context, ip, config_port)
     
     def start(self):
         # Trigger the server
-        self._params.skeleton.on()
-        self._params.send_params()
+        self.params.on()
+        self.params.send_params()
         # Start the client
         self._start_client()
 
 class SpeechSubscriber(StreamSubscriber):
-    def __init__(self, filter, ip, port, params, context=None):
-        StreamSubscriber.__init__(self, filter, ip, port, params, context)
-    
-    @property
-    def params(self):
-        return self._params.speech
-    
+    def __init__(self, context, filter, ip, port, config_port):
+        StreamSubscriber.__init__(self, context, filter, ip, port)
+        self.params = SpeechParams(context, ip, config_port)
+   
     def start(self):
         # Trigger the server
-        self._params.speech.on()
-        self._params.send_params()
+        self.params.on()
+        self.params.send_params()
         # Start the client
         self._start_client()
