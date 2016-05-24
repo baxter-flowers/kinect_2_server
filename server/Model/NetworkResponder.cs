@@ -104,158 +104,169 @@ namespace Kinect2Server
 
             JObject json_params = JObject.Parse(parameters);
 
-            // Speech Recognition
-            // On/off + grammar
-            Nullable<Boolean> on = (Nullable<Boolean>)json_params["speech_recognition"]["on"];
-            String grammarFile = (String)json_params["speech_recognition"]["fileName"];
-            String grammar = (String)json_params["speech_recognition"]["grammar"];
-            if (grammar != null)
+            if (json_params["speech_recognition"] != null)
             {
-                this.sr.createGrammar(null, grammarFile, grammar);
-                if (grammarFile != null)
+                // Speech Recognition
+                // On/off + grammar
+                Nullable<Boolean> srOn = (Nullable<Boolean>)json_params["speech_recognition"]["on"];
+                String grammarFile = (String)json_params["speech_recognition"]["fileName"];
+                String grammar = (String)json_params["speech_recognition"]["grammar"];
+                if (grammar != null)
                 {
-                    this.srv.RefreshGrammarFile();
-                }
-                this.srv.addlist();
-                if ((Boolean)on)
-                {
-                    this.RefreshStatus("speech", "on/off", true);
-                    this.isOn = true;
-                }
-            }
-            if (on != null)
-            {
-                if (this.sr.isSpeechEngineSet())
-                {
-                    if ((Boolean)on && !this.isOn)
+                    this.sr.createGrammar(null, grammarFile, grammar);
+                    if (grammarFile != null)
                     {
-                        this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
+                        this.srv.RefreshGrammarFile();
+                    }
+                    this.srv.addlist();
+                    if ((Boolean)srOn)
+                    {
                         this.RefreshStatus("speech", "on/off", true);
                         this.isOn = true;
                     }
-
-                    else if(!(Boolean)on)
+                }
+                if (srOn != null)
+                {
+                    if (this.sr.isSpeechEngineSet())
                     {
-                        this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
-                        this.RefreshStatus("speech", "on/off", false);
-                        this.isOn = false;
+                        if ((Boolean)srOn && !this.isOn)
+                        {
+                            this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
+                            this.RefreshStatus("speech", "on/off", true);
+                            this.isOn = true;
+                        }
+
+                        else if (!(Boolean)srOn)
+                        {
+                            this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
+                            this.RefreshStatus("speech", "on/off", false);
+                            this.isOn = false;
+                        }
+
+                    }
+                    else if (grammar == null)
+                    {
+                        reply += " Speech engine not set, you have to send grammar file.";
+                    }
+                }
+
+
+                // Confidence
+                Nullable<float> confidence = (Nullable<float>)json_params["speech_recognition"]["confidence"];
+                if (confidence != null && confidence != this.sr.ConfidenceThreshold)
+                {
+                    this.sr.ConfidenceThreshold = (float)confidence;
+                    this.srv.RefreshConfidenceSelectorValue();
+                }
+
+                // Sentence on/off
+                Nullable<Boolean> sentence = (Nullable<Boolean>)json_params["speech_recognition"]["sentence"];
+                if (sentence != null)
+                {
+                    this.sr.SentenceStatus = (Boolean)sentence;
+                    this.RefreshStatus("speech", "sentence", (Boolean)sentence);
+                }
+
+                // Semantic on/off
+                Nullable<Boolean> semantic = (Nullable<Boolean>)json_params["speech_recognition"]["semantic"];
+                if (semantic != null)
+                {
+                    this.sr.SemanticsStatus = (Boolean)semantic;
+                    this.RefreshStatus("speech", "semantic", (Boolean)semantic);
+                }
+            }
+
+            if (json_params["skeleton_tracking"] != null)
+            {
+                // Skeleton Tracking
+                // On/off
+                Nullable<Boolean> stOn = (Nullable<Boolean>)json_params["skeleton_tracking"]["on"];
+                if (stOn != null)
+                {
+                    if ((Boolean)stOn)
+                        this.st.BodyFrameReader.IsPaused = false;
+                    else
+                        this.st.BodyFrameReader.IsPaused = true;
+                    this.RefreshStatus("skeleton", null, (Boolean)stOn);
+                }
+
+                // Smoothing
+                Nullable<float> smoothing = (Nullable<float>)json_params["skeleton_tracking"]["smoothing"];
+                if (smoothing != null && smoothing != this.st.SmoothingParam)
+                {
+                    this.st.SmoothingParam = (float)smoothing;
+                    this.stv.refreshSmoothingSelectorValue();
+                }
+            }
+
+            if (json_params["text_to_speech"] != null)
+            {
+                // Text To Speech
+                // Queue on/off
+                Nullable<Boolean> queue = (Nullable<Boolean>)json_params["text_to_speech"]["queue"];
+                if (queue != null)
+                {
+                    if ((Boolean)queue)
+                        this.tts.QueuedMessages = true;
+                    else
+                        this.tts.QueuedMessages = false;
+                    this.RefreshStatus("tts", null, (Boolean)queue);
+                }
+
+                // Gender
+                String gender = (String)json_params["text_to_speech"]["gender"];
+                if (gender != null)
+                {
+                    if (gender.Equals("male"))
+                    {
+                        this.tts.VoiceGender = VoiceGender.Male;
+                        this.ttsv.Male_C();
+                    }
+
+                    else if (gender.Equals("female"))
+                    {
+                        this.tts.VoiceGender = VoiceGender.Female;
+                        this.ttsv.Female_C();
                     }
 
                 }
-                else if (grammar == null)
+
+                // Language
+                String language = (String)json_params["text_to_speech"]["language"];
+                if (language != null)
                 {
-                    reply += " Speech engine not set, you have to send grammar file.";
+                    if (language.Equals("english"))
+                    {
+                        this.tts.Culture = new CultureInfo("en-US");
+                        this.ttsv.enUS_C();
+                    }
+                    else if (language.Equals("french"))
+                    {
+                        this.tts.Culture = new CultureInfo("fr-FR");
+                        this.ttsv.frFR_C();
+                    }
+
                 }
             }
-            
 
-            // Confidence
-            Nullable<float> confidence = (Nullable<float>)json_params["speech_recognition"]["confidence"];
-            if (confidence != null && confidence != this.sr.ConfidenceThreshold)
+            if (json_params["rgbd_mic"] != null)
             {
-                this.sr.ConfidenceThreshold = (float)confidence;
-                this.srv.RefreshConfidenceSelectorValue();
-            }
-
-            // Sentence on/off
-            Nullable<Boolean> sentence = (Nullable<Boolean>)json_params["speech_recognition"]["sentence"];
-            if (sentence != null)
-            {
-                this.sr.SentenceStatus = (Boolean)sentence;
-                this.RefreshStatus("speech", "sentence", (Boolean)sentence);
-            }
-
-            // Semantic on/off
-            Nullable<Boolean> semantic = (Nullable<Boolean>)json_params["speech_recognition"]["semantic"];
-            if (semantic != null)
-            {
-                this.sr.SemanticsStatus = (Boolean)semantic;
-                this.RefreshStatus("speech", "semantic", (Boolean)semantic);
-            }
-
-            // Skeleton Tracking
-            // On/off
-            on = (Nullable<Boolean>)json_params["skeleton_tracking"]["on"];
-            if (on != null)
-            {
-                if ((Boolean)on)
-                    this.st.BodyFrameReader.IsPaused = false;
-                else
-                    this.st.BodyFrameReader.IsPaused = true;
-                this.RefreshStatus("skeleton", null, (Boolean)on);
-            }
-
-            // Smoothing
-            Nullable<float> smoothing = (Nullable<float>)json_params["skeleton_tracking"]["smoothing"];
-            if (smoothing != null && smoothing != this.st.SmoothingParam)
-            {
-                this.st.SmoothingParam = (float)smoothing;
-                this.stv.refreshSmoothingSelectorValue();
-            }
-
-
-            // Text To Speech
-            // Queue on/off
-            Nullable<Boolean> queue = (Nullable<Boolean>)json_params["text_to_speech"]["queue"];
-            if (queue != null)
-            {
-                if ((Boolean)queue)
-                    this.tts.QueuedMessages = true;
-                else
-                    this.tts.QueuedMessages = false;
-                this.RefreshStatus("tts", null, (Boolean)queue);
-            }
-
-            // Gender
-            String gender = (String)json_params["text_to_speech"]["gender"];
-            if (gender != null)
-            {
-                if (gender.Equals("male"))
+                // RGB-D/Mic
+                // On/off
+                Nullable<Boolean> rmOn = (Nullable<Boolean>)json_params["rgbd_mic"]["on"];
+                if (rmOn != null)
                 {
-                    this.tts.VoiceGender = VoiceGender.Male;
-                    this.ttsv.Male_C();
-                }
+                    if ((Boolean)rmOn)
+                    {
+                        this.msi.MultiSourceFrameReader.IsPaused = false;
+                    }
 
-                else if (gender.Equals("female"))
-                {
-                    this.tts.VoiceGender = VoiceGender.Female;
-                    this.ttsv.Female_C();
+                    else
+                    {
+                        this.msi.MultiSourceFrameReader.IsPaused = true;
+                    }
+                    this.RefreshStatus("rgbd_mic", null, (Boolean)rmOn);
                 }
-                    
-            }
-
-            // Language
-            String language = (String)json_params["text_to_speech"]["language"];
-            if (language != null)
-            {
-                if (language.Equals("english"))
-                {
-                    this.tts.Culture = new CultureInfo("en-US");
-                    this.ttsv.enUS_C();
-                }
-                else if (language.Equals("french"))
-                {
-                    this.tts.Culture = new CultureInfo("fr-FR");
-                    this.ttsv.frFR_C();
-                }
-                    
-            }
-
-            // RGB-D/Mic
-            // On/off
-            on = (Nullable<Boolean>)json_params["rgbd_mic"]["on"];
-            if (on != null)
-            {
-                if ((Boolean)on) 
-                {
-                    this.msi.MultiSourceFrameReader.IsPaused = false;
-                }
-
-                else
-                {
-                    this.msi.MultiSourceFrameReader.IsPaused = true;
-                }
-                this.RefreshStatus("rgbd_mic", null, (Boolean)on);
             }
 
             return reply;

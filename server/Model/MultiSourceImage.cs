@@ -1,6 +1,7 @@
 ﻿using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -21,9 +22,9 @@ namespace Kinect2Server
         private CoordinateMapper coordinateMapper;
         private MultiSourceFrameReader multiSourceFrameReader;
         private ushort[] shorts;
-        private ColorSpacePoint[] colorSpacePoints;
         private Byte[] depthBytes;
         private Byte[] colorBytes;
+        private int fps;
         
 
         public MultiSourceImage(KinectSensor kinect, NetworkPublisher dPub, NetworkPublisher cPub)
@@ -32,12 +33,12 @@ namespace Kinect2Server
             this.coordinateMapper = this.kinect.CoordinateMapper;
             this.depthPublisher = dPub;
             this.colorPublisher = cPub;
+            this.fps = 20;
 
 
             this.multiSourceFrameReader = this.kinect.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth);
 
             this.shorts = new ushort[217088];
-            this.colorSpacePoints = new ColorSpacePoint[217088];
             this.depthBytes = new Byte[434176];
             this.colorBytes = new Byte[4147200];
         }
@@ -47,6 +48,18 @@ namespace Kinect2Server
             get
             {
                 return this.multiSourceFrameReader;
+            }
+        }
+
+        public int FPS
+        {
+            get
+            {
+                return this.fps;
+            }
+            set
+            {
+                this.fps = value;
             }
         }
 
@@ -67,18 +80,6 @@ namespace Kinect2Server
         {
             colorFrame.CopyRawFrameDataToArray(this.colorBytes);
             this.colorPublisher.SendByteArray(this.colorBytes);
-            //this.ConvertBytesToJpegBytes(this.colorBytes);
         }
-
-        public void ConvertBytesToJpegBytes(Byte[] bytes)
-        {
-            using (MemoryStream ms = new MemoryStream(bytes))
-            {
-                System.Drawing.Image img = System.Drawing.Image.FromStream(ms);
-                img.Save(ms, ImageFormat.Jpeg);
-                int length = ms.ToArray().Length;
-            }
-        }
-
     }
 }
