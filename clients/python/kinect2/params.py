@@ -49,6 +49,8 @@ class SpeechParams(Params):
             self._params['confidence'] = value
     
     def set_grammar(self, grammar, grammar_file = None):
+        if isinstance(grammar, file):
+            grammar = grammar.read()
         self._params['grammar'] = grammar
         if grammar_file is not None:
             self._params['fileName'] = grammar_file
