@@ -21,6 +21,7 @@ namespace Kinect2Server.View
         private MultiSourceImage msi;
         private Boolean display;
         private Mode mode;
+        private DateTime dt;
 
         private WriteableBitmap colorBitmap;
         private WriteableBitmap depthBitmap;
@@ -54,6 +55,7 @@ namespace Kinect2Server.View
 
             this.display = false;
             this.img = new Image();
+            this.dt = DateTime.Now;
             
             InitializeComponent();
 

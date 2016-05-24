@@ -1,10 +1,14 @@
 ﻿using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -18,9 +22,9 @@ namespace Kinect2Server
         private CoordinateMapper coordinateMapper;
         private MultiSourceFrameReader multiSourceFrameReader;
         private ushort[] shorts;
-        private ColorSpacePoint[] colorSpacePoints;
         private Byte[] depthBytes;
         private Byte[] colorBytes;
+        private int fps;
         
 
         public MultiSourceImage(KinectSensor kinect, NetworkPublisher dPub, NetworkPublisher cPub)
@@ -29,12 +33,12 @@ namespace Kinect2Server
             this.coordinateMapper = this.kinect.CoordinateMapper;
             this.depthPublisher = dPub;
             this.colorPublisher = cPub;
+            this.fps = 20;
 
 
             this.multiSourceFrameReader = this.kinect.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth);
 
             this.shorts = new ushort[217088];
-            this.colorSpacePoints = new ColorSpacePoint[217088];
             this.depthBytes = new Byte[434176];
             this.colorBytes = new Byte[4147200];
         }
@@ -44,6 +48,18 @@ namespace Kinect2Server
             get
             {
                 return this.multiSourceFrameReader;
+            }
+        }
+
+        public int FPS
+        {
+            get
+            {
+                return this.fps;
+            }
+            set
+            {
+                this.fps = value;
             }
         }
 
