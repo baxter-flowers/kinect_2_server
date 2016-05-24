@@ -1,10 +1,13 @@
 ﻿using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -64,6 +67,18 @@ namespace Kinect2Server
         {
             colorFrame.CopyRawFrameDataToArray(this.colorBytes);
             this.colorPublisher.SendByteArray(this.colorBytes);
+            //this.ConvertBytesToJpegBytes(this.colorBytes);
         }
+
+        public void ConvertBytesToJpegBytes(Byte[] bytes)
+        {
+            using (MemoryStream ms = new MemoryStream(bytes))
+            {
+                System.Drawing.Image img = System.Drawing.Image.FromStream(ms);
+                img.Save(ms, ImageFormat.Jpeg);
+                int length = ms.ToArray().Length;
+            }
+        }
+
     }
 }
