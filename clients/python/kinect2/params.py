@@ -16,6 +16,10 @@ class Params(object):
         self._params = {}
    
     def send_params(self):
+        """
+        Send the parameters on the Kinect server
+        Returns an empty string if the parameters have been set successfully on the server or an error string otherwise
+        """
         json_str = json.dumps({self._feature: self._params})
         self._socket.send(json_str)
         message = self._socket.recv()
