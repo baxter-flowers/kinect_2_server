@@ -213,15 +213,18 @@ namespace Kinect2Server
             else
                 this.grammarText = raw_grammar;
             setCurrentLanguage(grammarText);
-
-            foreach (RecognizerInfo recognizer in recognizers)
+            if (this.currentLanguage != null)
             {
-                string value;
-                recognizer.AdditionalInfo.TryGetValue("Kinect", out value);
-                if ("True".Equals(value, StringComparison.OrdinalIgnoreCase) && this.currentLanguage.Equals(recognizer.Culture.Name, StringComparison.OrdinalIgnoreCase))
+                foreach (RecognizerInfo recognizer in recognizers)
                 {
-                    return recognizer;
+                    string value;
+                    recognizer.AdditionalInfo.TryGetValue("Kinect", out value);
+                    if ("True".Equals(value, StringComparison.OrdinalIgnoreCase) && this.currentLanguage.Equals(recognizer.Culture.Name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return recognizer;
+                    }
                 }
+                return null;
             }
             return null;
         }
@@ -254,9 +257,14 @@ namespace Kinect2Server
             reader.WhitespaceHandling = WhitespaceHandling.None;
 
             //Get the language
-            reader.Read();
-            currentLanguage = reader.XmlLang;
-            reader.Close();
+            try
+            {
+                reader.Read();
+                currentLanguage = reader.XmlLang;
+                reader.Close();
+            }
+            catch { }
+            
         }
 
         public void setGrammarText(string fileLocation)
