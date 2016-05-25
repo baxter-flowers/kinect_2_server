@@ -8,8 +8,16 @@ You have to download and install these following features and SDKs :
 Kinect 2 SDK :
 https://www.microsoft.com/en-us/download/details.aspx?id=44561
 
-Microsoft Speech platform SDK :
+Microsoft Speech platform - SDK (Version 11) :
 https://www.microsoft.com/en-us/download/details.aspx?id=27226
+
+Microsoft Speech Platform - Runtime (Version 11) :
+Note : Get both x86 and x64 versions if you're running 64bits processor
+https://www.microsoft.com/en-us/download/details.aspx?id=27225
+
+Language Pack :
+Chose languages that you want to set for the Speech Recognition
+https://www.microsoft.com/en-us/download/details.aspx?id=43662
 
 Media feature pack for N and KN version of Windows 8 :
 https://www.microsoft.com/en-us/download/details.aspx?id=30685
@@ -17,10 +25,7 @@ https://www.microsoft.com/en-us/download/details.aspx?id=30685
 Media feature pack for N and KN version of Windows 10 :
 https://www.microsoft.com/en-us/download/details.aspx?id=48231
 
-Json.NET :
-Install-Package Newtonsoft.Json in NuGet
-then add "using Newtonsoft.Json;" in your project
 
-ZeroMQ :
-Install-Package clrzmq -Version 2.2.5 in NuGet
-then add "using ZeroMQ;" in your project
+
+troubleshooting :
+If you can't load the xml file, try to remove comments and the first line that defines the xml file

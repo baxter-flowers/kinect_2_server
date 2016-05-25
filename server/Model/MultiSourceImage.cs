@@ -35,7 +35,7 @@ namespace Kinect2Server
             this.depthPublisher = dPub;
             this.colorPublisher = cPub;
             this.fps = 20;
-            this.frameCount = 0;
+            
 
 
             this.multiSourceFrameReader = this.kinect.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth);
