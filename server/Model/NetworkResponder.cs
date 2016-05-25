@@ -73,17 +73,8 @@ namespace Kinect2Server
                         ZFrame frame = this.socket.ReceiveFrame();
                         request = frame.ReadString();
                         String reply= this.UpdateParams(request);
-
-                        if (reply.Equals(""))
-                        {
-                            ZFrame perfect = new ZFrame("Parameters updated");
-                            this.socket.Send(perfect);
-                        }
-                        else
-                        {
-                            ZFrame message = new ZFrame(reply);
-                            this.socket.Send(message);
-                        }
+                        ZFrame message = new ZFrame(reply);
+                        this.socket.Send(message);
                         
                     }
                     catch (ZException e)
@@ -116,7 +107,7 @@ namespace Kinect2Server
                     this.sr.createGrammar(null, grammarFile, grammar);
                     if (!this.sr.isSpeechEngineSet())
                     {
-                        reply += "Failed to load grammar file";
+                        reply += "Failed to load grammar file.";
                         return reply;
                     }
                     if (grammarFile != null)

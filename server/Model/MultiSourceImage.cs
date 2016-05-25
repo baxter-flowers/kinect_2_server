@@ -25,6 +25,7 @@ namespace Kinect2Server
         private Byte[] depthBytes;
         private Byte[] colorBytes;
         private int fps;
+        private int frameCount;
         
 
         public MultiSourceImage(KinectSensor kinect, NetworkPublisher dPub, NetworkPublisher cPub)
@@ -34,6 +35,7 @@ namespace Kinect2Server
             this.depthPublisher = dPub;
             this.colorPublisher = cPub;
             this.fps = 20;
+            this.frameCount = 0;
 
 
             this.multiSourceFrameReader = this.kinect.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth);
@@ -60,6 +62,18 @@ namespace Kinect2Server
             set
             {
                 this.fps = value;
+            }
+        }
+
+        public int FrameCount
+        {
+            get
+            {
+                return this.frameCount;
+            }
+            set
+            {
+                this.frameCount = value;
             }
         }
 
