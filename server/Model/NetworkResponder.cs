@@ -114,6 +114,11 @@ namespace Kinect2Server
                 if (grammar != null)
                 {
                     this.sr.createGrammar(null, grammarFile, grammar);
+                    if (!this.sr.isSpeechEngineSet())
+                    {
+                        reply += "Failed to load grammar file";
+                        return reply;
+                    }
                     if (grammarFile != null)
                     {
                         this.srv.RefreshGrammarFile();
@@ -147,6 +152,7 @@ namespace Kinect2Server
                     else if (grammar == null)
                     {
                         reply += " Speech engine not set, you have to send grammar file.";
+                        return reply;
                     }
                 }
 
