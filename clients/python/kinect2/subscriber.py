@@ -49,11 +49,16 @@ class SkeletonSubscriber(StreamSubscriber):
         self.params = SkeletonParams(context, ip, config_port)
     
     def start(self):
+        """
+        Take into account the parameters and start the Skeleton publisher
+        Returns an empty string if the parameters have been set successfully on the server or an error string otherwise
+        """
         # Trigger the server
         self.params.on()
-        self.params.send_params()
+        msg = self.params.send_params()
         # Start the client
         self._start_client()
+        return msg
 
 class SpeechSubscriber(StreamSubscriber):
     def __init__(self, context, filter, ip, port, config_port):
@@ -61,8 +66,13 @@ class SpeechSubscriber(StreamSubscriber):
         self.params = SpeechParams(context, ip, config_port)
    
     def start(self):
+        """
+        Take into account the parameters (grammar, semantics, sentence, ...) and start the Speech Recognizer
+        Returns an empty string if the parameters have been set successfully on the server or an error string otherwise
+        """
         # Trigger the server
         self.params.on()
-        self.params.send_params()
+        msg = self.params.send_params()
         # Start the client
         self._start_client()
+        return msg

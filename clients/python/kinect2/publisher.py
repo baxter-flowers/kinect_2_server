@@ -15,4 +15,8 @@ class TTSPublisher(object):
         self._socket.send("{} {}".format("tts", json.dumps([sentence])))
 
     def start(self):
-        self.params.send_params()
+        """
+        Take into account the parameters and start the TTS system
+        Returns an empty string if the parameters have been set successfully on the server or an error string otherwise
+        """
+        return self.params.send_params()
