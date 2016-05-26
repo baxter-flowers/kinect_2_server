@@ -231,7 +231,7 @@ namespace Kinect2Server
 
         public void addSRListener(EventHandler<SpeechRecognizedEventArgs> f1, EventHandler<SpeechRecognitionRejectedEventArgs> f2)
         {
-            this.speechEngine.SpeechRecognized += f1;  // TODOOOOOOOO An unhandled exception of type 'System.NullReferenceException' occurred in Kinect2Server.exe
+            this.speechEngine.SpeechRecognized += f1; 
             this.speechEngine.SpeechRecognitionRejected += f2;
         }
 

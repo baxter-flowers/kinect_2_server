@@ -77,6 +77,7 @@ namespace Kinect2Server.View
                 this.setButtonOn(this.stackDisplay);
                 this.msi.MultiSourceFrameReader.IsPaused = false;
                 this.statusBarItem.Content = "Streaming RGB-D + microphone";
+                this.dt = DateTime.Now;
             }
         }
 
@@ -155,74 +156,83 @@ namespace Kinect2Server.View
 
         private void Reader_MultiSourceFrameArrive(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
-
-            // ColorFrame is IDisposable
-            using (ColorFrame colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame())
+            if (this.msi.FrameCount != 1)
             {
-                if (colorFrame != null)
+                MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
+
+                // ColorFrame is IDisposable
+                using (ColorFrame colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame())
                 {
-                    FrameDescription colorFrameDescription = colorFrame.FrameDescription;
-
-                    using (KinectBuffer colorBuffer = colorFrame.LockRawImageBuffer())
+                    if (colorFrame != null)
                     {
-                        this.colorBitmap.Lock();
+                        FrameDescription colorFrameDescription = colorFrame.FrameDescription;
 
-                        // verify data and write the new color frame data to the display bitmap
-                        if ((colorFrameDescription.Width == this.colorBitmap.PixelWidth) && (colorFrameDescription.Height == this.colorBitmap.PixelHeight))
+                        using (KinectBuffer colorBuffer = colorFrame.LockRawImageBuffer())
                         {
-                            colorFrame.CopyConvertedFrameDataToIntPtr(
-                                this.colorBitmap.BackBuffer,
-                                (uint)(colorFrameDescription.Width * colorFrameDescription.Height * 4),
-                                ColorImageFormat.Bgra);
+                            this.colorBitmap.Lock();
 
-                            this.msi.SendColorFrame(colorFrame);
-                            if (this.mode == Mode.Color)
+                            // verify data and write the new color frame data to the display bitmap
+                            if ((colorFrameDescription.Width == this.colorBitmap.PixelWidth) && (colorFrameDescription.Height == this.colorBitmap.PixelHeight))
                             {
-                                this.camera.Source = this.colorBitmap;
-                                this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
+                                colorFrame.CopyConvertedFrameDataToIntPtr(
+                                    this.colorBitmap.BackBuffer,
+                                    (uint)(colorFrameDescription.Width * colorFrameDescription.Height * 4),
+                                    ColorImageFormat.Bgra);
+
+                                this.msi.SendColorFrame(colorFrame);
+                                if (this.mode == Mode.Color)
+                                {
+                                    this.camera.Source = this.colorBitmap;
+                                    this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
+                                }
+                            }
+                            this.colorBitmap.Unlock();
+                        }
+                    }
+                }
+
+                bool depthFrameProcessed = false;
+
+                using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
+                {
+                    if (depthFrame != null)
+                    {
+                        // the fastest way to process the body index data is to directly access 
+                        // the underlying buffer
+                        using (KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
+                        {
+                            // verify data and write the depth data to the display bitmap
+                            if (((this.size) == (depthBuffer.Size / this.depthFrameDescription.BytesPerPixel)) &&
+                                (this.depthFrameDescription.Width == this.depthBitmap.PixelWidth) && (this.depthFrameDescription.Height == this.depthBitmap.PixelHeight))
+                            {
+                                // Note: In order to see the full range of depth (including the less reliable far field depth)
+                                // we are setting maxDepth to the extreme potential depth threshold
+                                ushort maxDepth = ushort.MaxValue;
+
+                                this.msi.SendDepthFrame(depthFrame);
+
+                                // If you wish to filter by reliable depth distance, uncomment the following line:
+                                //// maxDepth = depthFrame.DepthMaxReliableDistance
+
+                                this.ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth);
+                                depthFrameProcessed = true;
                             }
                         }
-                        this.colorBitmap.Unlock();
                     }
                 }
-            }
 
-            bool depthFrameProcessed = false;
-
-            using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
-            {
-                if (depthFrame != null)
+                if (depthFrameProcessed && this.mode == Mode.Depth)
                 {
-                    // the fastest way to process the body index data is to directly access 
-                    // the underlying buffer
-                    using (KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
-                    {
-                        // verify data and write the depth data to the display bitmap
-                        if (((this.size) == (depthBuffer.Size / this.depthFrameDescription.BytesPerPixel)) &&
-                            (this.depthFrameDescription.Width == this.depthBitmap.PixelWidth) && (this.depthFrameDescription.Height == this.depthBitmap.PixelHeight))
-                        {
-                            // Note: In order to see the full range of depth (including the less reliable far field depth)
-                            // we are setting maxDepth to the extreme potential depth threshold
-                            ushort maxDepth = ushort.MaxValue;
-
-                            this.msi.SendDepthFrame(depthFrame);
-
-                            // If you wish to filter by reliable depth distance, uncomment the following line:
-                            //// maxDepth = depthFrame.DepthMaxReliableDistance
-
-                            this.ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth);
-                            depthFrameProcessed = true;
-                        }
-                    }
+                    this.camera.Source = this.depthBitmap;
+                    this.RenderDepthPixels();
                 }
+                this.msi.FrameCount++;
             }
-
-            if (depthFrameProcessed && this.mode == Mode.Depth)
+            else
             {
-                this.camera.Source = this.depthBitmap;
-                this.RenderDepthPixels();
+                this.msi.FrameCount = 0;
             }
+            
         }
 
 
