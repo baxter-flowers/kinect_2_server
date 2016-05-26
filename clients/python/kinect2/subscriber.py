@@ -43,8 +43,8 @@ class StreamSubscriber(object):
                 self._cb(msg)
                 
 class SkeletonSubscriber(StreamSubscriber):
-    def __init__(self, context, filter, ip, port, config_port):
-        StreamSubscriber.__init__(self, context, filter, ip, port)
+    def __init__(self, context, ip, port, config_port):
+        StreamSubscriber.__init__(self, context, 'skeleton', ip, port)
         self._socket.setsockopt(CONFLATE, 1)
         self.params = SkeletonParams(context, ip, config_port)
     
@@ -61,8 +61,8 @@ class SkeletonSubscriber(StreamSubscriber):
         return msg
 
 class SpeechSubscriber(StreamSubscriber):
-    def __init__(self, context, filter, ip, port, config_port):
-        StreamSubscriber.__init__(self, context, filter, ip, port)
+    def __init__(self, context, ip, port, config_port):
+        StreamSubscriber.__init__(self, context, 'recognized_speech', ip, port)
         self.params = SpeechParams(context, ip, config_port)
    
     def start(self):
