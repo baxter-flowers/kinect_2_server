@@ -165,59 +165,25 @@ namespace Kinect2Server.View
                 {
                     if (colorFrame != null)
                     {
-                        FrameDescription colorFrameDescription = colorFrame.FrameDescription;
-
-                        using (KinectBuffer colorBuffer = colorFrame.LockRawImageBuffer())
+                        this.colorBitmap.Lock();
+                        this.colorBitmap = this.msi.LetsFindABetterNameLater(colorFrame, this.colorBitmap);
+                        if (this.mode == Mode.Color)
                         {
-                            this.colorBitmap.Lock();
-
-                            // verify data and write the new color frame data to the display bitmap
-                            if ((colorFrameDescription.Width == this.colorBitmap.PixelWidth) && (colorFrameDescription.Height == this.colorBitmap.PixelHeight))
-                            {
-                                colorFrame.CopyConvertedFrameDataToIntPtr(
-                                    this.colorBitmap.BackBuffer,
-                                    (uint)(colorFrameDescription.Width * colorFrameDescription.Height * 4),
-                                    ColorImageFormat.Bgra);
-
-                                this.msi.SendColorFrame(colorFrame);
-                                if (this.mode == Mode.Color)
-                                {
-                                    this.camera.Source = this.colorBitmap;
-                                    this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
-                                }
-                            }
-                            this.colorBitmap.Unlock();
+                            this.camera.Source = this.colorBitmap;
+                            this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
                         }
+                        this.colorBitmap.Unlock();
                     }
                 }
 
                 bool depthFrameProcessed = false;
-
+                // DepthFrame is IDisposable
                 using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
                 {
                     if (depthFrame != null)
                     {
-                        // the fastest way to process the body index data is to directly access 
-                        // the underlying buffer
-                        using (KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
-                        {
-                            // verify data and write the depth data to the display bitmap
-                            if (((this.size) == (depthBuffer.Size / this.depthFrameDescription.BytesPerPixel)) &&
-                                (this.depthFrameDescription.Width == this.depthBitmap.PixelWidth) && (this.depthFrameDescription.Height == this.depthBitmap.PixelHeight))
-                            {
-                                // Note: In order to see the full range of depth (including the less reliable far field depth)
-                                // we are setting maxDepth to the extreme potential depth threshold
-                                ushort maxDepth = ushort.MaxValue;
-
-                                this.msi.SendDepthFrame(depthFrame);
-
-                                // If you wish to filter by reliable depth distance, uncomment the following line:
-                                //// maxDepth = depthFrame.DepthMaxReliableDistance
-
-                                this.ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth);
-                                depthFrameProcessed = true;
-                            }
-                        }
+                        this.depthPixels = this.msi.AndAnotherOne(depthFrame, this.depthBitmap, this.depthPixels);
+                        depthFrameProcessed = true;
                     }
                 }
 
@@ -226,6 +192,7 @@ namespace Kinect2Server.View
                     this.camera.Source = this.depthBitmap;
                     this.RenderDepthPixels();
                 }
+
                 this.msi.FrameCount++;
             }
             else
@@ -233,24 +200,6 @@ namespace Kinect2Server.View
                 this.msi.FrameCount = 0;
             }
             
-        }
-
-
-        private unsafe void ProcessDepthFrameData(IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth)
-        {
-            // depth frame data is a 16 bit value
-            ushort* frameData = (ushort*)depthFrameData;
-
-            // convert depth to a visual representation
-            for (int i = 0; i < (int)(depthFrameDataSize / this.depthFrameDescription.BytesPerPixel); ++i)
-            {
-                // Get the depth for this pixel
-                ushort depth = frameData[i];
-
-                // To convert to a byte, we're mapping the depth value to the byte range.
-                // Values outside the reliable depth range are mapped to 0 (black).
-                this.depthPixels[i] = (Byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
-            }
         }
 
         private void RenderDepthPixels()

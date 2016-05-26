@@ -20,6 +20,7 @@ namespace Kinect2Server
         private NetworkPublisher colorPublisher;
         private KinectSensor kinect;
         private CoordinateMapper coordinateMapper;
+        private const int MapDepthToByte = 8000 / 256;
         private MultiSourceFrameReader multiSourceFrameReader;
         private ushort[] shorts;
         private Byte[] depthBytes;
@@ -97,6 +98,66 @@ namespace Kinect2Server
         {
             colorFrame.CopyRawFrameDataToArray(this.colorBytes);
             this.colorPublisher.SendByteArray(this.colorBytes);
+        }
+
+        public WriteableBitmap LetsFindABetterNameLater(ColorFrame colorFrame, WriteableBitmap colorBitmap)
+        {
+            FrameDescription colorFrameDescription = colorFrame.FrameDescription;
+
+            using (KinectBuffer colorBuffer = colorFrame.LockRawImageBuffer())
+            {
+                if ((colorFrameDescription.Width == colorBitmap.Width) && (colorFrameDescription.Height == colorBitmap.Height))
+                {
+                    colorFrame.CopyConvertedFrameDataToIntPtr(
+                        colorBitmap.BackBuffer,
+                        (uint)(colorFrameDescription.Width * colorFrameDescription.Height * 4),
+                        ColorImageFormat.Bgra);
+
+                    this.SendColorFrame(colorFrame);
+                }
+            }
+            return colorBitmap;
+        }
+
+        public Byte[] AndAnotherOne(DepthFrame depthFrame, WriteableBitmap depthBitmap, Byte[] depthPixels)
+        {
+            using (KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
+            {
+                FrameDescription depthFrameDescription = depthFrame.FrameDescription;
+                if((217088 == (depthBuffer.Size / depthFrameDescription.BytesPerPixel)) &&
+                    (depthFrameDescription.Width == depthBitmap.Width) && (depthFrameDescription.Height == depthBitmap.Height))
+                {
+                    // Note: In order to see the full range of depth (including the less reliable far field depth)
+                    // we are setting maxDepth to the extreme potential depth threshold
+                    ushort maxDepth = ushort.MaxValue;
+                    // If you wish to filter by reliable depth distance, uncomment the following line:
+                    //// maxDepth = depthFrame.DepthMaxReliableDistance
+
+                    this.SendDepthFrame(depthFrame);
+
+                    depthPixels = this.ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth, depthFrameDescription, depthPixels);
+                }
+            }
+            return depthPixels;
+        }
+
+        private unsafe Byte[] ProcessDepthFrameData(IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth, FrameDescription depthFrameDescription, Byte[] depthPixels)
+        {
+            // depth frame data is a 16 bit value
+            ushort* frameData = (ushort*)depthFrameData;
+
+            // convert depth to a visual representation
+            for (int i = 0; i < (int)(depthFrameDataSize / depthFrameDescription.BytesPerPixel); ++i)
+            {
+                // Get the depth for this pixel
+                ushort depth = frameData[i];
+
+                // To convert to a byte, we're mapping the depth value to the byte range.
+                // Values outside the reliable depth range are mapped to 0 (black).
+                depthPixels[i] = (Byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
+            }
+
+            return depthPixels;
         }
     }
 }
