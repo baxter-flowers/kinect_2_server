@@ -31,7 +31,7 @@ namespace Kinect2Server
 
         public void Speak()
         {
-            while (Thread.CurrentThread.IsAlive)
+            while (this.speakThread.IsAlive)
             {
                 this.spokenText = this.subscriber.ReceiveText();
                 lock (this)
@@ -89,18 +89,6 @@ namespace Kinect2Server
             get
             {
                 return this.spokenText;
-            }
-        }
-
-        public Thread SpeakThread
-        {
-            get
-            {
-                return this.speakThread;
-            }
-            set
-            {
-                this.speakThread = value;
             }
         }
 

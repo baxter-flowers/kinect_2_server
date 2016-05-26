@@ -1,6 +1,7 @@
 ﻿using Microsoft.Kinect;
 using Microsoft.Speech.AudioFormat;
 using Microsoft.Speech.Recognition;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -286,5 +287,55 @@ namespace Kinect2Server
             this.grammarText = sw.ToString();
         }
 
+        public List<String> SpeechRecognized(SemanticValue semantics, string sentence)
+        {
+            if (semantics.Confidence >= this.confidenceThreshold)
+            {
+                List<String> contentSentence = new List<string>();
+                List<String> contentSemantic = new List<string>();
+                Dictionary<String, List<String>> dico = new Dictionary<string, List<String>>();
+
+                if (this.sentenceStatus)
+                {
+                    //Fill the dictionary
+                    contentSentence.Add(sentence);
+                    dico.Add("sentence", contentSentence);
+
+                    if (this.semanticsStatus)
+                    {
+                        //Fill the dictionary
+                        foreach (KeyValuePair<String, SemanticValue> child in semantics)
+                        {
+                            contentSemantic.Add(semantics[child.Key].Value.ToString());
+                        }
+                        dico.Add("semantics", contentSemantic);
+                    }
+                }
+                else if (this.semanticsStatus)
+                {
+                    //Fill the dictionary
+                    foreach (KeyValuePair<String, SemanticValue> child in semantics)
+                    {
+                        contentSemantic.Add(semantics[child.Key].Value.ToString());
+                    }
+                    dico.Add("semantics", contentSemantic);
+
+                    if (this.sentenceStatus)
+                    {
+                        //Fill the dictionary
+                        contentSentence.Add(sentence);
+                        dico.Add("sentence", contentSentence);
+                    }
+                }
+
+                if (dico.Count != 0)
+                {
+                    string json = JsonConvert.SerializeObject(dico);
+                    this.network.SendString(json, "recognized_speech");
+                }
+                return contentSemantic;
+            }
+            return null;
+        }
     }
 }

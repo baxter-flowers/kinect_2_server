@@ -90,98 +90,30 @@ namespace Kinect2Server.View
 
         private void SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            SemanticValue semantics = e.Result.Semantics;
-            if (semantics.Confidence >= sr.ConfidenceThreshold)
+            List<String> contentSemantic = this.sr.SpeechRecognized(e.Result.Semantics, e.Result.Text);
+            //Update the text
+            this.Dispatcher.Invoke(() =>
             {
-                List<String> contentSentence = new List<string>();
-                List<String> contentSemantic = new List<string>();
-                Dictionary<String, List<String>> dico = new Dictionary<string, List<String>>();
-                string sentence = e.Result.Text;
-
-                //Only sentence is active
-                if(sr.SentenceStatus && !sr.SemanticsStatus)
+                this.lastSentence.Text = e.Result.Text;
+                this.lastSemantics.Text = "";
+                if (contentSemantic != null)
                 {
-                    //Fill the dictionary
-                    contentSentence.Add(sentence);
-                    dico.Add("sentence", contentSentence);
-                    //Update the text
-                    this.Dispatcher.Invoke(() =>
+                    for (int i = 0; i < contentSemantic.Count; i++)
                     {
-                        this.lastSentence.Text = sentence;
-                    });
-                    
-                    //Send the dictionary
-                    string json = JsonConvert.SerializeObject(dico);
-                    sr.NetworkPublisher.SendString(json, "recognized_speech");
-                }
-                //Only semantic is active
-                else if (!sr.SentenceStatus && sr.SemanticsStatus)
-                {
-                    //Fill the dictionary
-                    foreach (KeyValuePair<String, SemanticValue> child in semantics)
-                    {
-                        contentSemantic.Add(semantics[child.Key].Value.ToString());
+                        this.lastSemantics.Text += contentSemantic[i];
                     }
-                    dico.Add("semantics", contentSemantic);
-                    //Update the text
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        this.lastSemantics.Text = "";
-                        for (int i = 0; i < contentSemantic.Count; i++)
-                        {
-                            this.lastSemantics.Text += contentSemantic[i];
-                        }
-                    });
-                    
-                    //Send the dictionary
-                    string json = JsonConvert.SerializeObject(dico);
-                    sr.NetworkPublisher.SendString(json, "recognized_speech");
                 }
-                //Both sentence and semantic are active
-                else if (sr.SentenceStatus && sr.SemanticsStatus)
-                {
-                    //Fill the dictionary
-                    contentSentence.Add(sentence);
-                    dico.Add("sentence", contentSentence);
-                    foreach (KeyValuePair<String, SemanticValue> child in semantics)
-                    {
-                        contentSemantic.Add(semantics[child.Key].Value.ToString());
-                    }
-                    dico.Add("semantics", contentSemantic);
-                    //Update the text
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        this.lastSentence.Text = sentence;
-                        this.lastSemantics.Text = "";
-                        for (int i = 1; i < contentSemantic.Count; i++)
-                        {
-                            this.lastSemantics.Text += contentSemantic[i];
-
-                        }
-                    });
-                    
-                    //Send the dictionary
-                    string json = JsonConvert.SerializeObject(dico);
-                    sr.NetworkPublisher.SendString(json, "recognized_speech");
-                }
-            }
+                
+            });
         }
 
         private void SpeechRejected(object sender, SpeechRecognitionRejectedEventArgs e)
         {
-            if (sr.SentenceStatus)
-            {
-                this.Dispatcher.Invoke(() =>
-                {
-                    this.lastSentence.Text = Properties.Resources.NoWordsRecognized;
-                });
-                
-            }
             this.Dispatcher.Invoke(() =>
             {
+                this.lastSentence.Text = Properties.Resources.NoWordsRecognized;
                 this.lastSemantics.Text = "";
             });
-            
         }
 
 
