@@ -14,14 +14,12 @@ namespace Kinect2Server.View
     public partial class TextToSpeechView : UserControl
     {
         private MainWindow mw;
-        private NetworkResponder responder;
         private TextToSpeech tts;
 
         public TextToSpeechView()
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.tts = mw.TextToSpeech;
-            this.responder = this.mw.NetworkResponder;
             InitializeComponent();
             this.tts.addTTSListener(updateText);
         }

@@ -17,7 +17,6 @@ namespace Kinect2Server.View
     {
         private MainWindow mw;
         private SkeletonTracking st;
-        private NetworkResponder responder;
         private const double HandSize = 30;
         private const double JointThickness = 3;
         private const double ClipBoundsThickness = 10;
@@ -45,8 +44,6 @@ namespace Kinect2Server.View
             this.st = this.mw.SkeletonTracking;
             this.st.addSTListener(this.Reader_FrameArrived);
             this.st.BodyFrameReader.IsPaused = true;
-            this.responder = this.mw.NetworkResponder;
-
             // get the depth (display) extents
             FrameDescription frameDescription = this.mw.KinectSensor.DepthFrameSource.FrameDescription;
 
@@ -117,11 +114,6 @@ namespace Kinect2Server.View
 
         private void switchST(object sender, RoutedEventArgs e)
         {
-            this.switchSkeletonTracking(sender, e);
-        }
-
-        private void switchSkeletonTracking(object sender, RoutedEventArgs e)
-        {
             if (!grStatus)
             {
                 this.st.BodyFrameReader.IsPaused = false;
@@ -134,7 +126,6 @@ namespace Kinect2Server.View
                 setButtonOff(this.stackGR);
                 this.grStatus = false;
             }
-            
         }
 
         private void submitSmoothing(object sender, RoutedEventArgs e)
@@ -214,22 +205,10 @@ namespace Kinect2Server.View
         private void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             bool dataReceived = false;
-
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
             {
                 if (bodyFrame != null)
-                {
-                    if (this.st.Bodies == null)
-                    {
-                        this.st.Bodies = new Body[bodyFrame.BodyCount];
-                    }
-
-                    // The first time GetAndRefreshBodyData is called, Kinect will allocate each Body in the array.
-                    // As long as those body objects are not disposed and not set to null in the array,
-                    // those body objects will be re-used.
-                    bodyFrame.GetAndRefreshBodyData(this.st.Bodies);
-                    dataReceived = true;
-                }
+                    dataReceived = this.st.RefreshBodyDate(bodyFrame);                
             }
 
             if (dataReceived)
@@ -248,7 +227,6 @@ namespace Kinect2Server.View
 
                         if (body.IsTracked)
                         {
-                            
                             this.DrawClippedEdges(body, dc);
 
                             if (this.st.SmoothingParam != 0.0f)

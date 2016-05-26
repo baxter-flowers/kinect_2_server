@@ -213,5 +213,21 @@ namespace Kinect2Server
             this.NetworkPublisher.SendString(json, "skeleton");
             return this.jointPoints;
         }
+
+        public bool RefreshBodyDate(BodyFrame bodyFrame)
+        {
+            if (bodyFrame != null)
+            {
+                if (this.bodies == null)
+                {
+                    this.bodies = new Body[bodyFrame.BodyCount];
+                }
+                // The first time GetAndRefreshBodyData is called, Kinect will allocate each Body in the array.
+                // As long as those body objects are not disposed and not set to null in the array,
+                // those body objects will be re-used.
+                bodyFrame.GetAndRefreshBodyData(this.bodies);
+            }
+            return true;
+        }
     }
 }

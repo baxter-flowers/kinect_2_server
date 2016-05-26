@@ -15,30 +15,17 @@ namespace Kinect2Server.View
     {
 
         private SpeechRecognition sr;
-        private NetworkResponder responder;
         private MainWindow mw;
 
         public SpeechRecognitionView()
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.sr = this.mw.SpeechRecogniton;
-            this.responder = this.mw.NetworkResponder;
             InitializeComponent();
         }
 
         // Turn off or on the speech recognition 
         private void switchSR(object sender, RoutedEventArgs e)
-        {
-            SwitchSpeechRecognition(sender, e);
-        }
-
-        public void clearRecognitionText()
-        {
-            this.lastSemantics.Text = "";
-            this.lastSentence.Text = "";
-        }
-
-        private void SwitchSpeechRecognition(object sender, RoutedEventArgs e)
         {
             clearRecognitionText();
 
@@ -61,6 +48,12 @@ namespace Kinect2Server.View
                 sr.loadGrammar();
                 this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
             }
+        }
+
+        public void clearRecognitionText()
+        {
+            this.lastSemantics.Text = "";
+            this.lastSentence.Text = "";
         }
 
         public void setButtonOff(StackPanel stack)
