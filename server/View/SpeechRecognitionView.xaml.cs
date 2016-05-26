@@ -147,7 +147,7 @@ namespace Kinect2Server.View
                     {
                         contentSemantic.Add(semantics[child.Key].Value.ToString());
                     }
-                    dico.Add("semantic", contentSemantic);
+                    dico.Add("semantics", contentSemantic);
                     //Update the text
                     this.Dispatcher.Invoke(() =>
                     {

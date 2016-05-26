@@ -13,7 +13,6 @@ namespace Kinect2Server
         {
             this.context = new ZContext();
             this.socket = new ZSocket(this.context, ZSocketType.PUB);
-            this.socket.SetOption(ZSocketOption.CONFLATE, 1);
             this.binded = false;
         }
 
@@ -51,6 +50,11 @@ namespace Kinect2Server
             {
                 status = ("Cannot publish message: Not binded");
             }
+        }
+
+        public void SetConflate()
+        {
+            this.socket.SetOption(ZSocketOption.CONFLATE, 1);
         }
 
         public void SendByteArray(Byte[] byteArray)

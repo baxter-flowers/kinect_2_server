@@ -24,6 +24,7 @@ namespace Kinect2Server
         private ushort[] shorts;
         private Byte[] depthBytes;
         private Byte[] colorBytes;
+        private ColorSpacePoint[] colorSpacePoints;
         private int fps;
         private int frameCount;
         
@@ -43,6 +44,7 @@ namespace Kinect2Server
             this.shorts = new ushort[217088];
             this.depthBytes = new Byte[434176];
             this.colorBytes = new Byte[4147200];
+            this.colorSpacePoints = new ColorSpacePoint[this.shorts.Length];
         }
 
         public MultiSourceFrameReader MultiSourceFrameReader
@@ -86,6 +88,7 @@ namespace Kinect2Server
         public void SendDepthFrame(DepthFrame depthFrame)
         {
             depthFrame.CopyFrameDataToArray(this.shorts);
+            //this.coordinateMapper.MapDepthFrameToColorSpace(this.shorts, this.colorSpacePoints);
             Buffer.BlockCopy(shorts, 0, this.depthBytes, 0, this.depthBytes.Length);
             this.depthPublisher.SendByteArray(this.depthBytes);
         }
