@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -85,79 +83,111 @@ namespace Kinect2Server
             this.multiSourceFrameReader.MultiSourceFrameArrived += f;
         }
 
-
-        public void SendDepthFrame(DepthFrame depthFrame)
+        public void SendFrames(ColorFrame colorFrame, DepthFrame depthFrame)
         {
             depthFrame.CopyFrameDataToArray(this.shorts);
-            //this.coordinateMapper.MapDepthFrameToColorSpace(this.shorts, this.colorSpacePoints);
             Buffer.BlockCopy(shorts, 0, this.depthBytes, 0, this.depthBytes.Length);
-            this.depthPublisher.SendByteArray(this.depthBytes);
-        }
-
-        public void SendColorFrame(ColorFrame colorFrame)
-        {
             colorFrame.CopyRawFrameDataToArray(this.colorBytes);
+
+            this.depthPublisher.SendByteArray(this.depthBytes);
             this.colorPublisher.SendByteArray(this.colorBytes);
         }
 
-        public WriteableBitmap LetsFindABetterNameLater(ColorFrame colorFrame, WriteableBitmap colorBitmap)
+
+        public ImageSource ToBitMap(ColorFrame frame)
         {
-            FrameDescription colorFrameDescription = colorFrame.FrameDescription;
+            int width = frame.FrameDescription.Width;
+            int height = frame.FrameDescription.Height;
+            PixelFormat format = PixelFormats.Bgr32;
 
-            using (KinectBuffer colorBuffer = colorFrame.LockRawImageBuffer())
+            byte[] pixels = new byte[width * height * ((format.BitsPerPixel + 7) / 8)];
+
+            if (frame.RawColorImageFormat == ColorImageFormat.Bgra)
             {
-                if ((colorFrameDescription.Width == colorBitmap.Width) && (colorFrameDescription.Height == colorBitmap.Height))
-                {
-                    colorFrame.CopyConvertedFrameDataToIntPtr(
-                        colorBitmap.BackBuffer,
-                        (uint)(colorFrameDescription.Width * colorFrameDescription.Height * 4),
-                        ColorImageFormat.Bgra);
+                frame.CopyRawFrameDataToArray(pixels);
+            }
+            else
+            {
+                frame.CopyConvertedFrameDataToArray(pixels, ColorImageFormat.Bgra);
+            }
 
-                    this.SendColorFrame(colorFrame);
+            int stride = width * format.BitsPerPixel / 8;
+
+            return BitmapSource.Create(width, height, 96, 96, format, null, pixels, stride);
+        }
+
+        public ImageSource ToBitMap(DepthFrame frame)
+        {
+            int width = frame.FrameDescription.Width;
+            int height = frame.FrameDescription.Height;
+            PixelFormat format = PixelFormats.Bgr32;
+
+            ushort minDepth = frame.DepthMinReliableDistance;
+            ushort maxDepth = frame.DepthMaxReliableDistance;
+
+            ushort[] pixelData = new ushort[width * height];
+            byte[] pixels = new byte[width * height * (format.BitsPerPixel + 7) / 8];
+
+            frame.CopyFrameDataToArray(pixelData);
+
+            int colorIndex = 0;
+            for (int depthIndex = 0; depthIndex < pixelData.Length; ++depthIndex)
+            {
+                ushort depth = pixelData[depthIndex];
+
+                byte intensity = (byte)(depth >= minDepth && depth <= maxDepth ? depth : 0);
+
+                pixels[colorIndex++] = intensity; // B
+                pixels[colorIndex++] = intensity; // G
+                pixels[colorIndex++] = intensity; // R
+
+                ++colorIndex;
+            }
+
+            int stride = width * format.BitsPerPixel / 8;
+
+            return BitmapSource.Create(width, height, 96, 96, format, null, pixels, stride);
+        }
+
+        public ImageSource MapDepthToColor(ColorFrame colorFrame, DepthFrame depthFrame)
+        {
+            PixelFormat format = PixelFormats.Bgr32;
+            int bytesPerPixel = (PixelFormats.Bgr32.BitsPerPixel + 7) / 8;
+            ushort[] depthData = new ushort[depthFrame.FrameDescription.Width * depthFrame.FrameDescription.Height];
+            Byte[] colorData = new Byte[colorFrame.FrameDescription.Width * colorFrame.FrameDescription.Height * bytesPerPixel];
+            Byte[] displayPixels = new Byte[colorFrame.FrameDescription.Width * colorFrame.FrameDescription.Height * bytesPerPixel];
+            DepthSpacePoint[] depthPoints = new DepthSpacePoint[colorFrame.FrameDescription.Width * colorFrame.FrameDescription.Height];
+
+            depthFrame.CopyFrameDataToArray(depthData);
+            colorFrame.CopyConvertedFrameDataToArray(colorData, ColorImageFormat.Bgra);
+            this.coordinateMapper.MapColorFrameToDepthSpace(depthData, depthPoints);
+            Array.Clear(displayPixels, 0, displayPixels.Length);
+
+            for (int colorIndex = 0; colorIndex < depthPoints.Length; colorIndex++)
+            {
+                DepthSpacePoint depthPoint = depthPoints[colorIndex];
+
+                if (!float.IsNegativeInfinity(depthPoint.X) && !float.IsNegativeInfinity(depthPoint.Y))
+                {
+                    int depthX = (int)Math.Floor(depthPoint.X + 0.5f);
+                    int depthY = (int)Math.Floor(depthPoint.Y + 0.5f);
+
+                    if ((depthX >= 0) && (depthX < depthFrame.FrameDescription.Width) && (depthY >= 0) && (depthY < depthFrame.FrameDescription.Height))
+                    {
+                        int depthIndex = (depthY * depthFrame.FrameDescription.Width) + depthX;
+
+                        int sourceIndex = colorIndex * bytesPerPixel;
+
+                        displayPixels[sourceIndex] = colorData[sourceIndex++]; // B
+                        displayPixels[sourceIndex] = colorData[sourceIndex++]; // G
+                        displayPixels[sourceIndex] = colorData[sourceIndex++]; // R
+                        displayPixels[sourceIndex] = 255;                      // A
+                    }
                 }
             }
-            return colorBitmap;
+            int stride = colorFrame.FrameDescription.Width * format.BitsPerPixel / 8;
+
+            return BitmapSource.Create(colorFrame.FrameDescription.Width, colorFrame.FrameDescription.Height, 96, 96, format, null, displayPixels, stride);
         }
-
-        public Byte[] AndAnotherOne(DepthFrame depthFrame, WriteableBitmap depthBitmap, Byte[] depthPixels)
-        {
-            using (KinectBuffer depthBuffer = depthFrame.LockImageBuffer())
-            {
-                FrameDescription depthFrameDescription = depthFrame.FrameDescription;
-                if((217088 == (depthBuffer.Size / depthFrameDescription.BytesPerPixel)) &&
-                    (depthFrameDescription.Width == depthBitmap.Width) && (depthFrameDescription.Height == depthBitmap.Height))
-                {
-                    // Note: In order to see the full range of depth (including the less reliable far field depth)
-                    // we are setting maxDepth to the extreme potential depth threshold
-                    ushort maxDepth = ushort.MaxValue;
-                    // If you wish to filter by reliable depth distance, uncomment the following line:
-                    //// maxDepth = depthFrame.DepthMaxReliableDistance
-
-                    this.SendDepthFrame(depthFrame);
-
-                    depthPixels = this.ProcessDepthFrameData(depthBuffer.UnderlyingBuffer, depthBuffer.Size, depthFrame.DepthMinReliableDistance, maxDepth, depthFrameDescription, depthPixels);
-                }
-            }
-            return depthPixels;
-        }
-
-        private unsafe Byte[] ProcessDepthFrameData(IntPtr depthFrameData, uint depthFrameDataSize, ushort minDepth, ushort maxDepth, FrameDescription depthFrameDescription, Byte[] depthPixels)
-        {
-            // depth frame data is a 16 bit value
-            ushort* frameData = (ushort*)depthFrameData;
-
-            // convert depth to a visual representation
-            for (int i = 0; i < (int)(depthFrameDataSize / depthFrameDescription.BytesPerPixel); ++i)
-            {
-                // Get the depth for this pixel
-                ushort depth = frameData[i];
-
-                // To convert to a byte, we're mapping the depth value to the byte range.
-                // Values outside the reliable depth range are mapped to 0 (black).
-                depthPixels[i] = (Byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
-            }
-
-            return depthPixels;
-        }
-    }
+     }
 }

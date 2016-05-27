@@ -64,6 +64,7 @@
             <StackPanel Style="{StaticResource StackPanelButtonsStyle}">
                 <Button Content="Color" Style="{StaticResource ButtonStyle}" Click="Color_Click" />
                 <Button Content="Depth" Style="{StaticResource ButtonStyle}" Click="Depth_Click" />
+                <Button Content="Mapped" Style="{StaticResource ButtonStyle}" Click="Mapped_Click" />
             </StackPanel>
         </Grid>
     </Grid>

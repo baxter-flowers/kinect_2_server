@@ -12,7 +12,8 @@ namespace Kinect2Server.View
     public enum Mode
     {
         Color,
-        Depth
+        Depth,
+        Mapped
     }
 
     public partial class RGBDplusMic : UserControl
@@ -22,34 +23,16 @@ namespace Kinect2Server.View
         private Boolean display;
         private Mode mode;
 
-        private WriteableBitmap colorBitmap;
-        private WriteableBitmap depthBitmap;
-        private Byte[] depthPixels;
-        private Image img;
-
         public RGBDplusMic()
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.msi = this.mw.MultiSourceImage;
-            this.msi.addMSIListener(this.Reader_MultiSourceFrameArrive);
+            this.msi.addMSIListener(this.Reader_MultiSourceFrameArrived);
             this.msi.MultiSourceFrameReader.IsPaused = true;
             this.mode = Mode.Color;
-            
-            // create the colorFrameDescription from the ColorFrameSource using Bgra format
-            FrameDescription colorFrameDescription = this.mw.KinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
-            FrameDescription depthFrameDescription = this.mw.KinectSensor.DepthFrameSource.FrameDescription;
-
-            this.depthPixels = new Byte[depthFrameDescription.Height * depthFrameDescription.Width];
-
-            // create the bitmaps to display
-            this.colorBitmap = new WriteableBitmap(colorFrameDescription.Width, colorFrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
-            this.depthBitmap = new WriteableBitmap(depthFrameDescription.Width, depthFrameDescription.Height, 96.0, 96.0, PixelFormats.Gray8, null);
-
-            // use the window object as the view model in this simple example
             this.DataContext = this;
-
             this.display = false;
-            this.img = new Image();            
+
             InitializeComponent();
 
             this.statusBarItem.Content = "Streaming off";
@@ -83,10 +66,16 @@ namespace Kinect2Server.View
             this.mode = Mode.Depth;
         }
 
+        private void Mapped_Click(object sender, RoutedEventArgs e)
+        {
+            this.mode = Mode.Mapped;
+        }
+
         public void setButtonOff(StackPanel stack)
         {
             Dispatcher.Invoke(() =>
             {
+                Image img = new Image();
                 stack.Children.Clear();
                 img.Source = new BitmapImage(new Uri(@"../Images/switch_off.png", UriKind.Relative));
                 stack.Children.Add(img);
@@ -97,6 +86,7 @@ namespace Kinect2Server.View
         {
             Dispatcher.Invoke(() =>
             {
+                Image img = new Image();
                 stack.Children.Clear();
                 img.Source = new BitmapImage(new Uri(@"../Images/switch_on.png", UriKind.Relative));
                 stack.Children.Add(img);
@@ -105,7 +95,7 @@ namespace Kinect2Server.View
 
         private void ScreenshotButton_Click(object sender, RoutedEventArgs e)
         {
-            if (this.colorBitmap != null && this.depthBitmap != null)
+            /*if (this.colorBitmap != null && this.depthBitmap != null)
             {
                 // create a png bitmap & a jpg encoder
                 BitmapEncoder colorEncoder = new JpegBitmapEncoder();
@@ -143,64 +133,51 @@ namespace Kinect2Server.View
                 {
                     this.statusBarItem.Content = string.Format(Properties.Resources.FailedScreenshotStatusTextFormat, myPhotos);
                 }
-            }
+            }*/
         }
 
-        private void Reader_MultiSourceFrameArrive(object sender, MultiSourceFrameArrivedEventArgs e)
+        private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
             if (this.msi.FrameCount != 1)
             {
-                MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
+                ColorFrame colorFrame = null;
+                DepthFrame depthFrame = null;
 
-                // ColorFrame is IDisposable
-                using (ColorFrame colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame())
+                try
+                {
+                    MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
+                    if (multiSourceFrame == null)
+                        return;
+
+                    colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame();
+                    depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame();
+
+                    if (colorFrame == null | depthFrame == null)
+                        return;
+
+                    this.msi.SendFrames(colorFrame, depthFrame);
+
+                    if (this.mode == Mode.Color)
+                        this.camera.Source = this.msi.ToBitMap(colorFrame);
+                    else if (this.mode == Mode.Depth)
+                        this.camera.Source = this.msi.ToBitMap(depthFrame);
+                    else if (this.mode == Mode.Mapped)
+                        this.camera.Source = this.msi.MapDepthToColor(colorFrame, depthFrame);
+                }
+                catch { }
+                finally
                 {
                     if (colorFrame != null)
-                    {
-                        this.colorBitmap.Lock();
-                        this.colorBitmap = this.msi.LetsFindABetterNameLater(colorFrame, this.colorBitmap);
-                        if (this.mode == Mode.Color)
-                        {
-                            this.camera.Source = this.colorBitmap;
-                            this.colorBitmap.AddDirtyRect(new Int32Rect(0, 0, this.colorBitmap.PixelWidth, this.colorBitmap.PixelHeight));
-                        }
-                        this.colorBitmap.Unlock();
-                    }
-                }
-
-                bool depthFrameProcessed = false;
-                // DepthFrame is IDisposable
-                using (DepthFrame depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame())
-                {
+                        colorFrame.Dispose();
                     if (depthFrame != null)
-                    {
-                        this.depthPixels = this.msi.AndAnotherOne(depthFrame, this.depthBitmap, this.depthPixels);
-                        depthFrameProcessed = true;
-                    }
+                        depthFrame.Dispose();
                 }
-
-                if (depthFrameProcessed && this.mode == Mode.Depth)
-                {
-                    this.camera.Source = this.depthBitmap;
-                    this.RenderDepthPixels();
-                }
-
                 this.msi.FrameCount++;
             }
             else
             {
                 this.msi.FrameCount = 0;
             }
-            
-        }
-
-        private void RenderDepthPixels()
-        {
-            this.depthBitmap.WritePixels(
-                new Int32Rect(0, 0, this.depthBitmap.PixelWidth, this.depthBitmap.PixelHeight),
-                this.depthPixels,
-                this.depthBitmap.PixelWidth,
-                0);
         }
     }
 }
