@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Globalization;
 using System.Speech.Synthesis;
 using System.Threading;
@@ -14,6 +15,7 @@ namespace Kinect2Server
         private Thread speakThread;
         private String spokenText;
         private Boolean queuedMessages;
+        private Queue textQueue;
 
         public TextToSpeech(NetworkSubscriber sub)
         {
@@ -26,6 +28,7 @@ namespace Kinect2Server
             this.speakThread.IsBackground = true;
             this.speakThread.Start();
             this.queuedMessages = false;
+            this.textQueue = new Queue();
         }
 
 
@@ -33,9 +36,10 @@ namespace Kinect2Server
         {
             while (this.speakThread.IsAlive)
             {
-                this.spokenText = this.subscriber.ReceiveText();
+                this.textQueue.Enqueue(this.subscriber.ReceiveText());
                 lock (this)
                 {
+                    this.spokenText = (String)this.textQueue.Dequeue();
                     if (!this.queuedMessages)
                         this.synthesizer.SpeakAsyncCancelAll();
                     this.synthesizer.SpeakAsync(this.spokenText);

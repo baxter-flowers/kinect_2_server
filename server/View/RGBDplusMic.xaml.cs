@@ -21,14 +21,10 @@ namespace Kinect2Server.View
         private MultiSourceImage msi;
         private Boolean display;
         private Mode mode;
-        private DateTime dt;
 
         private WriteableBitmap colorBitmap;
         private WriteableBitmap depthBitmap;
-        private const int MapDepthToByte = 8000 / 256;
         private Byte[] depthPixels;
-        private FrameDescription depthFrameDescription;
-        private int size;
         private Image img;
 
         public RGBDplusMic()
@@ -41,22 +37,19 @@ namespace Kinect2Server.View
             
             // create the colorFrameDescription from the ColorFrameSource using Bgra format
             FrameDescription colorFrameDescription = this.mw.KinectSensor.ColorFrameSource.CreateFrameDescription(ColorImageFormat.Bgra);
+            FrameDescription depthFrameDescription = this.mw.KinectSensor.DepthFrameSource.FrameDescription;
 
-            this.depthFrameDescription=this.mw.KinectSensor.DepthFrameSource.FrameDescription;
-            this.size = this.depthFrameDescription.Width * this.depthFrameDescription.Height;
-            this.depthPixels = new Byte[this.size];
+            this.depthPixels = new Byte[depthFrameDescription.Height * depthFrameDescription.Width];
 
             // create the bitmaps to display
             this.colorBitmap = new WriteableBitmap(colorFrameDescription.Width, colorFrameDescription.Height, 96.0, 96.0, PixelFormats.Bgr32, null);
-            this.depthBitmap = new WriteableBitmap(this.depthFrameDescription.Width, this.depthFrameDescription.Height, 96.0, 96.0, PixelFormats.Gray8, null);
+            this.depthBitmap = new WriteableBitmap(depthFrameDescription.Width, depthFrameDescription.Height, 96.0, 96.0, PixelFormats.Gray8, null);
 
             // use the window object as the view model in this simple example
             this.DataContext = this;
 
             this.display = false;
-            this.img = new Image();
-            this.dt = DateTime.Now;
-            
+            this.img = new Image();            
             InitializeComponent();
 
             this.statusBarItem.Content = "Streaming off";
@@ -76,8 +69,7 @@ namespace Kinect2Server.View
                 this.display = true;
                 this.setButtonOn(this.stackDisplay);
                 this.msi.MultiSourceFrameReader.IsPaused = false;
-                this.statusBarItem.Content = "Streaming RGB-D + microphone";
-                this.dt = DateTime.Now;
+                this.statusBarItem.Content = "Streaming RGB-D images + microphone";
             }
         }
 
