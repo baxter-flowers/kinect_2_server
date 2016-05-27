@@ -138,8 +138,8 @@ namespace Kinect2Server.View
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            if (this.msi.FrameCount != 1)
-            {
+            /*if (this.msi.FrameCount != 1)
+            {*/
                 ColorFrame colorFrame = null;
                 DepthFrame depthFrame = null;
 
@@ -155,14 +155,8 @@ namespace Kinect2Server.View
                     if (colorFrame == null | depthFrame == null)
                         return;
 
-                    this.msi.SendFrames(colorFrame, depthFrame);
+                    this.camera.Source = this.msi.FrameTreatment(colorFrame, depthFrame, this.mode.ToString());
 
-                    if (this.mode == Mode.Color)
-                        this.camera.Source = this.msi.ToBitMap(colorFrame);
-                    else if (this.mode == Mode.Depth)
-                        this.camera.Source = this.msi.ToBitMap(depthFrame);
-                    else if (this.mode == Mode.Mapped)
-                        this.camera.Source = this.msi.MapDepthToColor(colorFrame, depthFrame);
                 }
                 catch { }
                 finally
@@ -172,12 +166,12 @@ namespace Kinect2Server.View
                     if (depthFrame != null)
                         depthFrame.Dispose();
                 }
-                this.msi.FrameCount++;
+                /*this.msi.FrameCount++;
             }
             else
             {
                 this.msi.FrameCount = 0;
-            }
+            }*/
         }
     }
 }
