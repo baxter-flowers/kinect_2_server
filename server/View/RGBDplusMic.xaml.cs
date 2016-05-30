@@ -130,29 +130,22 @@ namespace Kinect2Server.View
             ColorFrame colorFrame = null;
             DepthFrame depthFrame = null;
 
-            try
-            {
-                MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
-                if (multiSourceFrame == null)
-                    return;
+            MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
+            if (multiSourceFrame == null)
+                return;
 
-                colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame();
-                depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame();
+            colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame();
+            depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame();
 
-                if (colorFrame == null | depthFrame == null)
-                    return;
+            if (colorFrame == null | depthFrame == null)
+                return;
 
-                this.camera.Source = this.msi.FrameTreatment(colorFrame, depthFrame, this.mode.ToString());
+            this.camera.Source = this.msi.FrameTreatment(colorFrame, depthFrame, this.mode.ToString());
 
-            }
-            catch { }
-            finally
-            {
-                if (colorFrame != null)
-                    colorFrame.Dispose();
-                if (depthFrame != null)
-                    depthFrame.Dispose();
-            }
+            if (colorFrame != null)
+                colorFrame.Dispose();
+            if (depthFrame != null)
+                depthFrame.Dispose();
         }
     }
 }
