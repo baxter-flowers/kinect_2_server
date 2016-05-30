@@ -2,6 +2,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -95,10 +96,10 @@ namespace Kinect2Server.View
 
         private void ScreenshotButton_Click(object sender, RoutedEventArgs e)
         {
-            // create a png bitmap & a jpg encoder
+            // create jpeg encoder
             JpegBitmapEncoder encoder = new JpegBitmapEncoder();
 
-            // create frames from the writable bitmaps and add to encoders
+            // create frame from the camera source and add to encoders
             encoder.Frames.Add(BitmapFrame.Create((BitmapSource)this.camera.Source));
 
             string time = DateTime.Now.ToString("dd'-'MMM'-'HH'-'mm'-'ss", CultureInfo.CurrentUICulture.DateTimeFormat);
@@ -107,7 +108,7 @@ namespace Kinect2Server.View
 
             string path = System.IO.Path.Combine(myPhotos, "KinectScreenshot-" + time + ".jpeg");
 
-            // write the new files to disk
+            // write the new file to disk
             try
             {
                 // FileStream is IDisposable
@@ -126,39 +127,31 @@ namespace Kinect2Server.View
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            if (this.msi.FrameCount != 1)
+            ColorFrame colorFrame = null;
+            DepthFrame depthFrame = null;
+
+            try
             {
-                ColorFrame colorFrame = null;
-                DepthFrame depthFrame = null;
+                MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
+                if (multiSourceFrame == null)
+                    return;
 
-                try
-                {
-                    MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
-                    if (multiSourceFrame == null)
-                        return;
+                colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame();
+                depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame();
 
-                    colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame();
-                    depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame();
+                if (colorFrame == null | depthFrame == null)
+                    return;
 
-                    if (colorFrame == null | depthFrame == null)
-                        return;
+                this.camera.Source = this.msi.FrameTreatment(colorFrame, depthFrame, this.mode.ToString());
 
-                    this.camera.Source = this.msi.FrameTreatment(colorFrame, depthFrame, this.mode.ToString());
-
-                }
-                catch { }
-                finally
-                {
-                    if (colorFrame != null)
-                        colorFrame.Dispose();
-                    if (depthFrame != null)
-                        depthFrame.Dispose();
-                }
-                this.msi.FrameCount++;
             }
-            else
+            catch { }
+            finally
             {
-                this.msi.FrameCount = 0;
+                if (colorFrame != null)
+                    colorFrame.Dispose();
+                if (depthFrame != null)
+                    depthFrame.Dispose();
             }
         }
     }
