@@ -46,9 +46,6 @@ namespace Kinect2Server
             this.audioPublisher = new NetworkPublisher();
             this.audioPublisher.Bind("33409");
             this.audioPublisher.SetConflate();
-            this.mappingPublisher = new NetworkPublisher();
-            this.mappingPublisher.Bind("33410");
-            this.mappingPublisher.SetConflate();
 
             this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
             this.st = new SkeletonTracking(this.kinectSensor, this.publisher);

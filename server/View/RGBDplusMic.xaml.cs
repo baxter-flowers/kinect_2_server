@@ -95,51 +95,39 @@ namespace Kinect2Server.View
 
         private void ScreenshotButton_Click(object sender, RoutedEventArgs e)
         {
-            /*if (this.colorBitmap != null && this.depthBitmap != null)
+            // create a png bitmap & a jpg encoder
+            JpegBitmapEncoder encoder = new JpegBitmapEncoder();
+
+            // create frames from the writable bitmaps and add to encoders
+            encoder.Frames.Add(BitmapFrame.Create((BitmapSource)this.camera.Source));
+
+            string time = DateTime.Now.ToString("dd'-'MMM'-'HH'-'mm'-'ss", CultureInfo.CurrentUICulture.DateTimeFormat);
+
+            string myPhotos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+
+            string path = System.IO.Path.Combine(myPhotos, "KinectScreenshot-" + time + ".jpeg");
+
+            // write the new files to disk
+            try
             {
-                // create a png bitmap & a jpg encoder
-                BitmapEncoder colorEncoder = new JpegBitmapEncoder();
-                BitmapEncoder depthEncoder = new PngBitmapEncoder();
-
-                // create frames from the writable bitmaps and add to encoders
-                colorEncoder.Frames.Add(BitmapFrame.Create(this.colorBitmap));
-                depthEncoder.Frames.Add(BitmapFrame.Create(this.depthBitmap));
-
-                string time = DateTime.Now.ToString("dd'-'MMM'-'HH'-'mm'-'ss", CultureInfo.CurrentUICulture.DateTimeFormat);
-
-                string myPhotos = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-
-                string colorPath = System.IO.Path.Combine(myPhotos, "KinectScreenshot-Color-" + time + ".jpeg");
-                string depthPath = System.IO.Path.Combine(myPhotos, "KinectScreenshot-Depth-" + time + ".png");
-
-                // write the new files to disk
-                try
+                // FileStream is IDisposable
+                using (FileStream fs = new FileStream(path, FileMode.Create))
                 {
-                    // FileStream is IDisposable
-                    using (FileStream fs = new FileStream(colorPath, FileMode.Create))
-                    {
-                        colorEncoder.Save(fs);
-                    }
-
-                    // FileStream is IDisposable
-                    using (FileStream fs = new FileStream(depthPath, FileMode.Create))
-                    {
-                        depthEncoder.Save(fs);
-                    }
-
-                    this.statusBarItem.Content = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, myPhotos);
+                    encoder.Save(fs);
                 }
-                catch (IOException)
-                {
-                    this.statusBarItem.Content = string.Format(Properties.Resources.FailedScreenshotStatusTextFormat, myPhotos);
-                }
-            }*/
+
+                this.statusBarItem.Content = string.Format(Properties.Resources.SavedScreenshotStatusTextFormat, myPhotos);
+            }
+            catch (IOException)
+            {
+                this.statusBarItem.Content = string.Format(Properties.Resources.FailedScreenshotStatusTextFormat, myPhotos);
+            }
         }
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            /*if (this.msi.FrameCount != 1)
-            {*/
+            if (this.msi.FrameCount != 1)
+            {
                 ColorFrame colorFrame = null;
                 DepthFrame depthFrame = null;
 
@@ -166,12 +154,12 @@ namespace Kinect2Server.View
                     if (depthFrame != null)
                         depthFrame.Dispose();
                 }
-                /*this.msi.FrameCount++;
+                this.msi.FrameCount++;
             }
             else
             {
                 this.msi.FrameCount = 0;
-            }*/
+            }
         }
     }
 }

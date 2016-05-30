@@ -21,17 +21,11 @@ namespace Kinect2Server
         private CoordinateMapper coordinateMapper;
         private MultiSourceFrameReader multiSourceFrameReader;
         private int frameCount;
-        private PixelFormat format;
-        private int colorWidth;
-        private int colorHeight;
-        private int depthWidth;
-        private int depthHeight;
         private Byte[] colorPixels;
         private Byte[] depthPixels;
         private ushort[] depthPixelData;
         private DepthSpacePoint[] depthPoints;
         private Byte[] mappingPixels;
-        private Boolean first;
 
         public MultiSourceImage(KinectSensor kinect, NetworkPublisher dPub, NetworkPublisher cPub, NetworkPublisher mPub)
         {
@@ -42,24 +36,6 @@ namespace Kinect2Server
             this.mappingPublisher = mPub;
             
             this.multiSourceFrameReader = this.kinect.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth);
-
-            this.format = PixelFormats.Bgr32;
-            FrameDescription depthDescription = this.kinect.DepthFrameSource.FrameDescription;
-            FrameDescription colorDescription = this.kinect.ColorFrameSource.FrameDescription;
-            this.colorWidth = colorDescription.Width;
-            this.colorHeight = colorDescription.Height;
-            this.depthWidth = depthDescription.Width;
-            this.depthHeight = depthDescription.Height;
-            this.first = true;
-
-            //Arrays initialization
-
-            this.colorPixels = new Byte[this.colorWidth * this.colorHeight * ((this.format.BitsPerPixel + 7) / 8)];
-            this.depthPixelData = new ushort[this.depthWidth * this.depthHeight];
-            this.depthPixels = new byte[this.depthWidth * this.depthHeight * ((this.format.BitsPerPixel + 7) / 8)];
-            this.mappingPixels = new Byte[this.colorWidth * this.colorHeight * ((this.format.BitsPerPixel + 7) / 8)];
-            this.depthPoints = new DepthSpacePoint[this.colorWidth * this.colorHeight];
-
             
         }
 
@@ -90,7 +66,14 @@ namespace Kinect2Server
 
         public ImageSource FrameTreatment(ColorFrame colorFrame, DepthFrame depthFrame, String mode)
         {
+            PixelFormat format = PixelFormats.Bgr32;
+            int bytesPerPixel = (PixelFormats.Bgr32.BitsPerPixel + 7) / 8;
+
             // Color treatment
+            int colorWidth = colorFrame.FrameDescription.Width;
+            int colorHeight = colorFrame.FrameDescription.Height;
+            this.colorPixels = new Byte[colorWidth * colorHeight * ((format.BitsPerPixel + 7) / 8)];
+
 
             if (colorFrame.RawColorImageFormat == ColorImageFormat.Bgra)
             {
@@ -101,12 +84,18 @@ namespace Kinect2Server
                 colorFrame.CopyConvertedFrameDataToArray(this.colorPixels, ColorImageFormat.Bgra);
             }
             // Color sending
-            this.colorPublisher.SendByteArray(this.colorPixels);
+            //this.colorPublisher.SendByteArray(this.colorPixels);
 
 
             // Depth treatment
+            int depthWidth = depthFrame.FrameDescription.Width;
+            int depthHeight = depthFrame.FrameDescription.Height;
+
             ushort minDepth = depthFrame.DepthMinReliableDistance;
             ushort maxDepth = depthFrame.DepthMaxReliableDistance;
+
+            this.depthPixelData = new ushort[depthWidth * depthHeight];
+            this.depthPixels = new byte[depthWidth * depthHeight * ((format.BitsPerPixel + 7) / 8)];
 
             depthFrame.CopyFrameDataToArray(this.depthPixelData);
 
@@ -124,16 +113,15 @@ namespace Kinect2Server
                 ++colorIndex;
             }
             // Depth sending
-            this.depthPublisher.SendByteArray(this.depthPixels);
+            //this.depthPublisher.SendByteArray(this.depthPixels);
 
 
             // Mapping color & depth
-            if (this.first)
-            {
-                this.coordinateMapper.MapColorFrameToDepthSpace(this.depthPixelData, this.depthPoints);
-                this.first = false;
-            }
-            
+            this.mappingPixels = new Byte[colorWidth * colorHeight * ((format.BitsPerPixel + 7) / 8)];
+            this.depthPoints = new DepthSpacePoint[colorWidth * colorHeight];
+
+            this.coordinateMapper.MapColorFrameToDepthSpace(this.depthPixelData, this.depthPoints);
+
             for (colorIndex = 0; colorIndex < this.depthPoints.Length; colorIndex++)
             {
                 DepthSpacePoint depthPoint = this.depthPoints[colorIndex];
@@ -143,38 +131,38 @@ namespace Kinect2Server
                     int depthX = (int)Math.Floor(depthPoint.X + 0.5f);
                     int depthY = (int)Math.Floor(depthPoint.Y + 0.5f);
 
-                    if ((depthX >= 0) && (depthX < this.depthWidth) && (depthY >= 0) && (depthY < this.depthHeight))
+                    if ((depthX >= 0) && (depthX < depthWidth) && (depthY >= 0) && (depthY < depthHeight))
                     {
-                        int depthIndex = (depthY * this.depthWidth) + depthX;
+                        int depthIndex = (depthY * depthWidth) + depthX;
 
-                        int sourceIndex = colorIndex * ((this.format.BitsPerPixel + 7) / 8);
+                        int sourceIndex = colorIndex * bytesPerPixel;
 
                         this.mappingPixels[sourceIndex] = this.colorPixels[sourceIndex++]; // B
                         this.mappingPixels[sourceIndex] = this.colorPixels[sourceIndex++]; // G
                         this.mappingPixels[sourceIndex] = this.colorPixels[sourceIndex++]; // R
-                        this.mappingPixels[sourceIndex] = 255;                      // A
+                        this.mappingPixels[sourceIndex] = 255;                             // A
                     }
                 }
             }
             // Sending mapping
-            this.mappingPublisher.SendByteArray(this.mappingPixels);
+            //this.mappingPublisher.SendByteArray(this.mappingPixels);
 
             // Return ImageSource depending on mode
             int stride;
             if (mode.Equals("Color"))
             {
-                stride = this.colorWidth * this.format.BitsPerPixel / 8;
-                return BitmapSource.Create(this.colorWidth, this.colorHeight, 96.0, 96.0, this.format, null, this.colorPixels, stride);
+                stride = colorWidth * format.BitsPerPixel / 8;
+                return BitmapSource.Create(colorWidth, colorHeight, 96.0, 96.0, format, null, this.colorPixels, stride);
             }
             else if (mode.Equals("Depth"))
             {
-                stride = this.depthWidth * this.format.BitsPerPixel / 8;
-                return BitmapSource.Create(this.depthWidth, this.depthHeight, 96.0, 96.0, this.format, null, this.depthPixels, stride);
+                stride = depthWidth * format.BitsPerPixel / 8;
+                return BitmapSource.Create(depthWidth, depthHeight, 96.0, 96.0, format, null, this.depthPixels, stride);
             }
             else if (mode.Equals("Mapped"))
             {
-                stride = this.colorWidth * this.format.BitsPerPixel / 8;
-                return BitmapSource.Create(this.colorWidth, this.colorHeight, 96.0, 96.0, this.format, null, this.mappingPixels, stride);
+                stride = colorWidth * format.BitsPerPixel / 8;
+                return BitmapSource.Create(colorWidth, colorHeight, 96.0, 96.0, format, null, this.mappingPixels, stride);
             }
             else
             {
