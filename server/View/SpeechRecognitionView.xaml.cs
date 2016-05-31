@@ -208,39 +208,5 @@ namespace Kinect2Server.View
                 sr.ListeningPort = ((int)this.listeningPortSelector.Value);
             }
         }
-
-        private void SwitchSem(object sender, RoutedEventArgs e)
-        {
-            this.lastSemantics.Text = "";
-            if (sr.SemanticsStatus)
-            {
-                this.lastSemantics.Visibility = Visibility.Hidden;
-                sr.SemanticsStatus = false;
-                setButtonOff(this.stackSem);
-            }
-            else
-            {
-                this.lastSemantics.Visibility = Visibility.Visible;
-                sr.SemanticsStatus = true;
-                setButtonOn(this.stackSem);
-            }
-        }
-
-        private void SwitchSen(object sender, RoutedEventArgs e)
-        {
-            this.lastSentence.Text = "";
-            if (sr.SentenceStatus)
-            {
-                this.lastSentence.Visibility = Visibility.Hidden;
-                sr.SentenceStatus = false;
-                setButtonOff(this.stackSen);
-            }
-            else
-            {
-                this.lastSentence.Visibility = Visibility.Visible;
-                sr.SentenceStatus = true;
-                setButtonOn(this.stackSen);
-            }
-        }
     }
 }

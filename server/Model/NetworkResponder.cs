@@ -155,22 +155,6 @@ namespace Kinect2Server
                     this.sr.ConfidenceThreshold = (float)confidence;
                     this.srv.RefreshConfidenceSelectorValue();
                 }
-
-                // Sentence on/off
-                Nullable<Boolean> sentence = (Nullable<Boolean>)json_params["speech_recognition"]["sentence"];
-                if (sentence != null)
-                {
-                    this.sr.SentenceStatus = (Boolean)sentence;
-                    this.RefreshStatus("speech", "sentence", (Boolean)sentence);
-                }
-
-                // Semantic on/off
-                Nullable<Boolean> semantic = (Nullable<Boolean>)json_params["speech_recognition"]["semantic"];
-                if (semantic != null)
-                {
-                    this.sr.SemanticsStatus = (Boolean)semantic;
-                    this.RefreshStatus("speech", "semantic", (Boolean)semantic);
-                }
             }
 
             if (json_params["skeleton_tracking"] != null)
@@ -277,19 +261,11 @@ namespace Kinect2Server
                 {
                     if (param.Equals("on/off"))
                         this.srv.setButtonOn(this.srv.stackSR);
-                    else if (param.Equals("sentence"))
-                        this.srv.setButtonOn(this.srv.stackSen);
-                    else if (param.Equals("semantic"))
-                        this.srv.setButtonOn(this.srv.stackSem);
                 }
                 else
                 {
                     if (param.Equals("on/off"))
                         this.srv.setButtonOff(this.srv.stackSR);
-                    else if (param.Equals("sentence"))
-                        this.srv.setButtonOff(this.srv.stackSen);
-                    else if (param.Equals("semantic"))
-                        this.srv.setButtonOff(this.srv.stackSem);
                 }
             }
             else if(feature.Equals("skeleton"))
