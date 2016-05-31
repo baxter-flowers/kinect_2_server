@@ -295,23 +295,15 @@ namespace Kinect2Server
                 List<String> contentSemantic = new List<string>();
                 Dictionary<String, List<String>> dico = new Dictionary<string, List<String>>();
 
-                if (this.sentenceStatus)
+                //Only sentence is active
+                if (this.sentenceStatus && !this.semanticsStatus)
                 {
                     //Fill the dictionary
                     contentSentence.Add(sentence);
                     dico.Add("sentence", contentSentence);
-
-                    if (this.semanticsStatus)
-                    {
-                        //Fill the dictionary
-                        foreach (KeyValuePair<String, SemanticValue> child in semantics)
-                        {
-                            contentSemantic.Add(semantics[child.Key].Value.ToString());
-                        }
-                        dico.Add("semantics", contentSemantic);
-                    }
                 }
-                else if (this.semanticsStatus)
+                //Only semantic is active
+                else if (!this.sentenceStatus && this.semanticsStatus)
                 {
                     //Fill the dictionary
                     foreach (KeyValuePair<String, SemanticValue> child in semantics)
@@ -319,21 +311,25 @@ namespace Kinect2Server
                         contentSemantic.Add(semantics[child.Key].Value.ToString());
                     }
                     dico.Add("semantics", contentSemantic);
-
-                    if (this.sentenceStatus)
-                    {
-                        //Fill the dictionary
-                        contentSentence.Add(sentence);
-                        dico.Add("sentence", contentSentence);
-                    }
                 }
-
+                //Both sentence and semantic are active
+                else if (this.sentenceStatus && this.semanticsStatus)
+                {
+                    //Fill the dictionary
+                    contentSentence.Add(sentence);
+                    dico.Add("sentence", contentSentence);
+                    foreach (KeyValuePair<String, SemanticValue> child in semantics)
+                    {
+                        contentSemantic.Add(semantics[child.Key].Value.ToString());
+                    }
+                    dico.Add("semantics", contentSemantic);
+                }
                 if (dico.Count != 0)
                 {
                     string json = JsonConvert.SerializeObject(dico);
                     this.network.SendString(json, "recognized_speech");
+                    return contentSemantic;
                 }
-                return contentSemantic;
             }
             return null;
         }
