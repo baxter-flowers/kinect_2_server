@@ -289,27 +289,27 @@ namespace Kinect2Server
 
         public List<String> SpeechRecognized(SemanticValue semantics, string sentence)
         {
-            if (semantics.Confidence >= this.confidenceThreshold)
+            List<String> contentSentence = new List<string>();
+            List<String> contentSemantic = new List<string>();
+            Dictionary<String, List<String>> dico = new Dictionary<string, List<String>>();
+            //Fill the dictionary
+            contentSentence.Add(sentence);
+            dico.Add("sentence", contentSentence);
+            foreach (KeyValuePair<String, SemanticValue> child in semantics)
             {
-                List<String> contentSentence = new List<string>();
-                List<String> contentSemantic = new List<string>();
-                Dictionary<String, List<String>> dico = new Dictionary<string, List<String>>();
-                //Fill the dictionary
-                contentSentence.Add(sentence);
-                dico.Add("sentence", contentSentence);
-                foreach (KeyValuePair<String, SemanticValue> child in semantics)
-                {
-                    contentSemantic.Add(semantics[child.Key].Value.ToString());
-                }
-                dico.Add("semantics", contentSemantic);
-                if (dico.Count != 0)
-                {
-                    string json = JsonConvert.SerializeObject(dico);
-                    this.network.SendString(json, "recognized_speech");
-                    return contentSemantic;
-                }
+                contentSemantic.Add(semantics[child.Key].Value.ToString());
             }
-            return null;
+            dico.Add("semantics", contentSemantic);
+            if (dico.Count != 0)
+            {
+                string json = JsonConvert.SerializeObject(dico);
+                this.network.SendString(json, "recognized_speech");
+                return contentSemantic;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

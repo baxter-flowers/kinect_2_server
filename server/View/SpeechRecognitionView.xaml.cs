@@ -83,21 +83,25 @@ namespace Kinect2Server.View
 
         private void SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            List<String> contentSemantic = this.sr.SpeechRecognized(e.Result.Semantics, e.Result.Text);
-            //Update the text
-            this.Dispatcher.Invoke(() =>
+            if (e.Result.Confidence >= this.sr.ConfidenceThreshold)
             {
-                this.lastSentence.Text = e.Result.Text;
-                this.lastSemantics.Text = "";
-                if (contentSemantic != null)
+                List<String> contentSemantic = this.sr.SpeechRecognized(e.Result.Semantics, e.Result.Text);
+                //Update the text
+                this.Dispatcher.Invoke(() =>
                 {
-                    for (int i = 0; i < contentSemantic.Count; i++)
+                    this.lastSentence.Text = e.Result.Text;
+                    this.lastSemantics.Text = "";
+                    if (contentSemantic != null)
                     {
-                        this.lastSemantics.Text += contentSemantic[i];
+                        for (int i = 0; i < contentSemantic.Count; i++)
+                        {
+                            this.lastSemantics.Text += contentSemantic[i];
+                        }
                     }
-                }
-                
-            });
+
+                });
+            }
+            
         }
 
         private void SpeechRejected(object sender, SpeechRecognitionRejectedEventArgs e)
