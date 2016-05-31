@@ -36,18 +36,6 @@ class SpeechParams(Params):
     def off(self):
         self._params['on'] = False
         
-    def sentence_on(self):
-        self._params['sentence'] = True
-        
-    def sentence_off(self):
-        self._params['sentence'] = False
-    
-    def semantic_on(self):
-        self._params['semantic'] = True
-        
-    def semantic_off(self):
-        self._params['semantic'] = False
-        
     def set_confidence(self, value):
         if float(value)>=0.0 and float(value)<=1.0:
             self._params['confidence'] = value
