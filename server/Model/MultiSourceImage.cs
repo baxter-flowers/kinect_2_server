@@ -73,18 +73,12 @@ namespace Kinect2Server
             PixelFormat format = PixelFormats.Bgr32;
             int colorWidth = colorFrame.FrameDescription.Width;
             int colorHeight = colorFrame.FrameDescription.Height;
-            this.colorPixels = new Byte[colorWidth * colorHeight * ((format.BitsPerPixel + 7) / 8)];
-
-            if (colorFrame.RawColorImageFormat == ColorImageFormat.Bgra)
-            {
-                colorFrame.CopyRawFrameDataToArray(this.colorPixels);
-            }
-            else
-            {
-                colorFrame.CopyConvertedFrameDataToArray(this.colorPixels, ColorImageFormat.Bgra);
-            }
-
+            this.colorPixels = new Byte[colorWidth * colorHeight * 2];
+            colorFrame.CopyRawFrameDataToArray(this.colorPixels);
             this.colorPublisher.SendByteArray(this.colorPixels);
+
+            this.colorPixels = new Byte[colorWidth * colorHeight * ((format.BitsPerPixel + 7) / 8)];
+            colorFrame.CopyConvertedFrameDataToArray(this.colorPixels, ColorImageFormat.Bgra);
         }
 
         private unsafe void DepthTreatment(DepthFrame depthFrame)
