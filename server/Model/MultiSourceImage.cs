@@ -1,9 +1,11 @@
 ﻿using Microsoft.Kinect;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -110,7 +112,7 @@ namespace Kinect2Server
             //this.depthPublisher.SendByteArray(this.depthPixels);
         }
 
-        public void MapDepthToColor(ColorFrame colorFrame, DepthFrame depthFrame)
+        public unsafe void MapDepthToColor(ColorFrame colorFrame, DepthFrame depthFrame)
         {
             // Mapping color & depth
             int colorWidth = colorFrame.FrameDescription.Width;
@@ -118,12 +120,35 @@ namespace Kinect2Server
             int depthWidth = depthFrame.FrameDescription.Width;
             int depthHeight = depthFrame.FrameDescription.Height;
 
-            this.mappedPixels = new Byte[colorWidth * colorHeight];
+            //this.mappedPixels = new Byte[colorWidth * colorHeight];
             this.colorPoints = new ColorSpacePoint[depthWidth * depthHeight];
 
             this.coordinateMapper.MapDepthFrameToColorSpace(this.depthPixelData, this.colorPoints);
             
+            ColorSpacePoint[] noNegativeInfinityArray = new ColorSpacePoint[this.colorPoints.Length];
+            int newindex = 0;
             for (int index = 0; index < this.colorPoints.Length; index++)
+            {
+                if (!float.IsNegativeInfinity(this.colorPoints[index].X) && !float.IsNegativeInfinity(this.colorPoints[index].Y))
+                {
+                    noNegativeInfinityArray[newindex] = this.colorPoints[index];
+                    ++newindex;
+                }
+            }
+            Array.Resize(ref noNegativeInfinityArray, newindex+1);
+
+            byte[] NNIAbyteArray = new byte[noNegativeInfinityArray.Length * sizeof(ColorSpacePoint)];
+
+            fixed(ColorSpacePoint* src=noNegativeInfinityArray)
+            fixed (byte* dest = NNIAbyteArray)
+            {
+                ColorSpacePoint* typedDest = (ColorSpacePoint*)dest;
+                for (int i = 0; i < noNegativeInfinityArray.Length; ++i)
+                {
+                    typedDest[i] = src[i];
+                }
+            }
+            /*for (int index = 0; index < this.colorPoints.Length; index++)
             {
                 if (!float.IsNegativeInfinity(this.colorPoints[index].X) && !float.IsNegativeInfinity(this.colorPoints[index].Y))
                 {
@@ -135,9 +160,19 @@ namespace Kinect2Server
                         this.mappedPixels[colorIndex] = this.depthPixels[index];
                     }
                 }
-            }
+            }*/
+            this.mappingPublisher.SendByteArray(NNIAbyteArray);
             
-            this.mappingPublisher.SendByteArray(this.mappedPixels);
+        }
+
+        private byte[] StructToByteArray(ColorSpacePoint colorPoint)
+        {
+            byte[] arr = new byte[8];
+            IntPtr ptr = Marshal.AllocHGlobal(8);
+            Marshal.StructureToPtr(colorPoint, ptr, true);
+            Marshal.Copy(ptr, arr, 0, 8);
+            Marshal.FreeHGlobal(ptr);
+            return arr;
         }
 
         public ImageSource FrameTreatment(ColorFrame colorFrame, DepthFrame depthFrame, String mode)
@@ -167,7 +202,7 @@ namespace Kinect2Server
             else if (mode.Equals("Mapped"))
             {
                 stride = colorFrame.FrameDescription.Width * formatGray8.BitsPerPixel / 8;
-                return BitmapSource.Create(colorFrame.FrameDescription.Width,colorFrame.FrameDescription.Height, 16, 16, formatGray8,null,this.mappedPixels,stride);
+                return null;
             }
             else
             {
