@@ -78,7 +78,7 @@ kinect.speech.start()
 The confidence threshold can be changed (from 0.1 to 1.0).
 
 #### Skeleton tracking + gesture recognition
-![alt text](https://github.com/baxter-flowers/kinect_2_server/tree/master/misc/st_ss.png)
+![Screenshot skeleton tracking](https://github.com/baxter-flowers/kinect_2_server/tree/master/misc/st_ss.png "Screenshot skeleton tracking")
 This feature can track 6 bodies at the same time. Each body is composed of 25 joints and has a unique ID. However, if a person leaves the area and then comes back in, his/her ID won't be the same. The state of the hand is also recognized. There is 5 different cases for the hand state:
 Open (Green)
 Close (Red)
@@ -118,6 +118,16 @@ a mapping between both RGB and IR images that gives every pixel's coordinates of
 The server sends uncompressed data (byte arrays for RGB and IR images, JSON for the mapping) so it might overload the network.
 The client is in progress. Currently, it uses data sent by the server to reconstruct images using openCV.
 A feature of the client will allow to combine the IR image and the mapping to get a pixel-to-pixel mapping with RGB image.
+
+For example, let's get the images from the skeleton previously tracked (cf. Skeleton tracking):
+**Color image (1920 * 1080)**
+![Screenshot color image](https://github.com/baxter-flowers/kinect_2_server/tree/master/misc/KinectScreenshot-31-May-11-26-19.jpeg "Screenshot color image")
+
+**Raw depth image (512 * 424)**
+![Screenshot raw depth image](https://github.com/baxter-flowers/kinect_2_server/tree/master/misc/KinectScreenshot-31-May-11-26-21.jpeg "Screenshot raw depth image")
+
+**Mapped image (Work In Progress, 1920 * 1080)**
+![Screenshot mapped depth image](https://github.com/baxter-flowers/kinect_2_server/tree/master/misc/KinectScreenshot-31-May-11-26-25.jpeg "Screenshot mapped depth image")
 
 ## Troubleshooting
 If you can't load the xml file, try to remove comments and the first line that defines the xml file
