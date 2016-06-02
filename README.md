@@ -77,5 +77,47 @@ kinect.speech.start()
 ```
 The confidence threshold can be changed (from 0.1 to 1.0).
 
-troubleshooting :
+#### Skeleton tracking + gesture recognition
+![alt text](https://github.com/baxter-flowers/kinect_2_server/misc/sr_ss.png)
+This feature can track 6 bodies at the same time. Each body is composed of 25 joints and has a unique ID. However, if a person leaves the area and then comes back in, his/her ID won't be the same. The state of the hand is also recognized. There is 5 different cases for the hand state:
+Open (Green)
+Close (Red)
+Lasso: pointing with 2 fingers (Blue)
+Unknown
+Not tracked
+It is also possible to apply smoothing (from 0.0 to 0.9).
+
+How to use client for skeleton tracking + gesture recognition	:
+```Python
+from kinect2.client import Kinect2Client
+kinect = Kinect2Client("yourIP")
+def callback_skeleton(msg):
+    print msg
+kinect.skeleton.set_callback(callback_skeleton)
+kinect.skeleton.start()
+```
+
+#### Text to speech
+The text-to-speech uses the speech synthesizer from Microsoft to asynchronously speak some sentences.
+Those sentences are sent by the client. It possible to change the gender and the language of the synthesizer. The application allows to queue messages, if this option is enabled then the synthesizer waits that the current speech is completed before starting another one, if this is disabled then the synthesizer cancels all queue and speech operations.
+From the client, we can send text-to-speech request such as:
+from kinect2.client import Kinect2Client
+```Python
+kinect = Kinect2Client("yourIP")
+kinect.tts.params.set_language('english')
+kinect.tts.params.queue_off()
+kinect.tts.start()
+kinect.tts.say("Hello everyone")
+```
+
+#### RGBD Image + Microphone
+This feature allows to get:
+a RGB image of size 1920 * 1080 using the HD camera of the sensor
+an IR image of size 424 * 515 using the infrared camera of the sensor
+a mapping between both RGB and IR images that gives every pixel's coordinates of the IR image in the RGB frame
+The server sends uncompressed data (byte arrays for RGB and IR images, JSON for the mapping) so it might overload the network.
+The client is in progress. Currently, it uses data sent by the server to reconstruct images using openCV.
+A feature of the client will allow to combine the IR image and the mapping to get a pixel-to-pixel mapping with RGB image.
+
+## Troubleshooting
 If you can't load the xml file, try to remove comments and the first line that defines the xml file
