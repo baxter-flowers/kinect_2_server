@@ -78,7 +78,7 @@ kinect.speech.start()
 The confidence threshold can be changed (from 0.1 to 1.0).
 
 #### Skeleton tracking + gesture recognition
-![alt text](https://github.com/baxter-flowers/kinect_2_server/misc/sr_ss.png)
+![alt text](https://github.com/baxter-flowers/kinect_2_server/tree/master/misc/st_ss.png)
 This feature can track 6 bodies at the same time. Each body is composed of 25 joints and has a unique ID. However, if a person leaves the area and then comes back in, his/her ID won't be the same. The state of the hand is also recognized. There is 5 different cases for the hand state:
 Open (Green)
 Close (Red)
