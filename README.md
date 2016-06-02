@@ -106,6 +106,7 @@ Those sentences are sent by the client. It possible to change the gender and the
 From the client, we can send text-to-speech request such as:
 from kinect2.client import Kinect2Client
 ```Python
+from kinect2.client import Kinect2Client
 kinect = Kinect2Client("yourIP")
 kinect.tts.params.set_language('english')
 kinect.tts.params.queue_off()
