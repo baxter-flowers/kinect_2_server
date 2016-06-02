@@ -123,12 +123,15 @@ A feature of the client will allow to combine the IR image and the mapping to ge
 For example, let's get the images from the skeleton previously tracked (cf. Skeleton tracking):
 
 **Color image (1920 * 1080)**
+
 ![Screenshot color image](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/KinectScreenshot-31-May-11-26-19.jpeg "Screenshot color image")
 
 **Raw depth image (512 * 424)**
+
 ![Screenshot raw depth image](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/KinectScreenshot-31-May-11-26-21.jpeg "Screenshot raw depth image")
 
 **Mapped image (Work In Progress, 1920 * 1080)**
+
 ![Screenshot mapped depth image](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/KinectScreenshot-31-May-11-26-25.jpeg "Screenshot mapped depth image")
 
 This feature also permits to send the audio beam of the Kinect sensor as byte array. So the client receives chunks of sound and treat them as wished.
