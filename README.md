@@ -104,7 +104,6 @@ kinect.skeleton.start()
 The text-to-speech uses the speech synthesizer from Microsoft to asynchronously speak some sentences.
 Those sentences are sent by the client. It possible to change the gender and the language of the synthesizer. The application allows to queue messages, if this option is enabled then the synthesizer waits that the current speech is completed before starting another one, if this is disabled then the synthesizer cancels all queue and speech operations.
 From the client, we can send text-to-speech request such as:
-from kinect2.client import Kinect2Client
 ```Python
 from kinect2.client import Kinect2Client
 kinect = Kinect2Client("yourIP")
