@@ -1,4 +1,6 @@
 # Kinect 2 Server
+![Screenshot skeleton tracking](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/st_ss.png "Screenshot skeleton tracking")
+
 C# server streaming features of the Kinect 2 such as speech &amp; gesture recognition, skeleton tracking and original images
 
 First, be sure that you have Windows 8 or later versions otherwise you won't be able to install the SDK of Kinect2.
@@ -78,14 +80,14 @@ kinect.speech.start()
 The confidence threshold can be changed (from 0.1 to 1.0).
 
 #### Skeleton tracking + gesture recognition
-![Screenshot skeleton tracking](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/st_ss.png "Screenshot skeleton tracking")
 
 This feature can track 6 bodies at the same time. Each body is composed of 25 joints and has a unique ID. However, if a person leaves the area and then comes back in, his/her ID won't be the same. The state of the hand is also recognized. There is 5 different cases for the hand state:
-Open (Green)
-Close (Red)
-Lasso: pointing with 2 fingers (Blue)
-Unknown
-Not tracked
+
+* Open (Green)
+* Close (Red)
+* Lasso: pointing with 2 fingers (Blue)
+* Unknown
+* Not tracked
 It is also possible to apply smoothing (from 0.0 to 0.9).
 
 How to use client for skeleton tracking + gesture recognition	:
@@ -113,14 +115,15 @@ kinect.tts.say("Hello everyone")
 
 #### RGBD Image + Microphone
 This feature allows to get:
-a RGB image of size 1920 * 1080 using the HD camera of the sensor
-an IR image of size 424 * 515 using the infrared camera of the sensor
-a mapping between both RGB and IR images that gives every pixel's coordinates of the IR image in the RGB frame
+
+* RGB image of size 1920 * 1080 using the HD camera of the sensor
+* IR image of size 424 * 515 using the infrared camera of the sensor
+* mapping between both RGB and IR images that gives every pixel's coordinates of the IR image in the RGB frame
 The server sends uncompressed data (byte arrays for RGB and IR images, JSON for the mapping) so it might overload the network.
 The client is in progress. Currently, it uses data sent by the server to reconstruct images using openCV.
 A feature of the client will allow to combine the IR image and the mapping to get a pixel-to-pixel mapping with RGB image.
 
-For example, let's get the images from the skeleton previously tracked (cf. Skeleton tracking):
+For example, let's get the images from the skeleton previously tracked (cf. Top of README):
 
 **Color image (1920 * 1080)**
 
