@@ -103,7 +103,7 @@ namespace Kinect2Server
             }
             
             
-            //this.depthPublisher.SendByteArray(this.depthPixels);
+            this.depthPublisher.SendByteArray(this.depthPixels);
         }
 
         public unsafe void MapDepthToColor(ColorFrame colorFrame, DepthFrame depthFrame)
@@ -119,7 +119,7 @@ namespace Kinect2Server
 
             this.coordinateMapper.MapDepthFrameToColorSpace(this.depthPixelData, this.colorPoints);
             
-            ColorSpacePoint[] noNegativeInfinityArray = new ColorSpacePoint[this.colorPoints.Length];
+            /*ColorSpacePoint[] noNegativeInfinityArray = new ColorSpacePoint[this.colorPoints.Length];
             int newindex = 0;
             for (int index = 0; index < this.colorPoints.Length; index++)
             {
@@ -129,15 +129,15 @@ namespace Kinect2Server
                     ++newindex;
                 }
             }
-            Array.Resize(ref noNegativeInfinityArray, newindex+1);
+            Array.Resize(ref noNegativeInfinityArray, newindex+1);*/
 
-            byte[] NNIAbyteArray = new byte[noNegativeInfinityArray.Length * sizeof(ColorSpacePoint)];
+            byte[] byteArray = new byte[this.colorPoints.Length * sizeof(ColorSpacePoint)];
 
-            fixed(ColorSpacePoint* src=noNegativeInfinityArray)
-            fixed (byte* dest = NNIAbyteArray)
+            fixed (ColorSpacePoint* src = this.colorPoints)
+            fixed (byte* dest = byteArray)
             {
                 ColorSpacePoint* typedDest = (ColorSpacePoint*)dest;
-                for (int i = 0; i < noNegativeInfinityArray.Length; ++i)
+                for (int i = 0; i < this.colorPoints.Length; ++i)
                 {
                     typedDest[i] = src[i];
                 }
@@ -155,18 +155,8 @@ namespace Kinect2Server
                     }
                 }
             }*/
-            this.mappingPublisher.SendByteArray(NNIAbyteArray);
+            this.mappingPublisher.SendByteArray(byteArray);
             
-        }
-
-        private byte[] StructToByteArray(ColorSpacePoint colorPoint)
-        {
-            byte[] arr = new byte[8];
-            IntPtr ptr = Marshal.AllocHGlobal(8);
-            Marshal.StructureToPtr(colorPoint, ptr, true);
-            Marshal.Copy(ptr, arr, 0, 8);
-            Marshal.FreeHGlobal(ptr);
-            return arr;
         }
 
         public ImageSource FrameTreatment(ColorFrame colorFrame, DepthFrame depthFrame, String mode)

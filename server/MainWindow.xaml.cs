@@ -41,13 +41,13 @@ namespace Kinect2Server
             this.colorPublisher.Bind("33407");
             this.colorPublisher.SetConflate();
             this.depthPublisher = new NetworkPublisher();
-            //this.depthPublisher.Bind("33408");
+            this.depthPublisher.Bind("33408");
             this.depthPublisher.SetConflate();
             this.audioPublisher = new NetworkPublisher();
             this.audioPublisher.Bind("33409");
             this.audioPublisher.SetConflate();
             this.mappingPublisher = new NetworkPublisher();
-            this.mappingPublisher.Bind("33408");
+            this.mappingPublisher.Bind("33411");
             this.mappingPublisher.SetConflate();
 
             this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
