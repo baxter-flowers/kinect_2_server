@@ -78,7 +78,8 @@ kinect.speech.start()
 The confidence threshold can be changed (from 0.1 to 1.0).
 
 #### Skeleton tracking + gesture recognition
-![Screenshot skeleton tracking](https://github.com/baxter-flowers/kinect_2_server/tree/master/misc/st_ss.png "Screenshot skeleton tracking")
+![Screenshot skeleton tracking](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/st_ss.png "Screenshot skeleton tracking")
+
 This feature can track 6 bodies at the same time. Each body is composed of 25 joints and has a unique ID. However, if a person leaves the area and then comes back in, his/her ID won't be the same. The state of the hand is also recognized. There is 5 different cases for the hand state:
 Open (Green)
 Close (Red)
@@ -120,14 +121,17 @@ The client is in progress. Currently, it uses data sent by the server to reconst
 A feature of the client will allow to combine the IR image and the mapping to get a pixel-to-pixel mapping with RGB image.
 
 For example, let's get the images from the skeleton previously tracked (cf. Skeleton tracking):
+
 **Color image (1920 * 1080)**
-![Screenshot color image](https://github.com/baxter-flowers/kinect_2_server/tree/master/misc/KinectScreenshot-31-May-11-26-19.jpeg "Screenshot color image")
+![Screenshot color image](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/KinectScreenshot-31-May-11-26-19.jpeg "Screenshot color image")
 
 **Raw depth image (512 * 424)**
-![Screenshot raw depth image](https://github.com/baxter-flowers/kinect_2_server/tree/master/misc/KinectScreenshot-31-May-11-26-21.jpeg "Screenshot raw depth image")
+![Screenshot raw depth image](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/KinectScreenshot-31-May-11-26-21.jpeg "Screenshot raw depth image")
 
 **Mapped image (Work In Progress, 1920 * 1080)**
-![Screenshot mapped depth image](https://github.com/baxter-flowers/kinect_2_server/tree/master/misc/KinectScreenshot-31-May-11-26-25.jpeg "Screenshot mapped depth image")
+![Screenshot mapped depth image](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/KinectScreenshot-31-May-11-26-25.jpeg "Screenshot mapped depth image")
+
+This feature also permits to send the audio beam of the Kinect sensor as byte array. So the client receives chunks of sound and treat them as wished.
 
 ## Troubleshooting
 If you can't load the xml file, try to remove comments and the first line that defines the xml file
