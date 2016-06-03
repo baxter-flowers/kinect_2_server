@@ -38,34 +38,54 @@
     </UserControl.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <Image Width="Auto" Height="Auto" Name="camera" Grid.Row="0" HorizontalAlignment="Center"/>
-        
-        
+            <Image Width="Auto" Height="Auto" Name="camera" Grid.Row="0" HorizontalAlignment="Center"/>
 
-        <Button Grid.Row="1" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10 10 0 10" Click="ScreenshotButton_Click" />
-        <Button Click="switchDisplay" Height="32" Width="81" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center" BorderThickness="0">
-            <StackPanel Name="stackDisplay">
-                <Image Source="..\Images\switch_off.png"/>
-            </StackPanel>
-        </Button>
-        
-        <StatusBar Grid.Row="2" HorizontalAlignment="Right" Name="statusBar" VerticalAlignment="Bottom" Background="White"
+            <Grid Grid.Row="0" Style="{StaticResource GridButtonsStyle}">
+                <StackPanel Style="{StaticResource StackPanelButtonsStyle}">
+                    <Button Content="Color" Style="{StaticResource ButtonStyle}" Click="Color_Click" />
+                    <Button Content="Depth" Style="{StaticResource ButtonStyle}" Click="Depth_Click" />
+                    <Button Content="Mapped" Style="{StaticResource ButtonStyle}" Click="Mapped_Click" />
+                </StackPanel>
+            </Grid>
+            
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" Click="ScreenshotButton_Click" />
+                <Label Grid.Row="0" Grid.Column="0" Content="Display" VerticalAlignment="Center"/>
+                <Button Click="switchDisplay" Height="32" Width="81" Grid.Row="0" Grid.Column="1" BorderThickness="0">
+                    <StackPanel Name="stackDisplay">
+                        <Image Source="..\Images\switch_off.png"/>
+                    </StackPanel>
+                </Button>
+                
+                <Label Grid.Row="1" Grid.Column="0" Content="Microphone"/>
+                <Button Click="switchMic" Height="32" Width="81" Grid.Row="1" Grid.Column="1" BorderThickness="0">
+                    <StackPanel Name="stackMic">
+                        <Image Source="..\Images\switch_off.png"/>
+                    </StackPanel>
+                </Button>
+                <StatusBar Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Name="statusBar" VerticalAlignment="Bottom" Background="White"
                     Foreground="{StaticResource MediumGreyBrush}">
-            <StatusBarItem Name="statusBarItem" />
-        </StatusBar>
-
-        <Grid Grid.Row="0" Style="{StaticResource GridButtonsStyle}">
-            <StackPanel Style="{StaticResource StackPanelButtonsStyle}">
-                <Button Content="Color" Style="{StaticResource ButtonStyle}" Click="Color_Click" />
-                <Button Content="Depth" Style="{StaticResource ButtonStyle}" Click="Depth_Click" />
-                <Button Content="Mapped" Style="{StaticResource ButtonStyle}" Click="Mapped_Click" />
-            </StackPanel>
+                    <StatusBarItem Name="statusBarItem" />
+                </StatusBar>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

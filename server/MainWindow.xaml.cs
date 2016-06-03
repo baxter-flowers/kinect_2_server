@@ -28,7 +28,7 @@ namespace Kinect2Server
         private SkeletonTracking st;
         private TextToSpeech tts;
         private MultiSourceImage msi;
-        private AudioFrame ab;
+        private AudioFrame af;
 
         public MainWindow()
         {
@@ -53,7 +53,7 @@ namespace Kinect2Server
             this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
             this.st = new SkeletonTracking(this.kinectSensor, this.publisher);
             this.tts = new TextToSpeech(this.subscriber);
-            this.ab = new AudioFrame(this.kinectSensor, this.audioPublisher);
+            this.af = new AudioFrame(this.kinectSensor, this.audioPublisher);
             this.msi = new MultiSourceImage(this.kinectSensor, this.depthPublisher, this.colorPublisher, this.mappingPublisher);
 
             
@@ -134,6 +134,14 @@ namespace Kinect2Server
             get
             {
                 return this.responder;
+            }
+        }
+
+        public AudioFrame AudioFrame
+        {
+            get
+            {
+                return this.af;
             }
         }
 

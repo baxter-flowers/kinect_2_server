@@ -22,6 +22,7 @@ namespace Kinect2Server
 
             AudioSource audioSource = this.kinect.AudioSource;
             this.audioBeamFrameReader = audioSource.OpenReader();
+            this.audioBeamFrameReader.IsPaused = true;
 
             // Allocate 1024 bytes to hold a single audio sub frame. Duration sub frame 
             // is 16 msec, the sample rate is 16khz, which means 256 samples per sub frame. 
@@ -55,6 +56,14 @@ namespace Kinect2Server
                     this.publisher.SendByteArray(this.fullAudio);
                     this.fullAudio = null;
                 }
+            }
+        }
+
+        public AudioBeamFrameReader AudioBeamFrameReader
+        {
+            get
+            {
+                return this.audioBeamFrameReader;
             }
         }
     }

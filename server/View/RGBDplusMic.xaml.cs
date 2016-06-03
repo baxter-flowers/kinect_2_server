@@ -21,22 +21,26 @@ namespace Kinect2Server.View
     {
         private MainWindow mw;
         private MultiSourceImage msi;
+        private AudioFrame af;
         private Boolean display;
+        private Boolean mic;
         private Mode mode;
 
         public RGBDplusMic()
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.msi = this.mw.MultiSourceImage;
+            this.af = this.mw.AudioFrame;
             this.msi.addMSIListener(this.Reader_MultiSourceFrameArrived);
             this.msi.MultiSourceFrameReader.IsPaused = true;
             this.mode = Mode.Color;
             this.DataContext = this;
             this.display = false;
+            this.mic = false;
 
             InitializeComponent();
 
-            this.statusBarItem.Content = "Streaming off";
+            this.statusBarItem.Content = "Streaming & recording off";
         }
 
         private void switchDisplay(object sender, RoutedEventArgs e)
@@ -46,14 +50,45 @@ namespace Kinect2Server.View
                 this.display = false;
                 this.setButtonOff(this.stackDisplay);
                 this.msi.MultiSourceFrameReader.IsPaused = true;
-                this.statusBarItem.Content = "Streaming off";
+                if(this.mic)
+                    this.statusBarItem.Content = "Streaming off. Recording on";
+                else
+                    this.statusBarItem.Content = "Streaming & recording off";
             }
             else
             {
                 this.display = true;
                 this.setButtonOn(this.stackDisplay);
                 this.msi.MultiSourceFrameReader.IsPaused = false;
-                this.statusBarItem.Content = "Streaming RGB-D images + microphone";
+                if (this.mic)
+                    this.statusBarItem.Content = "Streaming RGB-D images & recording";
+                else
+                    this.statusBarItem.Content = "Streaming RGB-D images. Recording off";
+            }
+        }
+
+        private void switchMic(object sender, RoutedEventArgs e)
+        {
+            if (this.mic)
+            {
+                this.mic = false;
+                this.setButtonOff(this.stackMic);
+                this.af.AudioBeamFrameReader.IsPaused = true;
+                if (this.display)
+                    this.statusBarItem.Content = "Streaming RGB-D images. Recording off";
+                else
+                    this.statusBarItem.Content = "Streaming & recording off";
+            }
+            else
+            {
+                this.mic = true;
+                this.setButtonOn(this.stackMic);
+                this.af.AudioBeamFrameReader.IsPaused = false;
+                if (this.display)
+                    this.statusBarItem.Content = "Streaming RGB-D images & recording";
+                else
+                    this.statusBarItem.Content = "Streaming off. Recording on";
+
             }
         }
 
