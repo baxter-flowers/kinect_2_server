@@ -24,6 +24,7 @@ namespace Kinect2Server.View
         private AudioFrame af;
         private Boolean display;
         private Boolean mic;
+        private Boolean reqRep;
         private Mode mode;
 
         public RGBDplusMic()
@@ -37,6 +38,7 @@ namespace Kinect2Server.View
             this.DataContext = this;
             this.display = false;
             this.mic = false;
+            this.reqRep = false;
 
             InitializeComponent();
 
@@ -89,6 +91,22 @@ namespace Kinect2Server.View
                 else
                     this.statusBarItem.Content = "Streaming off. Recording on";
 
+            }
+        }
+
+        private void switchSending(object sender, RoutedEventArgs e)
+        {
+            if (this.reqRep)
+            {
+                this.reqRep = false;
+                this.setButtonOff(this.stackSending);
+                // TODO add network things
+            }
+            else
+            {
+                this.reqRep = true;
+                this.setButtonOn(this.stackSending);
+                // TODO add network things
             }
         }
 

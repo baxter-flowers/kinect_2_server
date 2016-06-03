@@ -85,6 +85,14 @@
                     Foreground="{StaticResource MediumGreyBrush}">
                     <StatusBarItem Name="statusBarItem" />
                 </StatusBar>
+                
+                <Label Grid.Row="2" Grid.Column="0" Content="Sending frame by frame"/>
+                <Button Click="switchSending" Height="32" Width="81" Grid.Row="2" Grid.Column="1" BorderThickness="0">
+                    <StackPanel Name="stackSending">
+                        <Image Source="..\Images\switch_off.png"/>
+                    </StackPanel>
+                </Button>
+                
             </Grid>
         </Grid>
     </Grid>

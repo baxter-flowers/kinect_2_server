@@ -22,6 +22,7 @@ namespace Kinect2Server
         private SpeechRecognition sr;
         private SkeletonTracking st;
         private MultiSourceImage msi;
+        private AudioFrame af;
         private SpeechRecognitionView srv;
         private SkeletonTrackingView stv;
         private TextToSpeechView ttsv;
@@ -34,6 +35,7 @@ namespace Kinect2Server
             this.sr = this.mw.SpeechRecogniton;
             this.st = this.mw.SkeletonTracking;
             this.msi = this.mw.MultiSourceImage;
+            this.af = this.mw.AudioFrame;
             this.context = new ZContext();
             this.socket = new ZSocket(this.context, ZSocketType.REP);
             this.binded = false;
@@ -111,13 +113,11 @@ namespace Kinect2Server
                         return reply;
                     }
                     if (grammarFile != null)
-                    {
                         this.srv.RefreshGrammarFile();
-                    }
                     this.srv.addlist();
                     if ((Boolean)srOn)
                     {
-                        this.RefreshStatus("speech", "on/off", true);
+                        this.RefreshStatus("speech", true);
                         this.isOn = true;
                     }
                 }
@@ -128,14 +128,14 @@ namespace Kinect2Server
                         if ((Boolean)srOn && !this.isOn)
                         {
                             this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
-                            this.RefreshStatus("speech", "on/off", true);
+                            this.RefreshStatus("speech", true);
                             this.isOn = true;
                         }
 
                         else if (!(Boolean)srOn)
                         {
                             this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
-                            this.RefreshStatus("speech", "on/off", false);
+                            this.RefreshStatus("speech", false);
                             this.isOn = false;
                         }
 
@@ -168,7 +168,7 @@ namespace Kinect2Server
                         this.st.BodyFrameReader.IsPaused = false;
                     else
                         this.st.BodyFrameReader.IsPaused = true;
-                    this.RefreshStatus("skeleton", null, (Boolean)stOn);
+                    this.RefreshStatus("skeleton", (Boolean)stOn);
                 }
 
                 // Smoothing
@@ -191,7 +191,7 @@ namespace Kinect2Server
                         this.tts.QueuedMessages = true;
                     else
                         this.tts.QueuedMessages = false;
-                    this.RefreshStatus("tts", null, (Boolean)queue);
+                    this.RefreshStatus("tts", (Boolean)queue);
                 }
 
                 // Gender
@@ -234,39 +234,46 @@ namespace Kinect2Server
             {
                 // RGB-D/Mic
                 // On/off
-                Nullable<Boolean> rmOn = (Nullable<Boolean>)json_params["rgbd_mic"]["on"];
-                if (rmOn != null)
+                Nullable<Boolean> rOn = (Nullable<Boolean>)json_params["rgbd_mic"]["ron"];
+                Nullable<Boolean> mOn = (Nullable<Boolean>)json_params["rgbd_mic"]["lon"];
+                Nullable<Boolean> reqRepOn = (Nullable<Boolean>)json_params["rgbd_mic"]["reqrep"];
+                if (rOn != null)
                 {
-                    if ((Boolean)rmOn)
-                    {
+                    if ((Boolean)rOn)
                         this.msi.MultiSourceFrameReader.IsPaused = false;
-                    }
-
                     else
-                    {
                         this.msi.MultiSourceFrameReader.IsPaused = true;
-                    }
-                    this.RefreshStatus("rgbd_mic", null, (Boolean)rmOn);
+                    this.RefreshStatus("rgbd", (Boolean)rOn);
+                }
+                if (mOn != null)
+                {
+                    if ((Boolean)mOn)
+                        this.af.AudioBeamFrameReader.IsPaused = false;
+                    else
+                        this.af.AudioBeamFrameReader.IsPaused = true;
+                    this.RefreshStatus("mic", (Boolean)mOn);
+                }
+                if (mOn != null)
+                {
+                    if ((Boolean)mOn)
+                        this.af.AudioBeamFrameReader.IsPaused = false;
+                    else
+                        this.af.AudioBeamFrameReader.IsPaused = true;
+                    this.RefreshStatus("mic", (Boolean)mOn);
                 }
             }
 
             return reply;
         }
 
-        private void RefreshStatus(String feature,String param, Boolean state)
+        private void RefreshStatus(String feature, Boolean state)
         {
             if (feature.Equals("speech"))
             {
                 if (state)
-                {
-                    if (param.Equals("on/off"))
-                        this.srv.setButtonOn(this.srv.stackSR);
-                }
+                    this.srv.setButtonOn(this.srv.stackSR);
                 else
-                {
-                    if (param.Equals("on/off"))
-                        this.srv.setButtonOff(this.srv.stackSR);
-                }
+                    this.srv.setButtonOff(this.srv.stackSR);
             }
             else if(feature.Equals("skeleton"))
             {
@@ -282,12 +289,19 @@ namespace Kinect2Server
                 else
                     this.ttsv.setButtonOff(this.ttsv.stackQueue);
             }
-            else if (feature.Equals("rgbd_mic"))
+            else if (feature.Equals("rgbd"))
             {
                 if (state)
                     this.rgbdmicv.setButtonOn(this.rgbdmicv.stackDisplay);
                 else
                     this.rgbdmicv.setButtonOff(this.rgbdmicv.stackDisplay);
+            }
+            else if (feature.Equals("mic"))
+            {
+                if (state)
+                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackMic);
+                else
+                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackMic);
             }
 
 
