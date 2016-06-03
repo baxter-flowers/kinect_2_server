@@ -158,11 +158,6 @@ namespace Kinect2Server
             this.fileName = fileName;
             RecognizerInfo ri = TryGetKinectRecognizer(raw_grammar);
 
-            if (speechEngine != null)
-            {
-                speechEngine.UnloadAllGrammars();
-            }
-
             if (null != ri)
             {
                 this.speechEngine = new SpeechRecognitionEngine(ri.Id);
