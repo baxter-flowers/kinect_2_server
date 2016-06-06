@@ -235,8 +235,9 @@ namespace Kinect2Server
                 // RGB-D/Mic
                 // On/off
                 Nullable<Boolean> rOn = (Nullable<Boolean>)json_params["rgbd_mic"]["ron"];
-                Nullable<Boolean> mOn = (Nullable<Boolean>)json_params["rgbd_mic"]["lon"];
+                Nullable<Boolean> mOn = (Nullable<Boolean>)json_params["rgbd_mic"]["mon"];
                 Nullable<Boolean> reqRepOn = (Nullable<Boolean>)json_params["rgbd_mic"]["reqrep"];
+                Nullable<Boolean> sendFrame = (Nullable<Boolean>)json_params["rgbd_mic"]["send"];
                 if (rOn != null)
                 {
                     if ((Boolean)rOn)
@@ -253,13 +254,18 @@ namespace Kinect2Server
                         this.af.AudioBeamFrameReader.IsPaused = true;
                     this.RefreshStatus("mic", (Boolean)mOn);
                 }
-                if (mOn != null)
+                if (reqRepOn != null)
                 {
-                    if ((Boolean)mOn)
-                        this.af.AudioBeamFrameReader.IsPaused = false;
+                    if ((Boolean)reqRepOn)
+                        this.msi.Request_Reply = true;
                     else
-                        this.af.AudioBeamFrameReader.IsPaused = true;
-                    this.RefreshStatus("mic", (Boolean)mOn);
+                        this.msi.Request_Reply = false;
+                    this.RefreshStatus("rgbd_reqrep", (Boolean)reqRepOn);
+                }
+                if (sendFrame != null)
+                {
+                    if ((Boolean)reqRepOn)
+                        this.msi.ResetFrameBooleans();
                 }
             }
 
@@ -303,7 +309,13 @@ namespace Kinect2Server
                 else
                     this.rgbdmicv.setButtonOff(this.rgbdmicv.stackMic);
             }
-
+            else if (feature.Equals("rgbd_reqrep"))
+            {
+                if (state)
+                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackSending);
+                else
+                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackSending);
+            }
 
         }
 

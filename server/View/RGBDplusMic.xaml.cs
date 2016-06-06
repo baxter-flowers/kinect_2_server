@@ -33,7 +33,6 @@ namespace Kinect2Server.View
             this.msi = this.mw.MultiSourceImage;
             this.af = this.mw.AudioFrame;
             this.msi.addMSIListener(this.Reader_MultiSourceFrameArrived);
-            this.msi.MultiSourceFrameReader.IsPaused = true;
             this.mode = Mode.Color;
             this.DataContext = this;
             this.display = false;
@@ -100,13 +99,13 @@ namespace Kinect2Server.View
             {
                 this.reqRep = false;
                 this.setButtonOff(this.stackSending);
-                // TODO add network things
+                this.msi.Request_Reply = false;
             }
             else
             {
                 this.reqRep = true;
                 this.setButtonOn(this.stackSending);
-                // TODO add network things
+                this.msi.Request_Reply = true;
             }
         }
 

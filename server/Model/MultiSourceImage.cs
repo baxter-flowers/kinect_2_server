@@ -29,6 +29,10 @@ namespace Kinect2Server
         private ushort[] depthPixelData;
         private ColorSpacePoint[] colorPoints;
         private Byte[] mappedPixels;
+        private Boolean reqRep;
+        private Boolean repColorDelivered;
+        private Boolean repDepthDelivered;
+        private Boolean repMappingDelivered;
 
         public MultiSourceImage(KinectSensor kinect, NetworkPublisher dPub, NetworkPublisher cPub, NetworkPublisher mPub)
         {
@@ -39,6 +43,9 @@ namespace Kinect2Server
             this.mappingPublisher = mPub;
             
             this.multiSourceFrameReader = this.kinect.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth);
+            this.multiSourceFrameReader.IsPaused = true;
+            this.reqRep = true;
+            this.repColorDelivered = false;
             
         }
 
@@ -50,16 +57,23 @@ namespace Kinect2Server
             }
         }
 
-        public int FrameCount
+        public Boolean Request_Reply
         {
             get
             {
-                return this.frameCount;
+                return this.reqRep;
             }
             set
             {
-                this.frameCount = value;
+                this.reqRep = value;
             }
+        }
+
+        public void ResetFrameBooleans()
+        {
+            this.repColorDelivered = false;
+            this.repDepthDelivered = false;
+            this.repMappingDelivered = false;
         }
 
         public void addMSIListener(EventHandler<MultiSourceFrameArrivedEventArgs> f)
@@ -75,13 +89,19 @@ namespace Kinect2Server
             int colorHeight = colorFrame.FrameDescription.Height;
             this.colorPixels = new Byte[colorWidth * colorHeight * 2];
             colorFrame.CopyRawFrameDataToArray(this.colorPixels);
-            this.colorPublisher.SendByteArray(this.colorPixels);
-
+            if (this.reqRep && !this.repColorDelivered)
+            {
+                this.colorPublisher.SendByteArray(this.colorPixels);
+                this.repColorDelivered = true;
+            }
+            else if(!this.reqRep)
+                this.colorPublisher.SendByteArray(this.colorPixels);
+            
             this.colorPixels = new Byte[colorWidth * colorHeight * ((format.BitsPerPixel + 7) / 8)];
             colorFrame.CopyConvertedFrameDataToArray(this.colorPixels, ColorImageFormat.Bgra);
         }
 
-        private unsafe void DepthTreatment(DepthFrame depthFrame)
+        private void DepthTreatment(DepthFrame depthFrame)
         {
             // Depth treatment
             PixelFormat format = PixelFormats.Gray8;
@@ -101,9 +121,15 @@ namespace Kinect2Server
                 ushort depth = this.depthPixelData[i];
                 this.depthPixels[i] = (byte)(depth >= minDepth && depth <= maxDepth ? (depth / MapDepthToByte) : 0);
             }
+
+            if (this.reqRep && !this.repDepthDelivered)
+            {
+                this.depthPublisher.SendByteArray(this.depthPixels);
+                this.repDepthDelivered = true;
+            }
+            else if(!this.reqRep)
+                this.depthPublisher.SendByteArray(this.depthPixels);
             
-            
-            this.depthPublisher.SendByteArray(this.depthPixels);
         }
 
         public unsafe void MapDepthToColor(ColorFrame colorFrame, DepthFrame depthFrame)
@@ -155,7 +181,13 @@ namespace Kinect2Server
                     }
                 }
             }*/
-            this.mappingPublisher.SendByteArray(byteArray);
+            if (this.reqRep && !this.repMappingDelivered)
+            {
+                this.mappingPublisher.SendByteArray(byteArray);
+                this.repMappingDelivered = true;
+            }
+            else if(!this.reqRep)
+                this.mappingPublisher.SendByteArray(byteArray);
             
         }
 
@@ -182,11 +214,6 @@ namespace Kinect2Server
             {
                 stride = depthFrame.FrameDescription.Width * formatGray8.BitsPerPixel / 8;
                 return BitmapSource.Create(depthFrame.FrameDescription.Width, depthFrame.FrameDescription.Height, 96.0, 96.0, formatGray8, null, this.depthPixels, stride);
-            }
-            else if (mode.Equals("Mapped"))
-            {
-                stride = colorFrame.FrameDescription.Width * formatGray8.BitsPerPixel / 8;
-                return null;
             }
             else
             {
