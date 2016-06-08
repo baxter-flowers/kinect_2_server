@@ -11,11 +11,13 @@ namespace Kinect2Server
 {
     public partial class MainWindow : Window
     {
-        private NetworkPublisher publisher;
+        private NetworkPublisher speechPublisher;
+        private NetworkPublisher skeletonPublisher;
         private NetworkPublisher colorPublisher;
         private NetworkPublisher depthPublisher;
         private NetworkPublisher audioPublisher;
         private NetworkPublisher mappingPublisher;
+        private NetworkPublisher maskPublisher;
         private NetworkSubscriber subscriber;
         private NetworkResponder responder;
         private KinectSensor kinectSensor;
@@ -33,28 +35,31 @@ namespace Kinect2Server
         public MainWindow()
         {
             setKinectSensor();
-            this.publisher = new NetworkPublisher();
-            this.publisher.Bind("33405");
+            this.speechPublisher = new NetworkPublisher();
+            this.speechPublisher.Bind("33405");
+            this.skeletonPublisher = new NetworkPublisher();
+            this.skeletonPublisher.Bind("33406");
+            this.skeletonPublisher.SetConflate();
             this.subscriber = new NetworkSubscriber();
-            this.subscriber.Bind("33406");
+            this.subscriber.Bind("33407");
             this.colorPublisher = new NetworkPublisher();
-            this.colorPublisher.Bind("33407");
+            this.colorPublisher.Bind("33408");
             this.colorPublisher.SetConflate();
-            this.depthPublisher = new NetworkPublisher();
-            this.depthPublisher.Bind("33408");
-            this.depthPublisher.SetConflate();
-            this.audioPublisher = new NetworkPublisher();
-            this.audioPublisher.Bind("33409");
-            this.audioPublisher.SetConflate();
             this.mappingPublisher = new NetworkPublisher();
-            this.mappingPublisher.Bind("33411");
+            this.mappingPublisher.Bind("33409");
             this.mappingPublisher.SetConflate();
+            this.maskPublisher = new NetworkPublisher();
+            this.maskPublisher.Bind("33410");
+            this.maskPublisher.SetConflate();
+            this.audioPublisher = new NetworkPublisher();
+            this.audioPublisher.Bind("33411");
+            this.audioPublisher.SetConflate();
 
-            this.sr = new SpeechRecognition(this.kinectSensor, this.publisher, this.convertStream);
-            this.st = new SkeletonTracking(this.kinectSensor, this.publisher);
+            this.sr = new SpeechRecognition(this.kinectSensor, this.speechPublisher, this.convertStream);
+            this.st = new SkeletonTracking(this.kinectSensor, this.skeletonPublisher);
             this.tts = new TextToSpeech(this.subscriber);
             this.af = new AudioFrame(this.kinectSensor, this.audioPublisher);
-            this.msi = new MultiSourceImage(this.kinectSensor, this.depthPublisher, this.colorPublisher, this.mappingPublisher);
+            this.msi = new MultiSourceImage(this.kinectSensor, this.colorPublisher, this.mappingPublisher, this.maskPublisher);
 
             
             InitializeComponent();
@@ -66,7 +71,7 @@ namespace Kinect2Server
 
             // Need to create the responder after models because it's using instance of sr, srw, st & tts
             this.responder = new NetworkResponder();
-            this.responder.Bind("33410");
+            this.responder.Bind("33412");
         }
 
         private void setKinectSensor()

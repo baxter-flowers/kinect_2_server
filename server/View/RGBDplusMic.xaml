@@ -59,16 +59,17 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" Click="ScreenshotButton_Click" />
-                <Label Grid.Row="0" Grid.Column="0" Content="Display" VerticalAlignment="Center"/>
+                <Button Grid.Row="0" Grid.Column="4" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" Click="ScreenshotButton_Click" />
+                <Label Grid.Row="0" Grid.Column="0" Content="RGB-D" VerticalAlignment="Center"/>
                 <Button Click="switchDisplay" Height="32" Width="81" Grid.Row="0" Grid.Column="1" BorderThickness="0">
                     <StackPanel Name="stackDisplay">
                         <Image Source="..\Images\switch_off.png"/>
@@ -81,13 +82,13 @@
                         <Image Source="..\Images\switch_off.png"/>
                     </StackPanel>
                 </Button>
-                <StatusBar Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" Name="statusBar" VerticalAlignment="Bottom" Background="White"
+                <StatusBar Grid.Row="1" Grid.Column="4" HorizontalAlignment="Right" Name="statusBar" VerticalAlignment="Bottom" Background="White"
                     Foreground="{StaticResource MediumGreyBrush}">
                     <StatusBarItem Name="statusBarItem" />
                 </StatusBar>
                 
-                <Label Grid.Row="2" Grid.Column="0" Content="Sending frame by frame"/>
-                <Button Click="switchSending" Height="32" Width="81" Grid.Row="2" Grid.Column="1" BorderThickness="0">
+                <Label Grid.Row="0" Grid.Column="2" Content="Continuous stream"/>
+                <Button Click="switchSending" Height="32" Width="81" Grid.Row="0" Grid.Column="3" BorderThickness="0">
                     <StackPanel Name="stackSending">
                         <Image Source="..\Images\switch_off.png"/>
                     </StackPanel>

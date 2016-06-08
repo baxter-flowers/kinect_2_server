@@ -37,7 +37,7 @@ namespace Kinect2Server.View
             this.DataContext = this;
             this.display = false;
             this.mic = false;
-            this.reqRep = false;
+            this.reqRep = true;
 
             InitializeComponent();
 
