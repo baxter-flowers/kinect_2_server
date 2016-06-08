@@ -119,6 +119,7 @@ This feature allows to get:
 * RGB image of size 1920 * 1080 using the HD camera of the sensor
 * IR image of size 424 * 515 using the infrared camera of the sensor
 * mapping between both RGB and IR images that gives every pixel's coordinates of the IR image in the RGB frame
+
 The server sends uncompressed data (byte arrays for RGB and IR images, JSON for the mapping) so it might overload the network.
 The client is in progress. Currently, it uses data sent by the server to reconstruct images using openCV.
 A feature of the client will allow to combine the IR image and the mapping to get a pixel-to-pixel mapping with RGB image.
