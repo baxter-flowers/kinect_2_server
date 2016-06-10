@@ -88,23 +88,38 @@ class TextToSpeechParams(Params):
         '''
         :param language: str, values can be 'english' or 'french'
         '''
-        if language == 'english':
-            self._params['language'] = 'english'
-        elif language == 'french':
-            self._params['language'] = 'french'
+        self._params['language'] = language
         
 
-class RGBDMicParams(Params):
+class RGBDParams(Params):
     def __init__(self, context, ip, port=33410):
         Params.__init__(self, context, ip, port)
-        self._feature = 'rgbd_mic'
+        self._feature = 'rgbd'
                
+    def on(self):
+        self._params['on'] = True
+         
+    def off(self):
+        self._params['on'] = False
+
+    def continuous_stream_on(self):
+        self._params['continuousStream'] = True
+        self._params['send'] = False
+         
+    def continuous_stream_off(self):
+        self._params['continuousStream'] = False
+
+    def one_frame(self):
+        self._params['send'] = True
+
+
+class MicParams(Params):
+    def __init__(self, context, ip, port=33410):
+        Params.__init__(self, context, ip, port)
+        self._feature = 'mic'
+
     def on(self):
          self._params['on'] = True
          
     def off(self):
          self._params['on'] = False
-
-        
-    
-        
