@@ -24,6 +24,7 @@ namespace Kinect2Server
         private Boolean reqRep;
         private Boolean repColorDelivered;
         private Boolean repMappingDelivered;
+        private Boolean repMaskDelivered;
 
         public MultiSourceImage(KinectSensor kinect, NetworkPublisher cPub, NetworkPublisher mPub, NetworkPublisher maPub)
         {
@@ -36,8 +37,9 @@ namespace Kinect2Server
             this.multiSourceFrameReader = this.kinect.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth);
             this.multiSourceFrameReader.IsPaused = true;
             this.reqRep = true;
-            this.repColorDelivered = false;
-            this.repMappingDelivered = false;
+            this.repColorDelivered = true;
+            this.repMappingDelivered = true;
+            this.repMaskDelivered = true;
             
         }
 
@@ -65,6 +67,7 @@ namespace Kinect2Server
         {
             this.repColorDelivered = false;
             this.repMappingDelivered = false;
+            this.repMaskDelivered = false;
         }
 
         public void addMSIListener(EventHandler<MultiSourceFrameArrivedEventArgs> f)
@@ -187,6 +190,7 @@ namespace Kinect2Server
                     this.mappingPublisher.SendByteArray(this.mappedPixels);
                     this.maskPublisher.SendByteArray(this.mask);
                     this.repMappingDelivered = true;
+                    this.repMaskDelivered = true;
                 }
                 else if (!this.reqRep)
                 {
