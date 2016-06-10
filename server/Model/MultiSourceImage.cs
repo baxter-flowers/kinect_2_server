@@ -209,7 +209,6 @@ namespace Kinect2Server
             this.DepthTreatment(depthFrame);
 
             this.MapDepthToColor(colorFrame, depthFrame);
-            return null;
 
             // Return ImageSource depending on mode
             int stride;
