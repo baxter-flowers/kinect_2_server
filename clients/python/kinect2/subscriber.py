@@ -154,11 +154,9 @@ class RGBDSubscriber(object):
             mapped_image = numpy.uint8(cv2.normalize(mapped_frame_numpy, None, 0, 255, cv2.NORM_MINMAX))
             mask_numpy = numpy.fromstring(msg_mask, numpy.uint8).reshape(1080*0.2547, 1920*0.2547)
             mask = numpy.uint8(cv2.normalize(mask_numpy, None, 0, 255, cv2.NORM_MINMAX))
-
-            return frame_rgb, mapped_image, mask
             
-            #if callable(self._cb) and msg_color is not None and msg_mapping is not None and msg_mask is not None:
-              # self._cb(msg_color)
+            if callable(self._cb) and msg_color is not None and msg_mapping is not None and msg_mask is not None:
+                self._cb({msg_color, msg_mapping, msg_mask})
 
     def start(self):
         """
