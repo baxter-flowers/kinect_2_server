@@ -61,7 +61,7 @@ class RGBDSubscriber(object):
         self._socket_mask.setsockopt(CONFLATE, 1)
         self._cb = None
         self.running = False
-        self.continuous = True
+        self.continuous = False
         self._socket_color_lock = RLock()
         self._socket_color_mapping = RLock()
         self._socket_color_mask = RLock()
