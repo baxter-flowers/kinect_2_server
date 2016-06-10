@@ -1,14 +1,6 @@
 ﻿using Microsoft.Kinect;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -123,7 +115,7 @@ namespace Kinect2Server
             
         }
 
-        public unsafe void MapDepthToColor(ColorFrame colorFrame, DepthFrame depthFrame)
+        public void MapDepthToColor(ColorFrame colorFrame, DepthFrame depthFrame)
         {
             // Mapping color & depth
             int colorWidth = colorFrame.FrameDescription.Width;
@@ -131,7 +123,7 @@ namespace Kinect2Server
             int depthWidth = depthFrame.FrameDescription.Width;
             int depthHeight = depthFrame.FrameDescription.Height;
 
-            double factor = 0.2547;
+            float factor = 0.2547f;
             int smallWidth = (int)(colorWidth * factor);
             int smallHeight = (int)(colorHeight * factor);
 
@@ -143,11 +135,12 @@ namespace Kinect2Server
             
 
             this.coordinateMapper.MapDepthFrameToColorSpace(this.depthPixelData, this.colorPoints);
-
             for (int index = 0; index < this.colorPoints.Length; index++)
             {
-                int colorX = (int)(this.colorPoints[index].X*factor);
-                int colorY = (int)(this.colorPoints[index].Y*factor);
+                int colorX = (int)(this.colorPoints[index].X);
+                int colorY = (int)(this.colorPoints[index].Y);
+                colorX = (int)(colorX * factor);
+                colorY = (int)(colorY * factor);
                 if (!float.IsNegativeInfinity(colorX) && !float.IsNegativeInfinity(colorY))
                 {
                     if ((colorX >= 0) && (colorX < smallWidth) && (colorY >= 0) && (colorY < smallHeight))
@@ -216,6 +209,7 @@ namespace Kinect2Server
             this.DepthTreatment(depthFrame);
 
             this.MapDepthToColor(colorFrame, depthFrame);
+            return null;
 
             // Return ImageSource depending on mode
             int stride;

@@ -142,7 +142,7 @@ namespace Kinect2Server
                     }
                     else if (grammar == null)
                     {
-                        reply += " Speech engine not set, you have to send grammar file.";
+                        reply += "Speech engine not set, you have to send grammar file.";
                         return reply;
                     }
                 }
@@ -226,18 +226,16 @@ namespace Kinect2Server
                         this.tts.Culture = new CultureInfo("fr-FR");
                         this.ttsv.frFR_C();
                     }
-
                 }
             }
 
-            if (json_params["rgbd_mic"] != null)
+            if (json_params["rgbd"] != null)
             {
-                // RGB-D/Mic
+                // RGB-D
                 // On/off
-                Nullable<Boolean> rOn = (Nullable<Boolean>)json_params["rgbd_mic"]["ron"];
-                Nullable<Boolean> mOn = (Nullable<Boolean>)json_params["rgbd_mic"]["mon"];
-                Nullable<Boolean> reqRepOn = (Nullable<Boolean>)json_params["rgbd_mic"]["reqrep"];
-                Nullable<Boolean> sendFrame = (Nullable<Boolean>)json_params["rgbd_mic"]["send"];
+                Nullable<Boolean> rOn = (Nullable<Boolean>)json_params["rgbd"]["on"];
+                Nullable<Boolean> continuousStream = (Nullable<Boolean>)json_params["rgbd"]["continuousStream"];
+                Nullable<Boolean> sendFrame = (Nullable<Boolean>)json_params["rgbd"]["send"];
                 if (rOn != null)
                 {
                     if ((Boolean)rOn)
@@ -246,6 +244,33 @@ namespace Kinect2Server
                         this.msi.MultiSourceFrameReader.IsPaused = true;
                     this.RefreshStatus("rgbd", (Boolean)rOn);
                 }
+                if (continuousStream != null)
+                {
+                    if ((Boolean)continuousStream)
+                        this.msi.Request_Reply = false;
+                    else
+                        this.msi.Request_Reply = true;
+                    this.RefreshStatus("continuousStream", (Boolean)continuousStream);
+                }
+                if (sendFrame != null)
+                {
+                    if ((Boolean)sendFrame)
+                    {
+                        if (!this.msi.Request_Reply)
+                        {
+                            reply += "Continuous stream must be disabled to ask only one frame";
+                            return reply;
+                        }
+                        this.msi.ResetFrameBooleans();
+                    }
+                }
+            }
+
+            if (json_params["mic"] != null)
+            {
+                // Microphone
+                // On/off
+                Nullable<Boolean> mOn = (Nullable<Boolean>)json_params["mic"]["on"];
                 if (mOn != null)
                 {
                     if ((Boolean)mOn)
@@ -254,21 +279,7 @@ namespace Kinect2Server
                         this.af.AudioBeamFrameReader.IsPaused = true;
                     this.RefreshStatus("mic", (Boolean)mOn);
                 }
-                if (reqRepOn != null)
-                {
-                    if ((Boolean)reqRepOn)
-                        this.msi.Request_Reply = true;
-                    else
-                        this.msi.Request_Reply = false;
-                    this.RefreshStatus("rgbd_reqrep", (Boolean)reqRepOn);
-                }
-                if (sendFrame != null)
-                {
-                    if ((Boolean)reqRepOn)
-                        this.msi.ResetFrameBooleans();
-                }
             }
-
             return reply;
         }
 
@@ -309,7 +320,7 @@ namespace Kinect2Server
                 else
                     this.rgbdmicv.setButtonOff(this.rgbdmicv.stackMic);
             }
-            else if (feature.Equals("rgbd_reqrep"))
+            else if (feature.Equals("continuousStream"))
             {
                 if (state)
                     this.rgbdmicv.setButtonOn(this.rgbdmicv.stackSending);

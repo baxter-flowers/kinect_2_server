@@ -76,18 +76,19 @@
                     </StackPanel>
                 </Button>
                 
-                <Label Grid.Row="1" Grid.Column="0" Content="Microphone"/>
+                <Label Grid.Row="1" Grid.Column="0" Content="Microphone" VerticalAlignment="Center"/>
                 <Button Click="switchMic" Height="32" Width="81" Grid.Row="1" Grid.Column="1" BorderThickness="0">
                     <StackPanel Name="stackMic">
                         <Image Source="..\Images\switch_off.png"/>
                     </StackPanel>
                 </Button>
+                <Label Name="FPS" Grid.Row="1" Grid.Column="2" Content="FPS : 0" VerticalAlignment="Center"/>
                 <StatusBar Grid.Row="1" Grid.Column="4" HorizontalAlignment="Right" Name="statusBar" VerticalAlignment="Bottom" Background="White"
                     Foreground="{StaticResource MediumGreyBrush}">
                     <StatusBarItem Name="statusBarItem" />
                 </StatusBar>
                 
-                <Label Grid.Row="0" Grid.Column="2" Content="Continuous stream"/>
+                <Label Grid.Row="0" Grid.Column="2" Content="Continuous stream" VerticalAlignment="Center"/>
                 <Button Click="switchSending" Height="32" Width="81" Grid.Row="0" Grid.Column="3" BorderThickness="0">
                     <StackPanel Name="stackSending">
                         <Image Source="..\Images\switch_off.png"/>

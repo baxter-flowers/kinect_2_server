@@ -2,10 +2,8 @@
 using System;
 using System.Globalization;
 using System.IO;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Kinect2Server.View
@@ -24,8 +22,11 @@ namespace Kinect2Server.View
         private AudioFrame af;
         private Boolean display;
         private Boolean mic;
-        private Boolean reqRep;
+        private Boolean continousStream;
         private Mode mode;
+        private int frameCount;
+        private int timeStart_millisec;
+        private int oldTime_millisec;
 
         public RGBDplusMic()
         {
@@ -37,7 +38,8 @@ namespace Kinect2Server.View
             this.DataContext = this;
             this.display = false;
             this.mic = false;
-            this.reqRep = true;
+            this.continousStream = false;
+            this.frameCount = 0;
 
             InitializeComponent();
 
@@ -61,6 +63,8 @@ namespace Kinect2Server.View
                 this.display = true;
                 this.setButtonOn(this.stackDisplay);
                 this.msi.MultiSourceFrameReader.IsPaused = false;
+                this.timeStart_millisec = DateTime.Now.Second;
+                this.oldTime_millisec = DateTime.Now.Second;
                 if (this.mic)
                     this.statusBarItem.Content = "Streaming RGB-D images & recording";
                 else
@@ -95,17 +99,17 @@ namespace Kinect2Server.View
 
         private void switchSending(object sender, RoutedEventArgs e)
         {
-            if (this.reqRep)
+            if (this.continousStream)
             {
-                this.reqRep = false;
+                this.continousStream = false;
                 this.setButtonOff(this.stackSending);
-                this.msi.Request_Reply = false;
+                this.msi.Request_Reply = true;
             }
             else
             {
-                this.reqRep = true;
+                this.continousStream = true;
                 this.setButtonOn(this.stackSending);
-                this.msi.Request_Reply = true;
+                this.msi.Request_Reply = false;
             }
         }
 
@@ -152,6 +156,8 @@ namespace Kinect2Server.View
             JpegBitmapEncoder encoder = new JpegBitmapEncoder();
 
             // create frame from the camera source and add to encoders
+            if (this.camera.Source == null)
+                return;
             encoder.Frames.Add(BitmapFrame.Create((BitmapSource)this.camera.Source));
 
             string time = DateTime.Now.ToString("dd'-'MMM'-'HH'-'mm'-'ss", CultureInfo.CurrentUICulture.DateTimeFormat);
@@ -192,7 +198,18 @@ namespace Kinect2Server.View
             if (colorFrame == null | depthFrame == null)
                 return;
 
+
             this.camera.Source = this.msi.FrameTreatment(colorFrame, depthFrame, this.mode.ToString());
+
+            this.frameCount++;
+            int timeDiff = DateTime.Now.Second - this.timeStart_millisec;
+            if (Math.Floor((double)timeDiff) > this.oldTime_millisec)
+            {
+                this.oldTime_millisec = timeDiff;
+                this.FPS.Content = "FPS : " + Math.Round((double)(frameCount / timeDiff), 1);
+                this.frameCount = 0;
+                this.timeStart_millisec = DateTime.Now.Second;
+            }
 
             if (colorFrame != null)
                 colorFrame.Dispose();

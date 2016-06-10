@@ -1,10 +1,7 @@
 ﻿using Kinect2Server.View;
 using Microsoft.Kinect;
-using Microsoft.Speech.Recognition;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Speech.Synthesis;
 using System.Windows;
 
 namespace Kinect2Server
@@ -18,7 +15,7 @@ namespace Kinect2Server
         private NetworkPublisher audioPublisher;
         private NetworkPublisher mappingPublisher;
         private NetworkPublisher maskPublisher;
-        private NetworkSubscriber subscriber;
+        private NetworkSubscriber ttsSubscriber;
         private NetworkResponder responder;
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
@@ -40,8 +37,8 @@ namespace Kinect2Server
             this.skeletonPublisher = new NetworkPublisher();
             this.skeletonPublisher.Bind("33406");
             this.skeletonPublisher.SetConflate();
-            this.subscriber = new NetworkSubscriber();
-            this.subscriber.Bind("33407");
+            this.ttsSubscriber = new NetworkSubscriber();
+            this.ttsSubscriber.Bind("33407");
             this.colorPublisher = new NetworkPublisher();
             this.colorPublisher.Bind("33408");
             this.colorPublisher.SetConflate();
@@ -57,7 +54,7 @@ namespace Kinect2Server
 
             this.sr = new SpeechRecognition(this.kinectSensor, this.speechPublisher, this.convertStream);
             this.st = new SkeletonTracking(this.kinectSensor, this.skeletonPublisher);
-            this.tts = new TextToSpeech(this.subscriber);
+            this.tts = new TextToSpeech(this.ttsSubscriber);
             this.af = new AudioFrame(this.kinectSensor, this.audioPublisher);
             this.msi = new MultiSourceImage(this.kinectSensor, this.colorPublisher, this.mappingPublisher, this.maskPublisher);
 
