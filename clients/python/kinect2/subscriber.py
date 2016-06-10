@@ -120,15 +120,24 @@ class RGBDSubscriber(object):
         self.params.send_params()
 
     def get_one_frame(self):
+        """
+        Get a set of frame that contains rgb, mapping & mask.
+        Returns in order rgb, mapping & mask in openCV image format.
+        """
         self.params.one_frame()
         self.params.send_params()
         msg_color = self._get_color()
         msg_mapping = self._get_mapping()
         msg_mask = self._get_mask()
+
         rgb_frame_numpy = numpy.fromstring(msg_color, numpy.uint8).reshape(1080, 1920,2)
         frame_rgb = cv2.cvtColor(rgb_frame_numpy, cv2.COLOR_YUV2BGR_YUY2)  # YUY2 to BGR
-        cv2.imshow("rgb", frame_rgb)
-        cv2.waitKey(1)
+        mapped_frame_numpy = numpy.fromstring(msg_mapping, numpy.uint8).reshape(1080*0.2547, 1920*0.2547)
+        mapped_image = numpy.uint8(cv2.normalize(mapped_frame_numpy, None, 0, 255, cv2.NORM_MINMAX))
+        mask_numpy = numpy.fromstring(msg_mask, numpy.uint8).reshape(1080*0.2547, 1920*0.2547)
+        mask = numpy.uint8(cv2.normalize(mask_numpy, None, 0, 255, cv2.NORM_MINMAX))
+
+        return frame_rgb, mapped_image, mask
 
     def _threaded_subscriber(self):
         framesCount = 0
@@ -138,21 +147,16 @@ class RGBDSubscriber(object):
             msg_color = self._get_color()
             msg_mapping = self._get_mapping()
             msg_mask = self._get_mask()
+
             rgb_frame_numpy = numpy.fromstring(msg_color, numpy.uint8).reshape(1080, 1920,2)
             frame_rgb = cv2.cvtColor(rgb_frame_numpy, cv2.COLOR_YUV2BGR_YUY2)  # YUY2 to BGR
-            #mapped_frame_numpy = numpy.fromstring(msg_mapping, numpy.uint8).reshape(1080*0.2547, 1920*0.2547)
-            #mapped_image = numpy.uint8(cv2.normalize(mapped_frame_numpy, None, 0, 255, cv2.NORM_MINMAX))
-            #mask_numpy = numpy.fromstring(msg_mask, numpy.uint8).reshape(1080*0.2547, 1920*0.2547)
-            #mask = numpy.uint8(cv2.normalize(mask_numpy, None, 0, 255, cv2.NORM_MINMAX))
-            framesCount += 1
-            timeDiff = time.time() - timeStart
-            if math.floor(timeDiff) > oldTime:
-                oldTime = math.floor(timeDiff)
-                print "{} FPS".format(round(framesCount/timeDiff,1))
-                framesCount = 0
-                timeStart = time.time()
-            cv2.imshow("frame_rgb", frame_rgb)
-            cv2.waitKey(1)
+            mapped_frame_numpy = numpy.fromstring(msg_mapping, numpy.uint8).reshape(1080*0.2547, 1920*0.2547)
+            mapped_image = numpy.uint8(cv2.normalize(mapped_frame_numpy, None, 0, 255, cv2.NORM_MINMAX))
+            mask_numpy = numpy.fromstring(msg_mask, numpy.uint8).reshape(1080*0.2547, 1920*0.2547)
+            mask = numpy.uint8(cv2.normalize(mask_numpy, None, 0, 255, cv2.NORM_MINMAX))
+
+            return frame_rgb, mapped_image, mask
+            
             #if callable(self._cb) and msg_color is not None and msg_mapping is not None and msg_mask is not None:
               # self._cb(msg_color)
 
