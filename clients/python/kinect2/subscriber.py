@@ -130,9 +130,9 @@ class RGBDSubscriber(object):
         self.params.continuous_stream_on()
         self.params.send_params()
 
-    def enable_frame_grabing(self):
+    def enable_frame_grabbing(self):
         """
-        Enable the continuous stream. When starting the client, frame grabing is enabled. Also disable continuous stream.
+        Enable the continuous stream. When starting the client, frame grabbing is enabled. Also disable continuous stream.
         """
         self.continuous = False
         self.params.continuous_stream_off()
@@ -140,7 +140,7 @@ class RGBDSubscriber(object):
 
     def grab_frame(self):
         """
-        Get a set of frame that contains rgb image, mapped image between depth & rgb and a mask. Rgb: 1920 * 1080, pixel format is Bgr32 (32 bits-per-pixel, each color channel (blue, green, red) is allocated 8 bits-per-pixels. Mapping & mask: 489 * 275, pixel format is Gray8 (8 bits-per-pixels, 256 shades of gray).
+        Get a set of frame that contains rgb image, mapped image between depth & rgb and a mask. Rgb: 1920 * 1080, pixel format is Bgr32 (32 bits-per-pixel, each color channel (blue, green, red) is allocated 8 bits-per-pixels). Mapping & mask: 489 * 275, pixel format is Gray8 (8 bits-per-pixels, 256 shades of gray).
         Returns in order rgb image, mapped image and mask in openCV image format.
         """
         self.params.one_frame()
