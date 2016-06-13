@@ -60,6 +60,7 @@ class RGBDSubscriber(object):
         self._socket_mapping.setsockopt(CONFLATE, 1)
         self._socket_mask.setsockopt(CONFLATE, 1)
         self._cb = None
+        self._factor = 0.2547
         self.running = False
         self.continuous = False
         self._socket_color_lock = RLock()
@@ -97,6 +98,18 @@ class RGBDSubscriber(object):
         else:
             return msg
 
+    def _transform_msg_into_cv2images(self, msg_color, msg_mapping, msg_mask):
+
+        rgb_frame_numpy = numpy.fromstring(msg_color, numpy.uint8).reshape(1080, 1920,2)
+        frame_rgb = cv2.cvtColor(rgb_frame_numpy, cv2.COLOR_YUV2BGR_YUY2)  # YUY2 to BGR
+        mapped_frame_numpy = numpy.fromstring(msg_mapping, numpy.uint8).reshape(1080*self._factor, 1920*self._factor)
+        mapped_image = numpy.uint8(cv2.normalize(mapped_frame_numpy, None, 0, 255, cv2.NORM_MINMAX))
+        mask_numpy = numpy.fromstring(msg_mask, numpy.uint8).reshape(1080*self._factor, 1920*self._factor)
+        mask = numpy.uint8(cv2.normalize(mask_numpy, None, 0, 255, cv2.NORM_MINMAX))
+
+        return frame_rgb, mapped_image, mask
+        
+
     def set_callback(self, callback_func):
         self._cb = callback_func
 
@@ -110,19 +123,25 @@ class RGBDSubscriber(object):
         self.running = False
 
     def enable_continuous_stream(self):
+        """
+        Enable the continuous stream. When starting the client, continuous stream is disabled.
+        """
         self.continuous = True
         self.params.continuous_stream_on()
         self.params.send_params()
 
-    def disable_continuous_stream(self):
+    def enable_frame_grabing(self):
+        """
+        Enable the continuous stream. When starting the client, frame grabing is enabled. Also disable continuous stream.
+        """
         self.continuous = False
         self.params.continuous_stream_off()
         self.params.send_params()
 
-    def get_one_frame(self):
+    def grab_frame(self):
         """
-        Get a set of frame that contains rgb, mapping & mask.
-        Returns in order rgb, mapping & mask in openCV image format.
+        Get a set of frame that contains rgb image, mapped image between depth & rgb and a mask. Rgb: 1920 * 1080, pixel format is Bgr32 (32 bits-per-pixel, each color channel (blue, green, red) is allocated 8 bits-per-pixels. Mapping & mask: 489 * 275, pixel format is Gray8 (8 bits-per-pixels, 256 shades of gray).
+        Returns in order rgb image, mapped image and mask in openCV image format.
         """
         self.params.one_frame()
         self.params.send_params()
@@ -130,14 +149,8 @@ class RGBDSubscriber(object):
         msg_mapping = self._get_mapping()
         msg_mask = self._get_mask()
 
-        rgb_frame_numpy = numpy.fromstring(msg_color, numpy.uint8).reshape(1080, 1920,2)
-        frame_rgb = cv2.cvtColor(rgb_frame_numpy, cv2.COLOR_YUV2BGR_YUY2)  # YUY2 to BGR
-        mapped_frame_numpy = numpy.fromstring(msg_mapping, numpy.uint8).reshape(1080*0.2547, 1920*0.2547)
-        mapped_image = numpy.uint8(cv2.normalize(mapped_frame_numpy, None, 0, 255, cv2.NORM_MINMAX))
-        mask_numpy = numpy.fromstring(msg_mask, numpy.uint8).reshape(1080*0.2547, 1920*0.2547)
-        mask = numpy.uint8(cv2.normalize(mask_numpy, None, 0, 255, cv2.NORM_MINMAX))
-
-        return frame_rgb, mapped_image, mask
+        return self._transform_msg_into_cv2images(msg_color, msg_mapping, msg_mask)
+        
 
     def _threaded_subscriber(self):
         framesCount = 0
@@ -148,19 +161,14 @@ class RGBDSubscriber(object):
             msg_mapping = self._get_mapping()
             msg_mask = self._get_mask()
 
-            rgb_frame_numpy = numpy.fromstring(msg_color, numpy.uint8).reshape(1080, 1920,2)
-            frame_rgb = cv2.cvtColor(rgb_frame_numpy, cv2.COLOR_YUV2BGR_YUY2)  # YUY2 to BGR
-            mapped_frame_numpy = numpy.fromstring(msg_mapping, numpy.uint8).reshape(1080*0.2547, 1920*0.2547)
-            mapped_image = numpy.uint8(cv2.normalize(mapped_frame_numpy, None, 0, 255, cv2.NORM_MINMAX))
-            mask_numpy = numpy.fromstring(msg_mask, numpy.uint8).reshape(1080*0.2547, 1920*0.2547)
-            mask = numpy.uint8(cv2.normalize(mask_numpy, None, 0, 255, cv2.NORM_MINMAX))
+            self._transform_msg_into_cv2images(msg_color, msg_mapping, msg_mask)
             
             if callable(self._cb) and msg_color is not None and msg_mapping is not None and msg_mask is not None:
                 self._cb({msg_color, msg_mapping, msg_mask})
 
     def start(self):
         """
-        Take into account the parameters (grammar, semantics, sentence, ...) and start the Speech Recognizer
+        Take into account the parameters and start the RGBD Streaming
         Returns an empty string if the parameters have been set successfully on the server or an error string otherwise
         """
         # Trigger the server
