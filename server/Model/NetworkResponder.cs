@@ -237,32 +237,15 @@ namespace Kinect2Server
                 Nullable<Boolean> continuousStream = (Nullable<Boolean>)json_params["rgbd"]["continuousStream"];
                 Nullable<Boolean> sendFrame = (Nullable<Boolean>)json_params["rgbd"]["send"];
                 if (rOn != null)
-                {
-                    if ((Boolean)rOn)
-                        this.msi.MultiSourceFrameReader.IsPaused = false;
-                    else
-                        this.msi.MultiSourceFrameReader.IsPaused = true;
                     this.RefreshStatus("rgbd", (Boolean)rOn);
-                }
+
                 if (continuousStream != null)
-                {
-                    if ((Boolean)continuousStream)
-                        this.msi.Request_Reply = false;
-                    else
-                        this.msi.Request_Reply = true;
                     this.RefreshStatus("continuousStream", (Boolean)continuousStream);
-                }
+
                 if (sendFrame != null)
                 {
                     if ((Boolean)sendFrame)
-                    {
-                        if (!this.msi.Request_Reply)
-                        {
-                            reply += "Continuous stream must be disabled to ask only one frame";
-                            return reply;
-                        }
                         this.msi.ResetFrameBooleans();
-                    }
                 }
             }
 
@@ -272,13 +255,7 @@ namespace Kinect2Server
                 // On/off
                 Nullable<Boolean> mOn = (Nullable<Boolean>)json_params["mic"]["on"];
                 if (mOn != null)
-                {
-                    if ((Boolean)mOn)
-                        this.af.AudioBeamFrameReader.IsPaused = false;
-                    else
-                        this.af.AudioBeamFrameReader.IsPaused = true;
                     this.RefreshStatus("mic", (Boolean)mOn);
-                }
             }
             return reply;
         }
@@ -309,23 +286,23 @@ namespace Kinect2Server
             else if (feature.Equals("rgbd"))
             {
                 if (state)
-                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackDisplay);
+                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackDisplay ,"rgbd");
                 else
-                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackDisplay);
+                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackDisplay, "rgbd");
             }
             else if (feature.Equals("mic"))
             {
                 if (state)
-                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackMic);
+                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackMic, "mic");
                 else
-                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackMic);
+                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackMic, "mic");
             }
             else if (feature.Equals("continuousStream"))
             {
                 if (state)
-                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackSending);
+                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackSending, "sending");
                 else
-                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackSending);
+                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackSending, "sending");
             }
 
         }

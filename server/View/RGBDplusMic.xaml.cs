@@ -25,8 +25,8 @@ namespace Kinect2Server.View
         private Boolean continousStream;
         private Mode mode;
         private int frameCount;
-        private int timeStart_millisec;
-        private int oldTime_millisec;
+        private int time;
+        private int compteur;
 
         public RGBDplusMic()
         {
@@ -39,7 +39,7 @@ namespace Kinect2Server.View
             this.display = false;
             this.mic = false;
             this.continousStream = false;
-            this.frameCount = 0;
+
 
             InitializeComponent();
 
@@ -50,9 +50,7 @@ namespace Kinect2Server.View
         {
             if (this.display)
             {
-                this.display = false;
-                this.setButtonOff(this.stackDisplay);
-                this.msi.MultiSourceFrameReader.IsPaused = true;
+                this.setButtonOff(this.stackDisplay, "rgbd");
                 if(this.mic)
                     this.statusBarItem.Content = "Streaming off. Recording on";
                 else
@@ -60,11 +58,10 @@ namespace Kinect2Server.View
             }
             else
             {
-                this.display = true;
-                this.setButtonOn(this.stackDisplay);
-                this.msi.MultiSourceFrameReader.IsPaused = false;
-                this.timeStart_millisec = DateTime.Now.Second;
-                this.oldTime_millisec = DateTime.Now.Second;
+                this.setButtonOn(this.stackDisplay, "rgbd");
+                this.frameCount = 0;
+                this.compteur = 0;
+                this.time = DateTime.Now.Second;
                 if (this.mic)
                     this.statusBarItem.Content = "Streaming RGB-D images & recording";
                 else
@@ -76,9 +73,7 @@ namespace Kinect2Server.View
         {
             if (this.mic)
             {
-                this.mic = false;
-                this.setButtonOff(this.stackMic);
-                this.af.AudioBeamFrameReader.IsPaused = true;
+                this.setButtonOff(this.stackMic, "mic");
                 if (this.display)
                     this.statusBarItem.Content = "Streaming RGB-D images. Recording off";
                 else
@@ -86,9 +81,7 @@ namespace Kinect2Server.View
             }
             else
             {
-                this.mic = true;
-                this.setButtonOn(this.stackMic);
-                this.af.AudioBeamFrameReader.IsPaused = false;
+                this.setButtonOn(this.stackMic, "mic");
                 if (this.display)
                     this.statusBarItem.Content = "Streaming RGB-D images & recording";
                 else
@@ -100,17 +93,9 @@ namespace Kinect2Server.View
         private void switchSending(object sender, RoutedEventArgs e)
         {
             if (this.continousStream)
-            {
-                this.continousStream = false;
-                this.setButtonOff(this.stackSending);
-                this.msi.Request_Reply = true;
-            }
+                this.setButtonOff(this.stackSending, "sending");
             else
-            {
-                this.continousStream = true;
-                this.setButtonOn(this.stackSending);
-                this.msi.Request_Reply = false;
-            }
+                this.setButtonOn(this.stackSending, "sending");
         }
 
         private void Color_Click(object sender, RoutedEventArgs e)
@@ -128,10 +113,27 @@ namespace Kinect2Server.View
             this.mode = Mode.Mapped;
         }
 
-        public void setButtonOff(StackPanel stack)
+        public void setButtonOff(StackPanel stack, String param)
         {
             Dispatcher.Invoke(() =>
             {
+                if (param.Equals("sending"))
+                {
+                    this.continousStream = false;
+                    this.msi.Request_Reply = true;
+                }
+                else if (param.Equals("rgbd"))
+                {
+                    this.display = false;
+                    this.msi.MultiSourceFrameReader.IsPaused = true;
+                }
+
+                else if (param.Equals("mic"))
+                {
+                    this.mic = false;
+                    this.af.AudioBeamFrameReader.IsPaused = true;
+                }
+                    
                 Image img = new Image();
                 stack.Children.Clear();
                 img.Source = new BitmapImage(new Uri(@"../Images/switch_off.png", UriKind.Relative));
@@ -139,10 +141,27 @@ namespace Kinect2Server.View
             });
         }
 
-        public void setButtonOn(StackPanel stack)
+        public void setButtonOn(StackPanel stack, String param)
         {
             Dispatcher.Invoke(() =>
             {
+                if (param.Equals("sending"))
+                {
+                    this.continousStream = true;
+                    this.msi.Request_Reply = false;
+                }
+                else if (param.Equals("rgbd"))
+                {
+                    this.display = true;
+                    this.msi.MultiSourceFrameReader.IsPaused = false;
+                }
+
+                else if (param.Equals("mic"))
+                {
+                    this.mic = true;
+                    this.af.AudioBeamFrameReader.IsPaused = false;
+                }
+
                 Image img = new Image();
                 stack.Children.Clear();
                 img.Source = new BitmapImage(new Uri(@"../Images/switch_on.png", UriKind.Relative));
@@ -185,36 +204,28 @@ namespace Kinect2Server.View
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            ColorFrame colorFrame = null;
-            DepthFrame depthFrame = null;
-
-            MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
-            if (multiSourceFrame == null)
-                return;
-
-            colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame();
-            depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame();
-
-            if (colorFrame == null | depthFrame == null)
-                return;
-
-
-            this.camera.Source = this.msi.FrameTreatment(colorFrame, depthFrame, this.mode.ToString());
-
             this.frameCount++;
-            int timeDiff = DateTime.Now.Second - this.timeStart_millisec;
-            if (Math.Floor((double)timeDiff) > this.oldTime_millisec)
+            this.FPS.Content = "Frame n° : " + frameCount;
+            if ((!this.continousStream && !this.msi.RepColorDelivered && !this.msi.RepMappingDelivered && !this.msi.RepMaskDelivered)||this.continousStream)
             {
-                this.oldTime_millisec = timeDiff;
-                this.FPS.Content = "FPS : " + Math.Round((double)(frameCount / timeDiff), 1);
-                this.frameCount = 0;
-                this.timeStart_millisec = DateTime.Now.Second;
-            }
+                this.msi.RepColorDelivered = true;
+                this.msi.RepMappingDelivered = true;
+                this.msi.RepMaskDelivered = true;
+                ColorFrame colorFrame = null;
+                DepthFrame depthFrame = null;
 
-            if (colorFrame != null)
-                colorFrame.Dispose();
-            if (depthFrame != null)
-                depthFrame.Dispose();
+                MultiSourceFrame multiSourceFrame = e.FrameReference.AcquireFrame();
+                if (multiSourceFrame == null)
+                    return;
+
+                colorFrame = multiSourceFrame.ColorFrameReference.AcquireFrame();
+                depthFrame = multiSourceFrame.DepthFrameReference.AcquireFrame();
+
+                if (colorFrame == null | depthFrame == null)
+                    return;
+
+                this.camera.Source = this.msi.FrameTreatment(colorFrame, depthFrame, this.mode.ToString());
+            }
         }
     }
 }
