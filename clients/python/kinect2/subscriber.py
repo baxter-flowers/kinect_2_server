@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import json, numpy, cv2, time, math
-from zmq import ZMQError, Context, SUB, SUBSCRIBE, CONFLATE
+from zmq import ZMQError, Context, SUB, SUBSCRIBE, CONFLATE, RCVHWM
 from threading import Thread, RLock
 from .params import SkeletonParams, SpeechParams, RGBDParams, MicParams
 
 
 class StreamSubscriber(object):
-    def __init__(self, context, filter, ip, port):
+    def __init__(self, context, filter, ip, port, conflate = False):
         self._context = context
         self._socket = self._context.socket(SUB)
-        self._socket.connect('tcp://{}:{}'.format(ip, port))
         self._socket.setsockopt(SUBSCRIBE, filter)
+        if conflate:
+            self._socket.setsockopt(CONFLATE, 1)
+        self._socket.connect('tcp://{}:{}'.format(ip, port))
         self._cb = None
         self.running = False
           
@@ -50,22 +52,25 @@ class RGBDSubscriber(object):
         self._socket_color = self._context.socket(SUB)
         self._socket_mapping = self._context.socket(SUB)
         self._socket_mask = self._context.socket(SUB)
-        self._socket_color.connect('tcp://{}:{}'.format(ip, color_port))
-        self._socket_mapping.connect('tcp://{}:{}'.format(ip, mapping_port))
-        self._socket_mask.connect('tcp://{}:{}'.format(ip, mask_port))
         self._socket_color.setsockopt(SUBSCRIBE, "")
         self._socket_mapping.setsockopt(SUBSCRIBE, "")
         self._socket_mask.setsockopt(SUBSCRIBE, "")
         self._socket_color.setsockopt(CONFLATE, 1)
         self._socket_mapping.setsockopt(CONFLATE, 1)
         self._socket_mask.setsockopt(CONFLATE, 1)
+        #self._socket_color.setsockopt(RCVHWM, 1)
+        #self._socket_mapping.setsockopt(RCVHWM, 1)
+        #self._socket_mask.setsockopt(RCVHWM, 1)
+        self._socket_color.connect('tcp://{}:{}'.format(ip, color_port))
+        self._socket_mapping.connect('tcp://{}:{}'.format(ip, mapping_port))
+        self._socket_mask.connect('tcp://{}:{}'.format(ip, mask_port))
         self._cb = None
         self._factor = 0.2547
         self.running = False
         self.continuous = False
         self._socket_color_lock = RLock()
-        self._socket_color_mapping = RLock()
-        self._socket_color_mask = RLock()
+        self._socket_mapping_lock = RLock()
+        self._socket_mask_lock = RLock()
         self.params = RGBDParams(context, ip, config_port)
 
     def _get_color(self):
@@ -80,7 +85,7 @@ class RGBDSubscriber(object):
 
     def _get_mapping(self):
         try:
-            with self._socket_color_mapping:
+            with self._socket_mapping_lock:
                 msg = self._socket_mapping.recv()
         except ZMQError as e:
             if e.errno == EAGAIN:
@@ -90,7 +95,7 @@ class RGBDSubscriber(object):
 
     def _get_mask(self):
         try:
-            with self._socket_color_mask:
+            with self._socket_mask_lock:
                 msg = self._socket_mask.recv()
         except ZMQError as e:
             if e.errno == EAGAIN:
@@ -145,6 +150,8 @@ class RGBDSubscriber(object):
         """
         self.params.one_frame()
         self.params.send_params()
+        self.params.no_frame()
+        self.params.send_params()
         msg_color = self._get_color()
         msg_mapping = self._get_mapping()
         msg_mask = self._get_mask()
@@ -153,9 +160,6 @@ class RGBDSubscriber(object):
         
 
     def _threaded_subscriber(self):
-        framesCount = 0
-        timeStart = time.time()
-        oldTime = 0
         while self.running and self.continuous:
             msg_color = self._get_color()
             msg_mapping = self._get_mapping()
@@ -168,8 +172,8 @@ class RGBDSubscriber(object):
 
     def start(self):
         """
-        Take into account the parameters and start the RGBD Streaming
-        Returns an empty string if the parameters have been set successfully on the server or an error string otherwise
+        Take into account the parameters and start the RGBD Streaming.The default streaming mode is frame by frame.
+        Returns an empty string if the parameters have been set successfully on the server or an error string otherwise.
         """
         # Trigger the server
         self.params.on()
@@ -181,8 +185,7 @@ class RGBDSubscriber(object):
                 
 class SkeletonSubscriber(StreamSubscriber):
     def __init__(self, context, ip, port, config_port):
-        StreamSubscriber.__init__(self, context, 'skeleton', ip, port)
-        self._socket.setsockopt(CONFLATE, 1)
+        StreamSubscriber.__init__(self, context, 'skeleton', ip, port, conflate = True)
         self.params = SkeletonParams(context, ip, config_port)
     
     def start(self):
@@ -216,7 +219,7 @@ class SpeechSubscriber(StreamSubscriber):
 
 class MicrophoneSubscriber(StreamSubscriber):
     def __init__(self, context, ip, port, config_port):
-        StreamSubscriber.__init__(self, context, '', ip, port)
+        StreamSubscriber.__init__(self, context, '', ip, port, conflate = False)
         self.params = MicParams(context, ip, config_port)
 
     def start(self):

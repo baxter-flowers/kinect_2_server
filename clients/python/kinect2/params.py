@@ -104,13 +104,15 @@ class RGBDParams(Params):
 
     def continuous_stream_on(self):
         self._params['continuousStream'] = True
-        self._params['send'] = False
          
     def continuous_stream_off(self):
         self._params['continuousStream'] = False
 
     def one_frame(self):
         self._params['send'] = True
+
+    def no_frame(self):
+        self._params['send'] = False
 
 
 class MicParams(Params):
