@@ -9,7 +9,7 @@ namespace Kinect2Server
     public class TextToSpeech
     {
         private SpeechSynthesizer synthesizer;
-        private NetworkSubscriber subscriber;
+        private NetworkSubscriber ttsSubscriber;
         private VoiceGender voiceGender;
         private CultureInfo culture;
         private Thread speakThread;
@@ -17,10 +17,11 @@ namespace Kinect2Server
         private Boolean queuedMessages;
         private Queue textQueue;
 
-        public TextToSpeech(NetworkSubscriber sub)
+        public TextToSpeech()
         {
             this.synthesizer = new SpeechSynthesizer();
-            this.subscriber = sub;
+            this.ttsSubscriber = new NetworkSubscriber();
+            this.ttsSubscriber.Bind("33407");
             // Configure the audio output to default settings
             this.synthesizer.SetOutputToDefaultAudioDevice();
 
@@ -36,7 +37,7 @@ namespace Kinect2Server
         {
             while (this.speakThread.IsAlive)
             {
-                this.textQueue.Enqueue(this.subscriber.ReceiveText());
+                this.textQueue.Enqueue(this.ttsSubscriber.ReceiveText());
                 lock (this)
                 {
                     this.spokenText = (String)this.textQueue.Dequeue();

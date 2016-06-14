@@ -8,22 +8,10 @@ namespace Kinect2Server
 {
     public partial class MainWindow : Window
     {
-        private NetworkPublisher speechPublisher;
-        private NetworkPublisher skeletonPublisher;
-        private NetworkPublisher colorPublisher;
-        private NetworkPublisher depthPublisher;
-        private NetworkPublisher audioPublisher;
-        private NetworkPublisher mappingPublisher;
-        private NetworkPublisher maskPublisher;
-        private NetworkSubscriber ttsSubscriber;
         private NetworkResponder responder;
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
         private SpeechRecognition sr;
-        private SpeechRecognitionView srv;
-        private SkeletonTrackingView stv;
-        private TextToSpeechView ttsv;
-        private RGBDplusMic rgbdplusmicv;
         private SkeletonTracking st;
         private TextToSpeech tts;
         private MultiSourceImage msi;
@@ -32,49 +20,18 @@ namespace Kinect2Server
         public MainWindow()
         {
             setKinectSensor();
-            this.speechPublisher = new NetworkPublisher();
-            this.speechPublisher.Bind("33405");
 
-            this.skeletonPublisher = new NetworkPublisher();
-            this.skeletonPublisher.SetConflate();
-            this.skeletonPublisher.Bind("33406");
-            
-            this.ttsSubscriber = new NetworkSubscriber();
-            this.ttsSubscriber.Bind("33407");
-
-            this.colorPublisher = new NetworkPublisher();
-            this.colorPublisher.SetConflate();
-            this.colorPublisher.Bind("33408");
-            
-            this.mappingPublisher = new NetworkPublisher();
-            this.mappingPublisher.SetConflate();
-            this.mappingPublisher.Bind("33409");
-            
-            this.maskPublisher = new NetworkPublisher();
-            this.maskPublisher.SetConflate();
-            this.maskPublisher.Bind("33410");
-            
-            this.audioPublisher = new NetworkPublisher();
-            this.audioPublisher.SetConflate();
-            this.audioPublisher.Bind("33411");
-            
-
-            this.sr = new SpeechRecognition(this.kinectSensor, this.speechPublisher, this.convertStream);
-            this.st = new SkeletonTracking(this.kinectSensor, this.skeletonPublisher);
-            this.tts = new TextToSpeech(this.ttsSubscriber);
-            this.af = new AudioFrame(this.kinectSensor, this.audioPublisher);
-            this.msi = new MultiSourceImage(this.kinectSensor, this.colorPublisher, this.mappingPublisher, this.maskPublisher);
+            this.sr = new SpeechRecognition(this.kinectSensor, this.convertStream);
+            this.st = new SkeletonTracking(this.kinectSensor);
+            this.tts = new TextToSpeech();
+            this.af = new AudioFrame(this.kinectSensor);
+            this.msi = new MultiSourceImage(this.kinectSensor);
 
             
             InitializeComponent();
 
-            this.srv = this.srview;
-            this.stv = this.stview;
-            this.ttsv = this.ttsview;
-            this.rgbdplusmicv = this.rgbdmicview;
-
             // Need to create the responder after models because it's using instance of sr, srw, st & tts
-            this.responder = new NetworkResponder();
+            this.responder = new NetworkResponder(this.sr, this.st, this.tts, this.msi, this.af, this.srview, this.stview, this.ttsview, this.rgbdmicview);
             this.responder.Bind("33412");
         }
 
@@ -154,37 +111,7 @@ namespace Kinect2Server
             }
         }
 
-        public SpeechRecognitionView SpeechRecognitionView
-        {
-            get
-            {
-                return this.srv;
-            }
-        }
-
-        public TextToSpeechView TextToSpeechView
-        {
-            get
-            {
-                return this.ttsv;
-            }
-        }
-
-        public SkeletonTrackingView SkeletonTrackingView
-        {
-            get
-            {
-                return this.stv;
-            }
-        }
-
-        public RGBDplusMic RGBDplusMic
-        {
-            get
-            {
-                return this.rgbdplusmicv;
-            }
-        }
+       
 
         private void WindowClosing(object sender, CancelEventArgs e)
         {

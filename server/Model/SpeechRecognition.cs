@@ -12,7 +12,7 @@ namespace Kinect2Server
 {
     public class SpeechRecognition
     {
-        private NetworkPublisher network;
+        private NetworkPublisher speechPublisher;
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
         private SpeechRecognitionEngine speechEngine;
@@ -25,10 +25,11 @@ namespace Kinect2Server
         private Boolean semanticsStatus;
         private Boolean sentenceStatus;
 
-        public SpeechRecognition(KinectSensor kinect, NetworkPublisher network, KinectAudioStream convertStream)
+        public SpeechRecognition(KinectSensor kinect, KinectAudioStream convertStream)
         {
             this.kinectSensor = kinect;
-            this.network = network;
+            this.speechPublisher = new NetworkPublisher();
+            this.speechPublisher.Bind("33405");
             this.convertStream = convertStream;
         }
 
@@ -93,7 +94,7 @@ namespace Kinect2Server
             set
             {
                 string lPort = value.ToString();
-                this.network.Bind(lPort);
+                this.speechPublisher.Bind(lPort);
             }
         }
 
@@ -125,7 +126,7 @@ namespace Kinect2Server
         {
             get
             {
-                return this.network;
+                return this.speechPublisher;
             }
         }
 
@@ -298,7 +299,7 @@ namespace Kinect2Server
             if (dico.Count != 0)
             {
                 string json = JsonConvert.SerializeObject(dico);
-                this.network.SendString(json, "recognized_speech");
+                this.speechPublisher.SendString(json, "recognized_speech");
                 return contentSemantic;
             }
             else

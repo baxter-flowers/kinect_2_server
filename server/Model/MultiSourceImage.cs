@@ -27,13 +27,21 @@ namespace Kinect2Server
         private Boolean repMappingDelivered;
         private Boolean repMaskDelivered;
 
-        public MultiSourceImage(KinectSensor kinect, NetworkPublisher cPub, NetworkPublisher mPub, NetworkPublisher maPub)
+        public MultiSourceImage(KinectSensor kinect)
         {
             this.kinect = kinect;
             this.coordinateMapper = this.kinect.CoordinateMapper;
-            this.colorPublisher = cPub;
-            this.mappingPublisher = mPub;
-            this.maskPublisher = maPub;
+            this.colorPublisher = new NetworkPublisher();
+            this.colorPublisher.SetConflate();
+            this.colorPublisher.Bind("33408");
+
+            this.mappingPublisher = new NetworkPublisher();
+            this.mappingPublisher.SetConflate();
+            this.mappingPublisher.Bind("33409");
+
+            this.maskPublisher = new NetworkPublisher();
+            this.maskPublisher.SetConflate();
+            this.maskPublisher.Bind("33410");
             
             this.multiSourceFrameReader = this.kinect.OpenMultiSourceFrameReader(FrameSourceTypes.Color | FrameSourceTypes.Depth);
             this.multiSourceFrameReader.IsPaused = true;

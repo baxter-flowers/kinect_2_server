@@ -13,7 +13,7 @@ namespace Kinect2Server
 {
     public class SkeletonTracking
     {
-        private NetworkPublisher network;
+        private NetworkPublisher skeletonPublisher;
         private Body[] bodies;
         private KinectSensor kinectSensor;
         private BodyFrameReader bodyFrameReader;
@@ -29,10 +29,12 @@ namespace Kinect2Server
         private KinectJointFilter filter;
         private float smoothingParam = 0.5f;
 
-        public SkeletonTracking(KinectSensor kinect, NetworkPublisher network)
+        public SkeletonTracking(KinectSensor kinect)
         {
             this.kinectSensor = kinect;
-            this.network = network;
+            this.skeletonPublisher = new NetworkPublisher();
+            this.skeletonPublisher.SetConflate();
+            this.skeletonPublisher.Bind("33406");
 
             this.coordinateMapper = this.kinectSensor.CoordinateMapper;
             this.bodyFrameReader = this.kinectSensor.BodyFrameSource.OpenReader();
@@ -85,7 +87,7 @@ namespace Kinect2Server
         {
             get
             {
-                return this.network;
+                return this.skeletonPublisher;
             }
         }
 

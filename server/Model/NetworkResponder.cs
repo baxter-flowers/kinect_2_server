@@ -28,21 +28,21 @@ namespace Kinect2Server
         private TextToSpeechView ttsv;
         private RGBDplusMic rgbdmicv;
 
-        public NetworkResponder()
+        public NetworkResponder(SpeechRecognition sr, SkeletonTracking st, TextToSpeech tts, MultiSourceImage msi, AudioFrame af, SpeechRecognitionView srv, SkeletonTrackingView stv, TextToSpeechView ttsv, RGBDplusMic rgbdmicv)
         {
-            this.mw = (MainWindow)Application.Current.MainWindow;
-            this.tts = this.mw.TextToSpeech;
-            this.sr = this.mw.SpeechRecogniton;
-            this.st = this.mw.SkeletonTracking;
-            this.msi = this.mw.MultiSourceImage;
-            this.af = this.mw.AudioFrame;
+            this.sr = sr;
+            this.st = st;
+            this.tts = tts;
+            this.msi = msi;
+            this.af = af;
+            this.srv = srv;
+            this.stv = stv;
+            this.ttsv = ttsv;
+            this.rgbdmicv = rgbdmicv;
             this.context = new ZContext();
             this.socket = new ZSocket(this.context, ZSocketType.REP);
             this.binded = false;
-            this.srv = this.mw.SpeechRecognitionView;
-            this.stv = this.mw.SkeletonTrackingView;
-            this.ttsv = this.mw.TextToSpeechView;
-            this.rgbdmicv = this.mw.RGBDplusMic;
+            
             this.json_thread = new Thread(new ThreadStart(this.ReceiveJson));
             this.json_thread.SetApartmentState(ApartmentState.STA);
             this.json_thread.IsBackground = true;

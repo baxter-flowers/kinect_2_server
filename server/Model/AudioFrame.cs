@@ -9,16 +9,18 @@ namespace Kinect2Server
 {
     public class AudioFrame
     {
-        private NetworkPublisher publisher;
+        private NetworkPublisher audioPublisher;
         private KinectSensor kinect;
         private AudioBeamFrameReader audioBeamFrameReader;
         private readonly Byte[] audioBuffer;
         private Byte[] fullAudio;
 
-        public AudioFrame(KinectSensor kinect, NetworkPublisher pub)
+        public AudioFrame(KinectSensor kinect)
         {
             this.kinect = kinect;
-            this.publisher = pub;
+            this.audioPublisher = new NetworkPublisher();
+            this.audioPublisher.SetConflate();
+            this.audioPublisher.Bind("33411");
 
             AudioSource audioSource = this.kinect.AudioSource;
             this.audioBeamFrameReader = audioSource.OpenReader();
@@ -53,7 +55,7 @@ namespace Kinect2Server
                         start += this.audioBuffer.Length;
                     }
 
-                    this.publisher.SendByteArray(this.fullAudio);
+                    this.audioPublisher.SendByteArray(this.fullAudio);
                     this.fullAudio = null;
                 }
             }
