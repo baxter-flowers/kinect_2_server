@@ -25,8 +25,7 @@ namespace Kinect2Server.View
         private Boolean continousStream;
         private Mode mode;
         private int frameCount;
-        private int time;
-        private int compteur;
+        private int t0_seconds;
 
         public RGBDplusMic()
         {
@@ -60,8 +59,7 @@ namespace Kinect2Server.View
             {
                 this.setButtonOn(this.stackDisplay, "rgbd");
                 this.frameCount = 0;
-                this.compteur = 0;
-                this.time = DateTime.Now.Second;
+                this.t0_seconds = DateTime.Now.Second;
                 if (this.mic)
                     this.statusBarItem.Content = "Streaming RGB-D images & recording";
                 else
@@ -158,7 +156,7 @@ namespace Kinect2Server.View
 
                 else if (param.Equals("mic"))
                 {
-                    this.mic = true;
+                    this.mic = false;
                     this.af.AudioBeamFrameReader.IsPaused = false;
                 }
 
@@ -204,10 +202,15 @@ namespace Kinect2Server.View
 
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
-            this.frameCount++;
-            this.FPS.Content = "Frame n° : " + frameCount;
             if ((!this.continousStream && !this.msi.RepColorDelivered && !this.msi.RepMappingDelivered && !this.msi.RepMaskDelivered)||this.continousStream)
             {
+                this.frameCount++;
+                if (DateTime.Now.Second - this.t0_seconds == 1)
+                {
+                    this.FPS.Content = "FPS:" + this.frameCount;
+                    this.frameCount = 0;
+                    this.t0_seconds = DateTime.Now.Second;
+                }
                 this.msi.RepColorDelivered = true;
                 this.msi.RepMappingDelivered = true;
                 this.msi.RepMaskDelivered = true;

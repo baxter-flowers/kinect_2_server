@@ -231,8 +231,9 @@ namespace Kinect2Server
         public ImageSource FrameTreatment(ColorFrame colorFrame, DepthFrame depthFrame, String mode)
         {
             this.FindAName(colorFrame, depthFrame);
-            return null;
+
             // Return ImageSource depending on mode
+            //return null;
             PixelFormat formatBgr32 = PixelFormats.Bgr32;
             PixelFormat formatGray8 = PixelFormats.Gray8;
             double factor = 0.2547;

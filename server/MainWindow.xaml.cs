@@ -34,23 +34,30 @@ namespace Kinect2Server
             setKinectSensor();
             this.speechPublisher = new NetworkPublisher();
             this.speechPublisher.Bind("33405");
+
             this.skeletonPublisher = new NetworkPublisher();
-            this.skeletonPublisher.Bind("33406");
             this.skeletonPublisher.SetConflate();
+            this.skeletonPublisher.Bind("33406");
+            
             this.ttsSubscriber = new NetworkSubscriber();
             this.ttsSubscriber.Bind("33407");
+
             this.colorPublisher = new NetworkPublisher();
-            this.colorPublisher.Bind("33408");
             this.colorPublisher.SetConflate();
+            this.colorPublisher.Bind("33408");
+            
             this.mappingPublisher = new NetworkPublisher();
-            this.mappingPublisher.Bind("33409");
             this.mappingPublisher.SetConflate();
+            this.mappingPublisher.Bind("33409");
+            
             this.maskPublisher = new NetworkPublisher();
-            this.maskPublisher.Bind("33410");
             this.maskPublisher.SetConflate();
+            this.maskPublisher.Bind("33410");
+            
             this.audioPublisher = new NetworkPublisher();
-            this.audioPublisher.Bind("33411");
             this.audioPublisher.SetConflate();
+            this.audioPublisher.Bind("33411");
+            
 
             this.sr = new SpeechRecognition(this.kinectSensor, this.speechPublisher, this.convertStream);
             this.st = new SkeletonTracking(this.kinectSensor, this.skeletonPublisher);
