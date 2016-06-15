@@ -245,12 +245,14 @@ namespace Kinect2Server.View
                     int penIndex = 0;
                     foreach (Body body in this.st.Bodies)
                     {
-                        Pen drawPen = this.bodyColors[penIndex++];
-
-                        Dictionary<JointType, Point> jointPoints;
-
                         if (body.IsTracked)
                         {
+                            this.st.FaceFrameSources[penIndex].TrackingId = body.TrackingId;
+
+                            Pen drawPen = this.bodyColors[penIndex++];
+
+                            Dictionary<JointType, Point> jointPoints;
+
                             this.DrawClippedEdges(body, dc);
 
                             if (this.st.SmoothingParam != 0.0f)

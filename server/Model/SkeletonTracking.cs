@@ -134,14 +134,6 @@ namespace Kinect2Server
             }
         }
 
-        public CoordinateMapper CoordinateMapper
-        {
-            get
-            {
-                return this.coordinateMapper;
-            }
-        }
-
         public NetworkPublisher NetworkPublisher
         {
             get
@@ -188,6 +180,18 @@ namespace Kinect2Server
             set
             {
                 this.faceFrameResults = value;
+            }
+        }
+
+        public FaceFrameSource[] FaceFrameSources
+        {
+            get
+            {
+                return this.faceFrameSources;
+            }
+            set
+            {
+                this.faceFrameSources = value;
             }
         }
 
@@ -276,7 +280,7 @@ namespace Kinect2Server
                 }
                 this.dicoPos[jointType] = ob;
 
-                DepthSpacePoint depthSpacePoint = this.CoordinateMapper.MapCameraPointToDepthSpace(point);
+                DepthSpacePoint depthSpacePoint = this.coordinateMapper.MapCameraPointToDepthSpace(point);
                 this.jointPoints[jointType] = new Point(depthSpacePoint.X, depthSpacePoint.Y);
 
                 this.dicoBodies[body.TrackingId] = this.dicoPos;
