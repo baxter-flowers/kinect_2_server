@@ -8,16 +8,17 @@ using Microsoft.Kinect;
 using System.Windows.Media.Media3D;
 using System.Windows;
 using Newtonsoft.Json;
+using Microsoft.Kinect.Face;
 
 namespace Kinect2Server
 {
     public class SkeletonTracking
     {
+
+        
+        // Skeleton
         private NetworkPublisher skeletonPublisher;
-        private Body[] bodies;
-        private KinectSensor kinectSensor;
-        private BodyFrameReader bodyFrameReader;
-        private CoordinateMapper coordinateMapper;
+        
         private Dictionary<JointType, object> dicoPos;
         private Dictionary<JointType, Vector4> dicoOr;
         private Dictionary<ulong, Dictionary<JointType, object>> dicoBodies;
@@ -25,9 +26,21 @@ namespace Kinect2Server
         private Quaternion qChild;
         private Quaternion qParent;
         private const float InferredZPositionClamp = 0.1f;
-
         private KinectJointFilter filter;
         private float smoothingParam = 0.5f;
+
+        // Face
+        private CoordinateMapper coordinateMapper;
+        private FaceFrameSource[] faceFrameSources;
+        private FaceFrameReader[] faceFrameReaders;
+        private FaceFrameResult[] faceFrameResults;
+
+        // Both
+        private KinectSensor kinectSensor;
+        private Body[] bodies;
+        private BodyFrameReader bodyFrameReader;
+        private int maxBodyCount;
+        
 
         public SkeletonTracking(KinectSensor kinect)
         {
@@ -38,6 +51,7 @@ namespace Kinect2Server
 
             this.coordinateMapper = this.kinectSensor.CoordinateMapper;
             this.bodyFrameReader = this.kinectSensor.BodyFrameSource.OpenReader();
+            this.bodyFrameReader.IsPaused = true;
 
             this.filter = new KinectJointFilter(smoothingParam, smoothingParam, smoothingParam);
             this.filter.Init(smoothingParam, smoothingParam, smoothingParam);
@@ -48,6 +62,35 @@ namespace Kinect2Server
             this.dicoOr = new Dictionary<JointType, Vector4>(25);
             this.qChild = new Quaternion();
             this.qParent = new Quaternion();
+
+            this.maxBodyCount = this.kinectSensor.BodyFrameSource.BodyCount;
+            // specify the required face frame results
+            FaceFrameFeatures faceFrameFeatures =
+                FaceFrameFeatures.BoundingBoxInColorSpace
+                | FaceFrameFeatures.PointsInColorSpace
+                | FaceFrameFeatures.RotationOrientation
+                | FaceFrameFeatures.FaceEngagement
+                | FaceFrameFeatures.Glasses
+                | FaceFrameFeatures.Happy
+                | FaceFrameFeatures.LeftEyeClosed
+                | FaceFrameFeatures.RightEyeClosed
+                | FaceFrameFeatures.LookingAway
+                | FaceFrameFeatures.MouthMoved
+                | FaceFrameFeatures.MouthOpen;
+            // create a face frame source + reader to track each face in the FOV
+            this.faceFrameSources = new FaceFrameSource[this.maxBodyCount];
+            this.faceFrameReaders = new FaceFrameReader[this.maxBodyCount];
+            for (int i = 0; i < this.maxBodyCount; i++)
+            {
+                // create the face frame source with the required face frame features and an initial tracking Id of 0
+                this.faceFrameSources[i] = new FaceFrameSource(this.kinectSensor, 0, faceFrameFeatures);
+
+                // open the corresponding reader
+                this.faceFrameReaders[i] = this.faceFrameSources[i].OpenReader();
+            }
+
+            // allocate storage to store face frame results for each face in the FOV
+            this.faceFrameResults = new FaceFrameResult[this.maxBodyCount];
         }
 
         public void addSTListener(EventHandler<BodyFrameArrivedEventArgs> f1)
@@ -55,11 +98,31 @@ namespace Kinect2Server
             this.bodyFrameReader.FrameArrived += f1;
         }
 
+        public void addFTListener(EventHandler<FaceFrameArrivedEventArgs> f1)
+        {
+            for (int i = 0; i < this.maxBodyCount; i++)
+            {
+                if (this.faceFrameReaders[i] != null)
+                {
+                    // wire handler for face frame arrival
+                    this.faceFrameReaders[i].FrameArrived += f1;
+                }
+            }
+        }
+
         public BodyFrameReader BodyFrameReader
         {
             get
             {
                 return this.bodyFrameReader;
+            }
+        }
+
+        public FaceFrameReader[] FaceFrameReader
+        {
+            get
+            {
+                return this.faceFrameReaders;
             }
         }
 
@@ -117,6 +180,18 @@ namespace Kinect2Server
             get
             {
                 return this.dicoBodies;
+            }
+        }
+
+        public FaceFrameResult[] FaceFrameResults
+        {
+            get
+            {
+                return this.faceFrameResults;
+            }
+            set
+            {
+                this.faceFrameResults = value;
             }
         }
 
@@ -216,7 +291,7 @@ namespace Kinect2Server
             return this.jointPoints;
         }
 
-        public bool RefreshBodyDate(BodyFrame bodyFrame)
+        public bool RefreshBodyData(BodyFrame bodyFrame)
         {
             if (bodyFrame != null)
             {
@@ -228,8 +303,66 @@ namespace Kinect2Server
                 // As long as those body objects are not disposed and not set to null in the array,
                 // those body objects will be re-used.
                 bodyFrame.GetAndRefreshBodyData(this.bodies);
+                return true;
             }
-            return true;
+            return false;
+        }
+
+        public int GetFaceSourceIndex(FaceFrameSource faceFrameSource)
+        {
+            int index = -1;
+
+            for (int i = 0; i < this.maxBodyCount; i++)
+            {
+                if (this.faceFrameSources[i] == faceFrameSource)
+                {
+                    index = i;
+                    break;
+                }
+            }
+            return index;
+        }
+
+        public bool ValidateFaceBoxAndPoints(FaceFrameResult faceResult)
+        {
+            bool isFaceValid = faceResult != null;
+
+            if (isFaceValid)
+            {
+                var faceBox = faceResult.FaceBoundingBoxInColorSpace;
+                if (faceBox != null)
+                {
+                    // check if we have a valid rectangle within the bounds of the screen space
+                    isFaceValid = (faceBox.Right - faceBox.Left) > 0 &&
+                                  (faceBox.Bottom - faceBox.Top) > 0 &&
+                                  faceBox.Right <= 1920 &&
+                                  faceBox.Bottom <= 1080;
+
+                    if (isFaceValid)
+                    {
+                        var facePoints = faceResult.FacePointsInColorSpace;
+                        if (facePoints != null)
+                        {
+                            foreach (PointF pointF in facePoints.Values)
+                            {
+                                // check if we have a valid face point within the bounds of the screen space
+                                bool isFacePointValid = pointF.X > 0.0f &&
+                                                        pointF.Y > 0.0f &&
+                                                        pointF.X < 1920 &&
+                                                        pointF.Y < 1080;
+
+                                if (!isFacePointValid)
+                                {
+                                    isFaceValid = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return isFaceValid;
         }
     }
 }

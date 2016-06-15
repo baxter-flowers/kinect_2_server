@@ -1,5 +1,5 @@
 ﻿using Microsoft.Kinect;
-using Newtonsoft.Json;
+using Microsoft.Kinect.Face;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -42,11 +42,11 @@ namespace Kinect2Server.View
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.st = this.mw.SkeletonTracking;
-            this.st.addSTListener(this.Reader_FrameArrived);
-            this.st.BodyFrameReader.IsPaused = true;
+            this.st.addSTListener(this.Reader_BodyFrameArrived);
+            this.st.addFTListener(this.Reader_FaceFrameArrived);
+
             // get the depth (display) extents
             FrameDescription frameDescription = this.mw.KinectSensor.DepthFrameSource.FrameDescription;
-
             // get size of joint space
             this.displayWidth = frameDescription.Width;
             this.displayHeight = frameDescription.Height;
@@ -202,13 +202,37 @@ namespace Kinect2Server.View
             }
         }
 
-        private void Reader_FrameArrived(object sender, BodyFrameArrivedEventArgs e)
+        private void Reader_FaceFrameArrived(object sender, FaceFrameArrivedEventArgs e)
+        {
+            using (FaceFrame faceFrame = e.FrameReference.AcquireFrame())
+            {
+                if (faceFrame != null)
+                {
+                    // get the index of the face source from the face source array
+                    int index = this.st.GetFaceSourceIndex(faceFrame.FaceFrameSource);
+
+                    // check if this face frame has valid face frame results
+                    if (this.st.ValidateFaceBoxAndPoints(faceFrame.FaceFrameResult))
+                    {
+                        // store this face frame result
+                        this.st.FaceFrameResults[index] = faceFrame.FaceFrameResult;
+                    }
+                    else
+                    {
+                        // indicates that the latest face frame result from this reader is invalid
+                        this.st.FaceFrameResults[index] = null;
+                    }
+                }
+            }
+        }
+
+        private void Reader_BodyFrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             bool dataReceived = false;
             using (BodyFrame bodyFrame = e.FrameReference.AcquireFrame())
             {
                 if (bodyFrame != null)
-                    dataReceived = this.st.RefreshBodyDate(bodyFrame);                
+                    dataReceived = this.st.RefreshBodyData(bodyFrame);                
             }
 
             if (dataReceived)
