@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Kinect.VisualGestureBuilder;
-using Microsoft.Kinect;
-using System.Windows.Media.Media3D;
-using System.Windows;
-using Newtonsoft.Json;
+﻿using Microsoft.Kinect;
 using Microsoft.Kinect.Face;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Media.Media3D;
 
 namespace Kinect2Server
 {
