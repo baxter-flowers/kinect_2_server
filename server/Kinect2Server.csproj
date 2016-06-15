@@ -169,7 +169,7 @@
     <Compile Include="Model\MultiSourceImage.cs" />
     <Compile Include="Model\NetworkResponder.cs" />
     <Compile Include="Model\NetworkSubscriber.cs" />
-    <Compile Include="Model\SkeletonTracking.cs" />
+    <Compile Include="Model\SkeletonFaceTracking.cs" />
     <Compile Include="Model\KinectAudioStream.cs" />
     <Compile Include="Model\KinectJointFilter.cs" />
     <Compile Include="Model\NetworkPublisher.cs" />

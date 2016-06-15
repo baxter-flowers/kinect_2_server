@@ -12,7 +12,7 @@ namespace Kinect2Server
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
         private SpeechRecognition sr;
-        private SkeletonTracking st;
+        private SkeletonFaceTracking st;
         private TextToSpeech tts;
         private MultiSourceImage msi;
         private AudioFrame af;
@@ -22,7 +22,7 @@ namespace Kinect2Server
             setKinectSensor();
 
             this.sr = new SpeechRecognition(this.kinectSensor, this.convertStream);
-            this.st = new SkeletonTracking(this.kinectSensor);
+            this.st = new SkeletonFaceTracking(this.kinectSensor);
             this.tts = new TextToSpeech();
             this.af = new AudioFrame(this.kinectSensor);
             this.msi = new MultiSourceImage(this.kinectSensor);
@@ -63,7 +63,7 @@ namespace Kinect2Server
             }
         }
 
-        public SkeletonTracking SkeletonTracking
+        public SkeletonFaceTracking SkeletonTracking
         {
             get
             {

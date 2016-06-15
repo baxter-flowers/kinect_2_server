@@ -8,10 +8,9 @@ using System.Windows.Media.Media3D;
 
 namespace Kinect2Server
 {
-    public class SkeletonTracking
+    public class SkeletonFaceTracking
     {
 
-        
         // Skeleton
         private NetworkPublisher skeletonPublisher;
         
@@ -38,7 +37,7 @@ namespace Kinect2Server
         private int maxBodyCount;
         
 
-        public SkeletonTracking(KinectSensor kinect)
+        public SkeletonFaceTracking(KinectSensor kinect)
         {
             this.kinectSensor = kinect;
             this.skeletonPublisher = new NetworkPublisher();

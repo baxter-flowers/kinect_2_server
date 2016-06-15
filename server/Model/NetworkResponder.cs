@@ -20,7 +20,7 @@ namespace Kinect2Server
         private MainWindow mw;
         private TextToSpeech tts;
         private SpeechRecognition sr;
-        private SkeletonTracking st;
+        private SkeletonFaceTracking st;
         private MultiSourceImage msi;
         private AudioFrame af;
         private SpeechRecognitionView srv;
@@ -28,7 +28,7 @@ namespace Kinect2Server
         private TextToSpeechView ttsv;
         private RGBDplusMic rgbdmicv;
 
-        public NetworkResponder(SpeechRecognition sr, SkeletonTracking st, TextToSpeech tts, MultiSourceImage msi, AudioFrame af, SpeechRecognitionView srv, SkeletonTrackingView stv, TextToSpeechView ttsv, RGBDplusMic rgbdmicv)
+        public NetworkResponder(SpeechRecognition sr, SkeletonFaceTracking st, TextToSpeech tts, MultiSourceImage msi, AudioFrame af, SpeechRecognitionView srv, SkeletonTrackingView stv, TextToSpeechView ttsv, RGBDplusMic rgbdmicv)
         {
             this.sr = sr;
             this.st = st;

@@ -16,7 +16,7 @@ namespace Kinect2Server.View
     public partial class SkeletonTrackingView : UserControl
     {
         private MainWindow mw;
-        private SkeletonTracking st;
+        private SkeletonFaceTracking st;
         private const double HandSize = 30;
         private const double JointThickness = 3;
         private const double ClipBoundsThickness = 10;
