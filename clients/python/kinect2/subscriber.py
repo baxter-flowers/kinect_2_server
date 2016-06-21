@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json, numpy, cv2, time, math
-from zmq import ZMQError, Context, SUB, SUBSCRIBE, CONFLATE, RCVHWM
+from zmq import ZMQError, Context, SUB, SUBSCRIBE, CONFLATE, RCVHWM, EAGAIN
 from threading import Thread, RLock
 from .params import SkeletonParams, SpeechParams, RGBDParams, MicParams
 
