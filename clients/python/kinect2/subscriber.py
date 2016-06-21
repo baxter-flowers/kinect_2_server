@@ -15,7 +15,9 @@ class StreamSubscriber(object):
             self._socket.setsockopt(CONFLATE, 1)
         self._socket.connect('tcp://{}:{}'.format(ip, port))
         self._cb = None
+        self._filter = filter
         self.running = False
+        
           
     def _get(self):
         try:
@@ -27,14 +29,20 @@ class StreamSubscriber(object):
             str_msg = " ".join(msg.split(' ')[1:])
             return json.loads(str_msg)
 
+    def get(self):
+        if callable(self._cb):
+            raise RuntimeError("[{}] Cannot use frame-by-frame reading while a callback is set, use the callback instead".format(self._filter))
+        return self._get()
+
     def set_callback(self, callback_func):
         self._cb = callback_func
 
     def _start_client(self):
-        self.running = True
-        subscriber = Thread(target=self._threaded_subscriber)
-        subscriber.setDaemon(True)
-        subscriber.start()
+        if callable(self._cb):  # Do not start the daemon if no callback is set
+            self.running = True
+            subscriber = Thread(target=self._threaded_subscriber)
+            subscriber.setDaemon(True)
+            subscriber.start()
    
     def stop(self):
         self.running = False
