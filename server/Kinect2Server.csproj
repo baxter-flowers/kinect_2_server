@@ -178,8 +178,8 @@
     <Compile Include="View\RGBDplusMic.xaml.cs">
       <DependentUpon>RGBDplusMic.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\SkeletonTrackingView.xaml.cs">
-      <DependentUpon>SkeletonTrackingView.xaml</DependentUpon>
+    <Compile Include="View\SkeletonFaceTrackingView.xaml.cs">
+      <DependentUpon>SkeletonFaceTrackingView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\SpeechRecognitionView.xaml.cs">
       <DependentUpon>SpeechRecognitionView.xaml</DependentUpon>
@@ -204,7 +204,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="View\SkeletonTrackingView.xaml">
+    <Page Include="View\SkeletonFaceTrackingView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

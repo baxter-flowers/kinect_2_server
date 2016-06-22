@@ -57,8 +57,8 @@
             <Label Grid.Column="0" Grid.Row="1" Content="Listening port" />
             <Label Grid.Column="0" Grid.Row="2" Content="Load a grammar file" />
             <Label Grid.Column="0" Grid.Row="3" Content="Confidence" />
-            <Label Grid.Column="0" Grid.Row="4" Content="Semantics" />
-            <Label Grid.Column="0" Grid.Row="5" Content="Full sentence" />
+            <Label Grid.Column="0" Grid.Row="4" Content="" />
+            <Label Grid.Column="0" Grid.Row="5" Content="" />
 
 
             <Button Click="switchSR" Height="32" Width="81" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" BorderThickness="0">

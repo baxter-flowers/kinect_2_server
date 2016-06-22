@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Speech.Recognition;
+using System;
 using System.Collections;
 using System.Globalization;
 using System.Speech.Synthesis;
@@ -10,6 +11,7 @@ namespace Kinect2Server
     {
         private SpeechSynthesizer synthesizer;
         private NetworkSubscriber ttsSubscriber;
+        private SpeechRecognition sr;
         private VoiceGender voiceGender;
         private CultureInfo culture;
         private Thread speakThread;
@@ -17,13 +19,16 @@ namespace Kinect2Server
         private Boolean queuedMessages;
         private Queue textQueue;
 
-        public TextToSpeech()
+        public TextToSpeech(SpeechRecognition sr)
         {
+            this.sr = sr;
             this.synthesizer = new SpeechSynthesizer();
             this.ttsSubscriber = new NetworkSubscriber();
             this.ttsSubscriber.Bind("33407");
             // Configure the audio output to default settings
             this.synthesizer.SetOutputToDefaultAudioDevice();
+
+            this.synthesizer.SpeakCompleted += this.UnpauseSR;
 
             this.speakThread = new Thread(new ThreadStart(this.Speak));
             this.speakThread.IsBackground = true;
@@ -38,6 +43,8 @@ namespace Kinect2Server
             while (this.speakThread.IsAlive)
             {
                 this.textQueue.Enqueue(this.ttsSubscriber.ReceiveText());
+                if(this.sr.isGrammarLoaded())
+                    this.sr.unloadGrammars();
                 lock (this)
                 {
                     this.spokenText = (String)this.textQueue.Dequeue();
@@ -56,6 +63,11 @@ namespace Kinect2Server
             }
         }
 
+        private void UnpauseSR(object sender, SpeakCompletedEventArgs e)
+        {
+            if (this.sr.isGrammarLoaded())
+                this.sr.loadGrammar();
+        }
        
         public VoiceGender VoiceGender
         {

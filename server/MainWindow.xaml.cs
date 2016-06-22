@@ -23,7 +23,7 @@ namespace Kinect2Server
 
             this.sr = new SpeechRecognition(this.kinectSensor, this.convertStream);
             this.st = new SkeletonFaceTracking(this.kinectSensor);
-            this.tts = new TextToSpeech();
+            this.tts = new TextToSpeech(this.sr);
             this.af = new AudioFrame(this.kinectSensor);
             this.msi = new MultiSourceImage(this.kinectSensor);
 
