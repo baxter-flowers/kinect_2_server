@@ -19,3 +19,11 @@ class Kinect2Client(object):
         self.tts.start()
         self.rgbd.start()
         self.mic.start()
+
+    def pause_speech_recognition(self):
+        self.speech.params.off()
+        self.speech.params.send_params()
+        
+    def unpause_speech_recognition(self):
+        self.speech.params.on()
+        self.speech.params.send_params()

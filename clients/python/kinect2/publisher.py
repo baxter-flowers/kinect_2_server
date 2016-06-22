@@ -12,7 +12,11 @@ class TTSPublisher(object):
         self.params = TextToSpeechParams(context, ip, config_port)
 
     def say(self, sentence):
-        self._socket.send("{} {}".format("tts", json.dumps([sentence])))
+        #HACK : adding a space for each non ascii character
+        for i in range(len(sentence)):
+            if ord(sentence[i])<128:
+                sentence+= ' '
+        self._socket.send("{} {}".format("tts", sentence))
 
     def start(self):
         """
