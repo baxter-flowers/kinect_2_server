@@ -18,6 +18,7 @@ namespace Kinect2Server
         private String spokenText;
         private Boolean queuedMessages;
         private Boolean replied = true;
+        private Boolean blocking = true;
 
         public TextToSpeech(SpeechRecognition sr)
         {
@@ -46,7 +47,18 @@ namespace Kinect2Server
                 {
                     this.replied = false;
                     this.spokenText = this.responder.Receive();
-
+                    if (this.spokenText[0].Equals('f'))
+                    {
+                        this.blocking = false;
+                        this.responder.Reply("");
+                        this.replied = true;
+                    }
+                    else
+                    {
+                        this.blocking = true;
+                    }
+                    this.spokenText = this.spokenText.Substring(1);
+    
                     if (this.sr.isGrammarLoaded())
                         this.sr.unloadGrammars();
 
@@ -62,8 +74,12 @@ namespace Kinect2Server
         {
             if (this.sr.isGrammarLoaded())
                 this.sr.loadGrammar();
-            this.responder.Reply("");
-            this.replied = true;
+            if (!this.replied && this.blocking)
+            {
+                this.responder.Reply("");
+                this.replied = true;
+            }
+            
         }
 
         public void addTTSListener(EventHandler<SpeakProgressEventArgs> f)
