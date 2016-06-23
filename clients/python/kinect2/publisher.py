@@ -11,12 +11,17 @@ class TTSRequester(object):
         self._socket.connect('tcp://{}:{}'.format(ip, port))
         self.params = TextToSpeechParams(context, ip, config_port)
 
-    def say(self, sentence):
+    def say(self, sentence, blocking = True):
+        if blocking is True:
+            final = "t"
+        else:
+            final = "f"
         #HACK : adding a space for each non ascii character
+        final += sentence
         for i in range(len(sentence)):
             if ord(sentence[i])<128:
                 sentence+= ' '
-        self._socket.send(sentence)
+        self._socket.send(final)
         message = self._socket.recv()
         return None
 
