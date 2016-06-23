@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import json
-from zmq import Context, PUB
+from zmq import Context, REQ
 from .params import TextToSpeechParams
 
-class TTSPublisher(object):
+class TTSRequester(object):
     def __init__(self, context, ip, port, config_port):
         self._context = context
-        self._socket = self._context.socket(PUB)
+        self._socket = self._context.socket(REQ)
         self._socket.connect('tcp://{}:{}'.format(ip, port))
         self.params = TextToSpeechParams(context, ip, config_port)
 
@@ -16,7 +16,9 @@ class TTSPublisher(object):
         for i in range(len(sentence)):
             if ord(sentence[i])<128:
                 sentence+= ' '
-        self._socket.send("{} {}".format("tts", sentence))
+        self._socket.send(sentence)
+        message = self._socket.recv()
+        return None
 
     def start(self):
         """
