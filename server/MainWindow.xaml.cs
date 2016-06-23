@@ -8,7 +8,7 @@ namespace Kinect2Server
 {
     public partial class MainWindow : Window
     {
-        private NetworkResponder responder;
+        private ParametersUpdater updater;
         private KinectSensor kinectSensor;
         private KinectAudioStream convertStream;
         private SpeechRecognition sr;
@@ -19,7 +19,7 @@ namespace Kinect2Server
 
         public MainWindow()
         {
-            setKinectSensor();
+            OpenKinectSensor();
 
             this.sr = new SpeechRecognition(this.kinectSensor, this.convertStream);
             this.st = new SkeletonFaceTracking(this.kinectSensor);
@@ -31,11 +31,11 @@ namespace Kinect2Server
             InitializeComponent();
 
             // Need to create the responder after models because it's using instance of sr, srw, st & tts
-            this.responder = new NetworkResponder(this.sr, this.st, this.tts, this.msi, this.af, this.srview, this.stview, this.ttsview, this.rgbdmicview);
-            this.responder.Bind("33412");
+            this.updater = new ParametersUpdater(this.sr, this.st, this.tts, this.msi, this.af, this.srview, this.stview, this.ttsview, this.rgbdmicview);
+            
         }
 
-        private void setKinectSensor()
+        private void OpenKinectSensor()
         {
             // Only one sensor is supported
             this.kinectSensor = KinectSensor.GetDefault();
@@ -95,13 +95,6 @@ namespace Kinect2Server
             }
         }
 
-        public NetworkResponder NetworkResponder
-        {
-            get
-            {
-                return this.responder;
-            }
-        }
 
         public AudioFrame AudioFrame
         {
@@ -110,7 +103,6 @@ namespace Kinect2Server
                 return this.af;
             }
         }
-
        
 
         private void WindowClosing(object sender, CancelEventArgs e)

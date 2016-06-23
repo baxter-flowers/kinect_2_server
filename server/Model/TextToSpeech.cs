@@ -10,31 +10,31 @@ namespace Kinect2Server
     public class TextToSpeech
     {
         private SpeechSynthesizer synthesizer;
-        private NetworkSubscriber ttsSubscriber;
+        private NetworkResponder responder;
         private SpeechRecognition sr;
         private VoiceGender voiceGender;
         private CultureInfo culture;
         private Thread speakThread;
         private String spokenText;
         private Boolean queuedMessages;
-        private Queue textQueue;
+        private Boolean replied = true;
 
         public TextToSpeech(SpeechRecognition sr)
         {
             this.sr = sr;
             this.synthesizer = new SpeechSynthesizer();
-            this.ttsSubscriber = new NetworkSubscriber();
-            this.ttsSubscriber.Bind("33407");
+            this.responder = new NetworkResponder();
+            this.responder.Bind("33407");
             // Configure the audio output to default settings
             this.synthesizer.SetOutputToDefaultAudioDevice();
 
             this.synthesizer.SpeakCompleted += this.UnpauseSR;
 
+
             this.speakThread = new Thread(new ThreadStart(this.Speak));
+            this.speakThread.SetApartmentState(ApartmentState.STA);
             this.speakThread.IsBackground = true;
             this.speakThread.Start();
-            this.queuedMessages = false;
-            this.textQueue = new Queue();
         }
 
 
@@ -42,24 +42,19 @@ namespace Kinect2Server
         {
             while (this.speakThread.IsAlive)
             {
-                this.textQueue.Enqueue(this.ttsSubscriber.ReceiveText());
-                if(this.sr.isGrammarLoaded())
-                    this.sr.unloadGrammars();
-                lock (this)
+                if (this.replied)
                 {
-                    this.spokenText = (String)this.textQueue.Dequeue();
+                    this.replied = false;
+                    this.spokenText = this.responder.Receive();
+
+                    if (this.sr.isGrammarLoaded())
+                        this.sr.unloadGrammars();
+
                     if (!this.queuedMessages)
                         this.synthesizer.SpeakAsyncCancelAll();
                     this.synthesizer.SpeakAsync(this.spokenText);
                 }
-            }
-        }
-
-        public void addTTSListener(EventHandler<SpeakProgressEventArgs> f)
-        {
-            lock (this)
-            {
-                this.synthesizer.SpeakProgress += new EventHandler<SpeakProgressEventArgs>(f);
+                
             }
         }
 
@@ -67,8 +62,15 @@ namespace Kinect2Server
         {
             if (this.sr.isGrammarLoaded())
                 this.sr.loadGrammar();
+            this.responder.Reply("");
+            this.replied = true;
         }
-       
+
+        public void addTTSListener(EventHandler<SpeakProgressEventArgs> f)
+        {
+            this.synthesizer.SpeakProgress += new EventHandler<SpeakProgressEventArgs>(f);
+        }
+        
         public VoiceGender VoiceGender
         {
             get
@@ -78,10 +80,7 @@ namespace Kinect2Server
             set
             {
                 this.voiceGender = value;
-                lock (this)
-                {
-                    this.synthesizer.SelectVoiceByHints(this.voiceGender);
-                }
+                this.synthesizer.SelectVoiceByHints(this.voiceGender);
             }
         }
 
@@ -94,10 +93,7 @@ namespace Kinect2Server
             set
             {
                 this.culture = value;
-                lock (this)
-                {
-                    this.synthesizer.SelectVoiceByHints(this.VoiceGender, VoiceAge.Adult, 0, this.culture);
-                }
+                this.synthesizer.SelectVoiceByHints(this.VoiceGender, VoiceAge.Adult, 0, this.culture);
             }
         }
 
