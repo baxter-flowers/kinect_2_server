@@ -1,5 +1,6 @@
 ﻿using Kinect2Server.View;
 using Microsoft.Kinect;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
@@ -103,7 +104,15 @@ namespace Kinect2Server
                 return this.af;
             }
         }
-       
+
+        public void ChangeTabDisplay(int index)
+        {
+            this.Dispatcher.Invoke((Action)(() =>
+            {
+                this.Tabs.SelectedIndex = index;
+            }));
+            
+        }
 
         private void WindowClosing(object sender, CancelEventArgs e)
         {

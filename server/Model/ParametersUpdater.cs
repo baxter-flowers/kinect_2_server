@@ -9,6 +9,7 @@ using System.Speech.Synthesis;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace Kinect2Server
 {
@@ -26,6 +27,7 @@ namespace Kinect2Server
         private SkeletonTrackingView stv;
         private TextToSpeechView ttsv;
         private RGBDplusMic rgbdmicv;
+        private MainWindow mw;
 
         public ParametersUpdater(SpeechRecognition sr, SkeletonFaceTracking st, TextToSpeech tts, MultiSourceImage msi, AudioFrame af, SpeechRecognitionView srv, SkeletonTrackingView stv, TextToSpeechView ttsv, RGBDplusMic rgbdmicv)
         {
@@ -38,6 +40,7 @@ namespace Kinect2Server
             this.stv = stv;
             this.ttsv = ttsv;
             this.rgbdmicv = rgbdmicv;
+            this.mw = (MainWindow)Application.Current.MainWindow;
 
             this.responder = new NetworkResponder();
             this.responder.Bind("33412");
@@ -128,11 +131,14 @@ namespace Kinect2Server
                 }
 
                 // Display
-                /*Nullable<Boolean> display = (Nullable<Boolean>)json_params["speech_recognition"]["display"];
+                Nullable<Boolean> display = (Nullable<Boolean>)json_params["speech_recognition"]["display"];
                 if (display != null)
                 {
-                
-                }*/
+                    if ((Boolean)display)
+                    {
+                        this.mw.ChangeTabDisplay(0);
+                    }
+                }
             }
 
             if (json_params["skeleton_tracking"] != null)
@@ -155,6 +161,16 @@ namespace Kinect2Server
                 {
                     this.st.SmoothingParam = (float)smoothing;
                     this.stv.refreshSmoothingSelectorValue();
+                }
+
+                // Display
+                Nullable<Boolean> display = (Nullable<Boolean>)json_params["skeleton_tracking"]["display"];
+                if (display != null)
+                {
+                    if ((Boolean)display)
+                    {
+                        this.mw.ChangeTabDisplay(1);
+                    }
                 }
             }
 
@@ -205,6 +221,16 @@ namespace Kinect2Server
                         this.ttsv.frFR_C();
                     }
                 }
+
+                // Display
+                Nullable<Boolean> display = (Nullable<Boolean>)json_params["text_to_speech"]["display"];
+                if (display != null)
+                {
+                    if ((Boolean)display)
+                    {
+                        this.mw.ChangeTabDisplay(2);
+                    }
+                }
             }
 
             if (json_params["rgbd"] != null)
@@ -225,6 +251,16 @@ namespace Kinect2Server
                     if ((Boolean)sendFrame)
                         this.msi.ResetFrameBooleans();
                 }
+
+                // Display
+                Nullable<Boolean> display = (Nullable<Boolean>)json_params["rgbd"]["display"];
+                if (display != null)
+                {
+                    if ((Boolean)display)
+                    {
+                        this.mw.ChangeTabDisplay(3);
+                    }
+                }
             }
 
             if (json_params["mic"] != null)
@@ -235,6 +271,8 @@ namespace Kinect2Server
                 if (mOn != null)
                     this.RefreshStatus("mic", (Boolean)mOn);
             }
+
+
             this.responder.Reply(reply);
         }
 

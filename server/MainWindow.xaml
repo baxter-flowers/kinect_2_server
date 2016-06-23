@@ -7,7 +7,7 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanMinimize">
     <Grid>
-        <TabControl>
+        <TabControl Name="Tabs">
             <TabItem Header="Speech recognition">
                 <Grid Margin="10 0 10 0">
                     <Grid.RowDefinitions>
