@@ -25,17 +25,22 @@ class Params(object):
         message = self._socket.recv()
         return message
 
-class SpeechParams(Params):
-    def __init__(self, context, ip, port=33410):
-        Params.__init__(self, context, ip, port)
-        self._feature = 'speech_recognition'
-
     def on(self):
         self._params['on'] = True
     
     def off(self):
         self._params['on'] = False
-        
+
+    def display(self):
+        self._params['display'] = True
+        self.send_params()
+        self._params['display'] = False
+
+class SpeechParams(Params):
+    def __init__(self, context, ip, port=33410):
+        Params.__init__(self, context, ip, port)
+        self._feature = 'speech_recognition'
+
     def set_confidence(self, value):
         if float(value)>=0.0 and float(value)<=1.0:
             self._params['confidence'] = value
@@ -52,12 +57,6 @@ class SkeletonParams(Params):
     def __init__(self, context, ip, port=33410):
         Params.__init__(self, context, ip, port)
         self._feature = 'skeleton_tracking'
-   
-    def on(self):
-         self._params['on'] = True
-         
-    def off(self):
-         self._params['on'] = False
     
     def set_smoothing(self, value):
         if float(value)>=0.0 and float(value)<=0.9:
@@ -95,12 +94,6 @@ class RGBDParams(Params):
     def __init__(self, context, ip, port=33410):
         Params.__init__(self, context, ip, port)
         self._feature = 'rgbd'
-               
-    def on(self):
-        self._params['on'] = True
-         
-    def off(self):
-        self._params['on'] = False
 
     def continuous_stream_on(self):
         self._params['continuousStream'] = True

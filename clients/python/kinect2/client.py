@@ -27,3 +27,15 @@ class Kinect2Client(object):
     def unpause_speech_recognition(self):
         self.speech.params.on()
         self.speech.params.send_params()
+
+    def display_speech(self):
+        self.speech.params.display()
+
+    def display_skeleton(self):
+        self.skeleton.params.display()
+
+    def display_tts(self):
+        self.tts.params.display()
+
+    def display_rgbd_mic(self):
+        self.rgbd.params.display()
