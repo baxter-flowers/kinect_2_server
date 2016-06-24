@@ -87,7 +87,7 @@ namespace Kinect2Server
                     if (grammarFile != null)
                         this.srv.RefreshGrammarFile();
                     this.srv.addlist();
-                    if ((Boolean)srOn)
+                    if (srOn != null && (Boolean)srOn)
                     {
                         this.RefreshStatus("speech", true);
                         this.isOn = true;
@@ -131,12 +131,10 @@ namespace Kinect2Server
 
                 // Display
                 Nullable<Boolean> display = (Nullable<Boolean>)json_params["speech_recognition"]["display"];
-                if (display != null)
+                
+                if (display != null && (Boolean)display)
                 {
-                    if ((Boolean)display)
-                    {
-                        this.mw.ChangeTabDisplay(0);
-                    }
+                    this.mw.ChangeTabDisplay(0);
                 }
             }
 
@@ -164,12 +162,9 @@ namespace Kinect2Server
 
                 // Display
                 Nullable<Boolean> display = (Nullable<Boolean>)json_params["skeleton_tracking"]["display"];
-                if (display != null)
+                if (display != null && (Boolean)display)
                 {
-                    if ((Boolean)display)
-                    {
-                        this.mw.ChangeTabDisplay(1);
-                    }
+                    this.mw.ChangeTabDisplay(1);
                 }
             }
 
@@ -223,12 +218,9 @@ namespace Kinect2Server
 
                 // Display
                 Nullable<Boolean> display = (Nullable<Boolean>)json_params["text_to_speech"]["display"];
-                if (display != null)
+                if (display != null && (Boolean)display)
                 {
-                    if ((Boolean)display)
-                    {
-                        this.mw.ChangeTabDisplay(2);
-                    }
+                    this.mw.ChangeTabDisplay(2);
                 }
             }
 
@@ -245,20 +237,14 @@ namespace Kinect2Server
                 if (continuousStream != null)
                     this.RefreshStatus("continuousStream", (Boolean)continuousStream);
 
-                if (sendFrame != null)
-                {
-                    if ((Boolean)sendFrame)
-                        this.msi.ResetFrameBooleans();
-                }
+                if (sendFrame != null && (Boolean)sendFrame)
+                    this.msi.ResetFrameBooleans();
 
                 // Display
                 Nullable<Boolean> display = (Nullable<Boolean>)json_params["rgbd"]["display"];
-                if (display != null)
+                if (display != null && (Boolean)display)
                 {
-                    if ((Boolean)display)
-                    {
-                        this.mw.ChangeTabDisplay(3);
-                    }
+                    this.mw.ChangeTabDisplay(3);
                 }
             }
 
