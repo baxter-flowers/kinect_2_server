@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import json
-from zmq import Context, REQ
+from zmq import Context, DEALER
 from .params import TextToSpeechParams
 
 class TTSRequester(object):
     def __init__(self, context, ip, port, config_port):
         self._context = context
-        self._socket = self._context.socket(REQ)
+        self._socket = self._context.socket(DEALER)
+        self._socket.identity = "client"
         self._socket.connect('tcp://{}:{}'.format(ip, port))
         self.params = TextToSpeechParams(context, ip, config_port)
 
@@ -21,8 +22,8 @@ class TTSRequester(object):
         for i in range(len(sentence)):
             if ord(sentence[i])<128:
                 sentence+= ' '
-        self._socket.send(final)
-        message = self._socket.recv()
+        self._socket.send_multipart([final])
+        message = self._socket.recv_multipart()
         return None
 
     def start(self):
