@@ -170,17 +170,6 @@ namespace Kinect2Server
             if (json_params["text_to_speech"] != null)
             {
                 // Text To Speech
-                // Queue on/off
-                Nullable<Boolean> queue = (Nullable<Boolean>)json_params["text_to_speech"]["queue"];
-                if (queue != null)
-                {
-                    if ((Boolean)queue)
-                        this.tts.QueuedMessages = true;
-                    else
-                        this.tts.QueuedMessages = false;
-                    this.RefreshStatus("tts", (Boolean)queue);
-                }
-
                 // Gender
                 String gender = (String)json_params["text_to_speech"]["gender"];
                 if (gender != null)

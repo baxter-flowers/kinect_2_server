@@ -15,13 +15,14 @@ namespace Kinect2Server
         private ZContext context;
         private ZSocket socket;
         private Boolean binded;
+        private Boolean instant;
 
-        public NetworkResponder()
+        public NetworkResponder(bool instant = true)
         {
             this.context = new ZContext();
-            this.socket = new ZSocket(this.context, ZSocketType.REP);
+            this.socket = new ZSocket(this.context, instant ? ZSocketType.REP : ZSocketType.ROUTER);
             this.binded = false;
-            
+            this.instant = instant;
         }
 
         public void Bind(String listeningPort)
@@ -63,6 +64,10 @@ namespace Kinect2Server
 
         public void Reply(String reply)
         {
+            if (!this.instant) { 
+                ZFrame envelope = new ZFrame("client");  // Identity is hardcoded, must match the client's identity
+                this.socket.SendFrame(envelope, ZSocketFlags.More);  
+            }
             ZFrame message = new ZFrame(reply);
             this.socket.Send(message);
         }

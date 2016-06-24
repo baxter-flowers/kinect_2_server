@@ -16,15 +16,13 @@ namespace Kinect2Server
         private CultureInfo culture;
         private Thread speakThread;
         private String spokenText;
-        private Boolean queuedMessages;
-        private Boolean replied = true;
         private Boolean blocking = true;
 
         public TextToSpeech(SpeechRecognition sr)
         {
             this.sr = sr;
             this.synthesizer = new SpeechSynthesizer();
-            this.responder = new NetworkResponder();
+            this.responder = new NetworkResponder(false);
             this.responder.Bind("33407");
             // Configure the audio output to default settings
             this.synthesizer.SetOutputToDefaultAudioDevice();
@@ -43,15 +41,12 @@ namespace Kinect2Server
         {
             while (this.speakThread.IsAlive)
             {
-                if (this.replied)
-                {
                     this.spokenText = this.responder.Receive();
-                    this.replied = false;
+                    this.spokenText = this.responder.Receive();
                     if (this.spokenText[0].Equals('f'))
                     {
                         this.blocking = false;
                         this.responder.Reply("non-blocking");
-                        this.replied = true;
                     }
                     else
                     {
@@ -59,25 +54,23 @@ namespace Kinect2Server
                     }
                     this.spokenText = this.spokenText.Substring(1);
     
-                    if (this.sr.anyGrammarLoaded())
-                        this.sr.unloadGrammars();
 
-                    if (!this.queuedMessages)
-                        this.synthesizer.SpeakAsyncCancelAll();
+                    // TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
+                    //if (this.sr.isGrammarLoaded())
+                    //   this.sr.unloadGrammars();
+
+                    this.synthesizer.SpeakAsyncCancelAll();
                     this.synthesizer.SpeakAsync(this.spokenText);
                 }
-                
-            }
         }
 
         private void UnpauseSR(object sender, SpeakCompletedEventArgs e)
         {
             if (!this.sr.anyGrammarLoaded())
                 this.sr.loadGrammar();
-            if (!this.replied && this.blocking)
+            if (this.blocking)
             {
                 this.responder.Reply("blocking");
-                this.replied = true;
             }
         }
 
@@ -121,16 +114,5 @@ namespace Kinect2Server
             }
         }
 
-        public Boolean QueuedMessages
-        {
-            get
-            {
-                return this.queuedMessages;
-            }
-            set
-            {
-                this.queuedMessages = value;
-            }
-        }
     }
 }

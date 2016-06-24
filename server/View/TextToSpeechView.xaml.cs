@@ -95,7 +95,7 @@ namespace Kinect2Server.View
 
         private void switchQueue(object sender, RoutedEventArgs e)
         {
-            if (this.tts.QueuedMessages)
+            /*if (this.tts.QueuedMessages)
             {
                 this.tts.QueuedMessages = false;
                 this.setButtonOff(this.stackQueue);
@@ -104,7 +104,7 @@ namespace Kinect2Server.View
             {
                 this.tts.QueuedMessages = true;
                 this.setButtonOn(this.stackQueue);
-            }
+            }*/
         }
 
         public void setButtonOff(StackPanel stack)
