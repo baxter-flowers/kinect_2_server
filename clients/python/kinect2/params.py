@@ -68,7 +68,7 @@ class SpeechParams(Params):
             for key in vocabulary:
                 grammar += "<item> "
                 grammar += key
-                grammar += " <tag> out = \""
+                grammar += " <tag> out.word = \""
                 grammar += vocabulary[key]
                 grammar += "\"; </tag> </item> "
 
