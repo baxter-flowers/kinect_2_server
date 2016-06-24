@@ -34,7 +34,7 @@ class Params(object):
     def display(self):
         self._params['display'] = True
         self.send_params()
-        self._params['display'] = False
+        self._params['display'] 
 
 class SpeechParams(Params):
     def __init__(self, context, ip, port=33410):
@@ -51,6 +51,32 @@ class SpeechParams(Params):
         self._params['grammar'] = grammar
         if grammar_file is not None:
             self._params['fileName'] = grammar_file
+
+    def set_vocabulary(self, vocabulary):
+        grammar = "<grammar version=\"1.0\" xml:lang=\"en-US\" root=\"rootRule\" xmlns=\"http://www.w3.org/2001/06/grammar\" tag-format=\"semantics/1.0\"> "
+        grammar += "<rule id=\"rootRule\" scope=\"public\"> <one-of> "
+        
+        if isinstance(vocabulary,list):
+            for word in vocabulary:
+                grammar += "<item> "
+                grammar += word
+                grammar += " <tag> out.word = \""
+                grammar += word
+                grammar += "\"; </tag> </item> "
+        
+        if isinstance(vocabulary, dict):
+            for key in vocabulary:
+                grammar += "<item> "
+                grammar += key
+                grammar += " <tag> out = \""
+                grammar += vocabulary[key]
+                grammar += "\"; </tag> </item> "
+
+        grammar +="</one-of> </rule> </grammar>"
+        
+        self._params['grammar'] = grammar
+        return grammar
+        
 
 
 class SkeletonParams(Params):
