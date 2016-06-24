@@ -78,10 +78,9 @@ namespace Kinect2Server
                 String grammar = (String)json_params["speech_recognition"]["grammar"];
                 if (grammar != null)
                 {
-                    this.sr.createGrammar(null, grammarFile, grammar);
+                    reply += this.sr.createGrammar(null, grammarFile, grammar);
                     if (!this.sr.isSpeechEngineSet())
                     {
-                        reply += "Failed to load grammar file.";
                         this.responder.Reply(reply);
                         return;
                     }

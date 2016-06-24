@@ -45,12 +45,12 @@ namespace Kinect2Server
             {
                 if (this.replied)
                 {
-                    this.replied = false;
                     this.spokenText = this.responder.Receive();
+                    this.replied = false;
                     if (this.spokenText[0].Equals('f'))
                     {
                         this.blocking = false;
-                        this.responder.Reply("");
+                        this.responder.Reply("non-blocking");
                         this.replied = true;
                     }
                     else
@@ -76,11 +76,11 @@ namespace Kinect2Server
                 this.sr.loadGrammar();
             if (!this.replied && this.blocking)
             {
-                this.responder.Reply("");
+                this.responder.Reply("blocking");
                 this.replied = true;
             }
-            
         }
+
 
         public void addTTSListener(EventHandler<SpeakProgressEventArgs> f)
         {

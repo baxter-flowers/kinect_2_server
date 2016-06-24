@@ -153,7 +153,7 @@ namespace Kinect2Server
         }
 
         
-        public void createGrammar(String fileLocation, String fileName, String raw_grammar = null)
+        public String createGrammar(String fileLocation, String fileName, String raw_grammar = null)
         {
             this.fileLocation = fileLocation;
             this.fileName = fileName;
@@ -168,14 +168,31 @@ namespace Kinect2Server
                 {
                     using (var memoryStream = this.GenerateStreamFromString(raw_grammar))
                     {
-                        this.grammar = new Grammar(memoryStream);
+                        try
+                        {
+                            this.grammar = new Grammar(memoryStream);
+                        }
+                        catch (FormatException e)
+                        {
+                            String message = "Wrong format file:" + e.Message;
+                            return message;
+                        }
+                        
                     }
                 }
                 else
                 {
                     using (var memoryStream = File.OpenRead(fileLocation))
                     {
-                        this.grammar = new Grammar(memoryStream);
+                        try
+                        {
+                            this.grammar = new Grammar(memoryStream);
+                        }
+                        catch (FormatException e)
+                        {
+                            String message = "Wrong format file:" + e.Message;
+                            return message;
+                        }
                     }
                 }
                 this.speechEngine.LoadGrammar(this.grammar);
@@ -188,6 +205,7 @@ namespace Kinect2Server
                     this.convertStream, new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
                 this.speechEngine.RecognizeAsync(RecognizeMode.Multiple);
             }
+            return "";
         }
 
         private RecognizerInfo TryGetKinectRecognizer(String raw_grammar = null)
@@ -240,7 +258,7 @@ namespace Kinect2Server
             }
         }
 
-        public void setCurrentLanguage(string grammarText)
+        public String setCurrentLanguage(string grammarText)
         {
             //Create the XmlNamespaceManager.
             NameTable nt = new NameTable();
@@ -260,8 +278,13 @@ namespace Kinect2Server
                 currentLanguage = reader.XmlLang;
                 reader.Close();
             }
-            catch { }
-            
+            catch (XmlException e)
+            {
+                String message = "Failed to read Xml File :" + e.Message;
+                return message;
+            }
+
+            return "";
         }
 
         public void setGrammarText(string fileLocation)

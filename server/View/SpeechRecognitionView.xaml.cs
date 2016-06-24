@@ -29,7 +29,7 @@ namespace Kinect2Server.View
         {
             clearRecognitionText();
 
-            if (!sr.isSpeechEngineSet())
+            if (!sr.isSpeechEngineSet() || !sr.isGrammarLoaded())
             {
                 setButtonOn(this.stackSR);
                 LoadGrammarFile(sender, e);
@@ -127,13 +127,15 @@ namespace Kinect2Server.View
             // Display OpenFileDialog
             Nullable<bool> result = dlg.ShowDialog();
 
+            String message = "";
+
             // Get the selected file path and set it in location if it is different from the actual file
             if (result == true && sr.isFileNew(dlg.FileName))
             {
                 clearRecognitionText();
 
                 // Create a new grammar for the file loaded
-                sr.createGrammar(dlg.FileName, dlg.SafeFileName);
+                message = sr.createGrammar(dlg.FileName, dlg.SafeFileName);
 
                 this.sr.FileName = dlg.SafeFileName;
                 this.RefreshGrammarFile();
@@ -146,7 +148,7 @@ namespace Kinect2Server.View
             if (!sr.isGrammarLoaded() || sr.CurrentLanguage.Equals(""))
             {
                 setButtonOff(this.stackSR);
-                this.status.Text = Properties.Resources.BadFile;
+                this.status.Text = message;
             }
             else
                 this.status.Text = Properties.Resources.GoOn;
