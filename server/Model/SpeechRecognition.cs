@@ -167,10 +167,8 @@ namespace Kinect2Server
                         }
                         catch (FormatException e)
                         {
-                            String message = "Corrupted grammar file :" + e.Message;
-                            return message;
+                            return  "Corrupted grammar file :" + e.Message;
                         }
-                        
                     }
                 }
                 else
@@ -183,8 +181,7 @@ namespace Kinect2Server
                         }
                         catch (FormatException e)
                         {
-                            String message = "Corrupted grammar file :" + e.Message;
-                            return message;
+                            return "Corrupted grammar file :" + e.Message;
                         }
                     }
                 }
@@ -236,7 +233,6 @@ namespace Kinect2Server
                         return recognizer;
                     }
                 }
-                return null;
             }
             return null;
         }
