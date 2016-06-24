@@ -79,13 +79,12 @@ namespace Kinect2Server
                 if (grammar != null)
                 {
                     reply += this.sr.createGrammar(null, grammarFile, grammar);
+                    this.srv.RefreshGrammarFile();
                     if (!this.sr.isSpeechEngineSet())
                     {
                         this.responder.Reply(reply);
                         return;
                     }
-                    if (grammarFile != null)
-                        this.srv.RefreshGrammarFile();
                     this.srv.addlist();
                     if (srOn != null && (Boolean)srOn)
                     {
