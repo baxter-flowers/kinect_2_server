@@ -46,15 +46,23 @@ class SpeechParams(Params):
             self._params['confidence'] = value
     
     def set_grammar(self, grammar, grammar_file = None):
+        """
+        Setting a new grammar from a full copy/past grammar file.
+        """
         if isinstance(grammar, file):
             grammar = grammar.read()
         self._params['grammar'] = grammar
         if grammar_file is not None:
             self._params['fileName'] = grammar_file
 
-    def set_vocabulary(self, vocabulary):
-        grammar = "<grammar version=\"1.0\" xml:lang=\"en-US\" root=\"rootRule\" xmlns=\"http://www.w3.org/2001/06/grammar\" tag-format=\"semantics/1.0\"> "
-        grammar += "<rule id=\"rootRule\" scope=\"public\"> <one-of> "
+    def set_vocabulary(self, vocabulary, language="en-US"):
+        """
+        Create a grammar from a list or dictionary. The list only contains words (the semantic is going to be equal to the word). The dictionary contains words and their associated semantics. Default language is american English, insert the "Language Culture Name" ("fr-FR", "en-US",...) of the language you want to change it.
+        """
+        grammar = "<grammar version=\"1.0\" xml:lang=\""
+        grammar += language
+        grammar += "\" root=\"rule\" xmlns=\"http://www.w3.org/2001/06/grammar\" tag-format=\"semantics/1.0\"> "
+        grammar += "<rule id=\"rule\" scope=\"public\"> <one-of> "
         
         if isinstance(vocabulary,list):
             for word in vocabulary:
