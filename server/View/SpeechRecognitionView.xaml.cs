@@ -29,7 +29,7 @@ namespace Kinect2Server.View
         {
             clearRecognitionText();
 
-            if (!sr.isSpeechEngineSet() || !sr.isGrammarLoaded())
+            if (!sr.isSpeechEngineSet() || !sr.anyGrammarLoaded())
             {
                 setButtonOn(this.stackSR);
                 LoadGrammarFile(sender, e);
@@ -130,25 +130,28 @@ namespace Kinect2Server.View
             String message = "";
 
             // Get the selected file path and set it in location if it is different from the actual file
-            if (result == true && sr.isFileNew(dlg.FileName))
+            if (result == true && this.sr.isFileNew(dlg.FileName))
             {
                 clearRecognitionText();
 
-                // Create a new grammar for the file loaded
-                message = sr.createGrammar(dlg.FileName, dlg.SafeFileName);
+                // Create a new grammar from the file loaded
+                message = this.sr.createGrammar(dlg.FileName, dlg.SafeFileName);
 
                 this.sr.FileName = dlg.SafeFileName;
                 this.RefreshGrammarFile();
                 setButtonOn(this.stackSR);
 
             }
-            else if (result == false && !sr.isGrammarLoaded())
+            // Turn the button off if the FileDialog is closed and the SpeechEngine doesn't have any grammar loaded
+            else if (result == false && !this.sr.anyGrammarLoaded())
                 setButtonOff(this.stackSR);
 
-            if (!sr.isGrammarLoaded() || sr.CurrentLanguage.Equals(""))
+            // If there is an error while creating the grammar, a message is written and the button is turned off
+            if (!this.sr.anyGrammarLoaded() || this.sr.CurrentLanguage.Equals(""))
             {
                 setButtonOff(this.stackSR);
                 this.status.Text = message;
+                return;
             }
             else
                 this.status.Text = Properties.Resources.GoOn;

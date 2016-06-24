@@ -59,7 +59,7 @@ namespace Kinect2Server
                     }
                     this.spokenText = this.spokenText.Substring(1);
     
-                    if (this.sr.isGrammarLoaded())
+                    if (this.sr.anyGrammarLoaded())
                         this.sr.unloadGrammars();
 
                     if (!this.queuedMessages)
@@ -72,7 +72,7 @@ namespace Kinect2Server
 
         private void UnpauseSR(object sender, SpeakCompletedEventArgs e)
         {
-            if (this.sr.isGrammarLoaded())
+            if (!this.sr.anyGrammarLoaded())
                 this.sr.loadGrammar();
             if (!this.replied && this.blocking)
             {

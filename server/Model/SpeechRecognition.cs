@@ -33,10 +33,6 @@ namespace Kinect2Server
             this.convertStream = convertStream;
         }
 
-        public Boolean isGrammarLoaded()
-        {
-            return this.grammar != null;
-        }
 
         public Boolean isFileNew(String newFile)
         {
@@ -63,10 +59,7 @@ namespace Kinect2Server
 
         public Boolean anyGrammarLoaded()
         {
-            if (!this.isGrammarLoaded())
-                return false;
-            else
-                return this.speechEngine.Grammars.Count != 0;
+            return this.speechEngine.Grammars.Count != 0;
         }
 
         public String CurrentLanguage
@@ -204,8 +197,12 @@ namespace Kinect2Server
                 this.speechEngine.SetInputToAudioStream(
                     this.convertStream, new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
                 this.speechEngine.RecognizeAsync(RecognizeMode.Multiple);
+                return "";
             }
-            return "";
+            else
+            {
+                return "The language of the file is not installed or unknown";
+            }
         }
 
         private RecognizerInfo TryGetKinectRecognizer(String raw_grammar = null)
