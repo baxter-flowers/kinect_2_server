@@ -174,7 +174,7 @@ namespace Kinect2Server
                         }
                         catch (FormatException e)
                         {
-                            String message = "Wrong format file:" + e.Message;
+                            String message = "Corrupted grammar file :" + e.Message;
                             return message;
                         }
                         
@@ -190,7 +190,7 @@ namespace Kinect2Server
                         }
                         catch (FormatException e)
                         {
-                            String message = "Wrong format file:" + e.Message;
+                            String message = "Corrupted grammar file :" + e.Message;
                             return message;
                         }
                     }
