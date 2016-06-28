@@ -16,6 +16,7 @@ namespace Kinect2Server
         private CultureInfo culture;
         private Thread speakThread;
         private String spokenText;
+        private Mutex mutexGrammar = new Mutex();
         private Boolean blocking = true;
 
         public TextToSpeech(SpeechRecognition sr)
@@ -41,33 +42,35 @@ namespace Kinect2Server
         {
             while (this.speakThread.IsAlive)
             {
-                    this.spokenText = this.responder.Receive();
-                    this.spokenText = this.responder.Receive();
-                    if (this.spokenText[0].Equals('f'))
-                    {
-                        this.blocking = false;
-                        this.responder.Reply("non-blocking");
-                    }
-                    else
-                    {
-                        this.blocking = true;
-                    }
-                    this.spokenText = this.spokenText.Substring(1);
-    
-
-                    // TODOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
-                    //if (this.sr.isGrammarLoaded())
-                    //   this.sr.unloadGrammars();
-
-                    this.synthesizer.SpeakAsyncCancelAll();
-                    this.synthesizer.SpeakAsync(this.spokenText);
+                this.spokenText = this.responder.Receive();
+                this.spokenText = this.responder.Receive();
+                if (this.spokenText[0].Equals('f'))
+                {
+                    this.blocking = false;
+                    this.responder.Reply("non-blocking");
                 }
+                else
+                {
+                    this.blocking = true;
+                }
+                this.spokenText = this.spokenText.Substring(1);
+    
+                lock (this.mutexGrammar)
+                {
+                    this.sr.unloadGrammars();
+                }
+
+                this.synthesizer.SpeakAsyncCancelAll();
+                this.synthesizer.SpeakAsync(this.spokenText);
+            }
         }
 
         private void UnpauseSR(object sender, SpeakCompletedEventArgs e)
         {
-            if (!this.sr.anyGrammarLoaded())
+            lock (this.mutexGrammar)
+            {
                 this.sr.loadGrammar();
+            }
             if (this.blocking)
             {
                 this.responder.Reply("blocking");

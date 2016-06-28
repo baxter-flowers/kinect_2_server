@@ -49,17 +49,22 @@ namespace Kinect2Server
 
         public void unloadGrammars()
         {
-            this.speechEngine.UnloadAllGrammars();
+            if (this.speechEngine != null)
+                this.speechEngine.UnloadAllGrammars();
         }
 
         public void loadGrammar()
         {
-            this.speechEngine.LoadGrammar(this.grammar);
+            if (this.grammar != null && this.speechEngine != null)
+                this.speechEngine.LoadGrammar(this.grammar);
         }
 
         public Boolean anyGrammarLoaded()
         {
-            return this.speechEngine.Grammars.Count != 0;
+            if (this.speechEngine != null)
+                return this.speechEngine.Grammars.Count != 0;
+            else
+                return false;
         }
 
         public String CurrentLanguage
