@@ -10,9 +10,7 @@ using System.Windows.Media.Imaging;
 
 namespace Kinect2Server.View
 {
-    /// <summary>
-    /// Interaction logic for GestureRecognition.xaml
-    /// </summary>
+    
     public partial class SkeletonTrackingView : UserControl
     {
         private MainWindow mw;
@@ -112,27 +110,37 @@ namespace Kinect2Server.View
             InitializeComponent();
         }
 
-        private void switchST(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Turns on or off the BodyFrameReader.
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">State information</param>
+        private void SwitchST(object sender, RoutedEventArgs e)
         {
             if (!grStatus)
             {
                 this.st.BodyFrameReader.IsPaused = false;
-                setButtonOn(this.stackGR);
+                SetButtonOn(this.stackGR);
                 this.grStatus = true;
             }
             else
             {
                 this.st.BodyFrameReader.IsPaused = true;
-                setButtonOff(this.stackGR);
+                SetButtonOff(this.stackGR);
                 this.grStatus = false;
             }
         }
 
-        private void submitSmoothing(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Updating the smoothing value.
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">State information</param>
+        private void SubmitSmoothing(object sender, RoutedEventArgs e)
         {
             if (this.smoothingSelector.Value == null)
             {
-                this.refreshSmoothingSelectorValue();
+                this.RefreshSmoothingSelectorValue();
             }
             else
             {
@@ -140,7 +148,10 @@ namespace Kinect2Server.View
             }
         }
 
-        public void refreshSmoothingSelectorValue()
+        /// <summary>
+        /// Changing the smoothing selector's value
+        /// </summary>
+        public void RefreshSmoothingSelectorValue()
         {
             Dispatcher.Invoke(() =>
             {
@@ -148,7 +159,7 @@ namespace Kinect2Server.View
             });
         }
 
-        public void setButtonOff(StackPanel stack)
+        public void SetButtonOff(StackPanel stack)
         {
             Dispatcher.Invoke(() =>
             {
@@ -159,7 +170,7 @@ namespace Kinect2Server.View
             });
         }
 
-        public void setButtonOn(StackPanel stack)
+        public void SetButtonOn(StackPanel stack)
         {
             Dispatcher.Invoke(() =>
             {
@@ -202,6 +213,11 @@ namespace Kinect2Server.View
             }
         }
 
+        /// <summary>
+        /// Event that handle face recognition
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">Data about the face event</param>
         private void Reader_FaceFrameArrived(object sender, FaceFrameArrivedEventArgs e)
         {
             using (FaceFrame faceFrame = e.FrameReference.AcquireFrame())
@@ -226,6 +242,11 @@ namespace Kinect2Server.View
             }
         }
 
+        /// <summary>
+        /// Event that handle arriving body
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">Data about the arrived body</param>
         private void Reader_BodyFrameArrived(object sender, BodyFrameArrivedEventArgs e)
         {
             bool dataReceived = false;
@@ -259,7 +280,7 @@ namespace Kinect2Server.View
                             {
                                 this.st.Filter.UpdateFilter(body);
                                 filteredJoints = this.st.Filter.GetFilteredJoints();
-                                jointPoints = this.st.frameTreatement(filteredJoints, body);
+                                jointPoints = this.st.FrameTreatement(filteredJoints, body);
 
                                 this.DrawBody(filteredJoints, jointPoints, dc, drawPen);
                                 this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
@@ -268,7 +289,7 @@ namespace Kinect2Server.View
                             else
                             {
                                 this.joints = body.Joints;
-                                jointPoints = this.st.frameTreatement(this.joints, body);
+                                jointPoints = this.st.FrameTreatement(this.joints, body);
 
                                 this.DrawBody(this.joints, jointPoints, dc, drawPen);
                                 this.DrawHand(body.HandLeftState, jointPoints[JointType.HandLeft], dc);
@@ -291,6 +312,13 @@ namespace Kinect2Server.View
             }
         }
 
+        /// <summary>
+        /// Draws a body.
+        /// </summary>
+        /// <param name="joints">Joints to draw</param>
+        /// <param name="jointPoints">Translated positions of joints to draw</param>
+        /// <param name="drawingContext">Drawing context to draw to</param>
+        /// <param name="drawingPen">Specifies color to draw a specific body</param>
         private void DrawBody(IReadOnlyDictionary<JointType, Joint> joints, Dictionary<JointType, Point> jointPoints, DrawingContext drawingContext, Pen drawingPen)
         {
             // Draw the bones
@@ -322,6 +350,15 @@ namespace Kinect2Server.View
             }
         }
 
+        /// <summary>
+        /// Draws one bone of a body (joint to joint).
+        /// </summary>
+        /// <param name="joints">Joints to draw</param>
+        /// <param name="jointPoints">Translated positions of joints to draw</param>
+        /// <param name="jointType0">First joint of bone to draw</param>
+        /// <param name="jointType1">Second joint of bone to draw</param>
+        /// <param name="drawingContext">Drawing context to draw to</param>
+        /// /// <param name="drawingPen">Specifies color to draw a specific bone</param>
         private void DrawBone(IReadOnlyDictionary<JointType, Joint> joints, Dictionary<JointType, Point> jointPoints, JointType jointType0, JointType jointType1, DrawingContext drawingContext, Pen drawingPen)
         {
             Joint joint0 = joints[jointType0];
@@ -344,6 +381,12 @@ namespace Kinect2Server.View
             drawingContext.DrawLine(drawPen, jointPoints[jointType0], jointPoints[jointType1]);
         }
 
+        /// <summary>
+        /// Draws a hand symbol if the hand is tracked: red circle = Closed, green circle = Opened; blue circle = Lasso
+        /// </summary>
+        /// <param name="handState">State of the hand</param>
+        /// <param name="handPosition">Position of the hand</param>
+        /// <param name="drawingContext">Drawing context to draw to</param>
         private void DrawHand(HandState handState, Point handPosition, DrawingContext drawingContext)
         {
             switch (handState)
@@ -362,6 +405,11 @@ namespace Kinect2Server.View
             }
         }
 
+        /// <summary>
+        /// Draws indicators to show which edges are clipping body data.
+        /// </summary>
+        /// <param name="body">Body to draw clipping information for</param>
+        /// <param name="drawingContext">Drawing context to draw to</param>
         private void DrawClippedEdges(Body body, DrawingContext drawingContext)
         {
             FrameEdges clippedEdges = body.ClippedEdges;

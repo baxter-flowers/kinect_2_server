@@ -156,7 +156,7 @@ namespace Kinect2Server
                 if (smoothing != null && smoothing != this.st.SmoothingParam)
                 {
                     this.st.SmoothingParam = (float)smoothing;
-                    this.stv.refreshSmoothingSelectorValue();
+                    this.stv.RefreshSmoothingSelectorValue();
                 }
 
                 // Display
@@ -261,9 +261,9 @@ namespace Kinect2Server
             else if (feature.Equals("skeleton"))
             {
                 if (state)
-                    this.stv.setButtonOn(this.stv.stackGR);
+                    this.stv.SetButtonOn(this.stv.stackGR);
                 else
-                    this.stv.setButtonOff(this.stv.stackGR);
+                    this.stv.SetButtonOff(this.stv.stackGR);
             }
             else if (feature.Equals("rgbd"))
             {

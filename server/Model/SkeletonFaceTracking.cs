@@ -13,7 +13,6 @@ namespace Kinect2Server
 
         // Skeleton
         private NetworkPublisher skeletonPublisher;
-        
         private Dictionary<JointType, object> dicoPos;
         private Dictionary<JointType, Vector4> dicoOr;
         private Dictionary<ulong, Dictionary<JointType, object>> dicoBodies;
@@ -194,28 +193,32 @@ namespace Kinect2Server
             }
         }
 
-        public void chainQuat(Body body)
+        /// <summary>
+        /// Changes orientation of each joint of a given body.
+        /// </summary>
+        /// <param name="body">Body whose joints will be changed</param>
+        public void ChainQuat(Body body)
         {
 
             // Really really really ugly
             this.dicoOr[JointType.SpineBase] = body.JointOrientations[JointType.SpineBase].Orientation;
-            this.dicoOr[JointType.Neck] = changeQuaternion(JointType.Neck, JointType.SpineShoulder, body);
-            this.dicoOr[JointType.SpineShoulder] = changeQuaternion(JointType.SpineShoulder, JointType.SpineMid, body);
-            this.dicoOr[JointType.SpineMid] = changeQuaternion(JointType.SpineMid, JointType.SpineBase, body);
-            this.dicoOr[JointType.HandRight] = changeQuaternion(JointType.HandRight, JointType.WristRight, body);
-            this.dicoOr[JointType.WristRight] = changeQuaternion(JointType.WristRight, JointType.ElbowRight, body);
-            this.dicoOr[JointType.ElbowRight] = changeQuaternion(JointType.ElbowRight, JointType.ShoulderRight, body);
-            this.dicoOr[JointType.ShoulderRight] = changeQuaternion(JointType.ShoulderRight, JointType.SpineShoulder, body);
-            this.dicoOr[JointType.HandLeft] = changeQuaternion(JointType.HandLeft, JointType.WristLeft, body);
-            this.dicoOr[JointType.WristLeft] = changeQuaternion(JointType.WristLeft, JointType.ElbowLeft, body);
-            this.dicoOr[JointType.ElbowLeft] = changeQuaternion(JointType.ElbowLeft, JointType.ShoulderLeft, body);
-            this.dicoOr[JointType.ShoulderLeft] = changeQuaternion(JointType.ShoulderLeft, JointType.SpineShoulder, body);
-            this.dicoOr[JointType.AnkleRight] = changeQuaternion(JointType.AnkleRight, JointType.KneeRight, body);
-            this.dicoOr[JointType.KneeRight] = changeQuaternion(JointType.KneeRight, JointType.HipRight, body);
-            this.dicoOr[JointType.HipRight] = changeQuaternion(JointType.HipRight, JointType.SpineBase, body);
-            this.dicoOr[JointType.AnkleLeft] = changeQuaternion(JointType.AnkleLeft, JointType.KneeLeft, body);
-            this.dicoOr[JointType.KneeLeft] = changeQuaternion(JointType.KneeLeft, JointType.HipLeft, body);
-            this.dicoOr[JointType.HipLeft] = changeQuaternion(JointType.HipLeft, JointType.SpineBase, body);
+            this.dicoOr[JointType.Neck] = ChangeQuaternion(JointType.Neck, JointType.SpineShoulder, body);
+            this.dicoOr[JointType.SpineShoulder] = ChangeQuaternion(JointType.SpineShoulder, JointType.SpineMid, body);
+            this.dicoOr[JointType.SpineMid] = ChangeQuaternion(JointType.SpineMid, JointType.SpineBase, body);
+            this.dicoOr[JointType.HandRight] = ChangeQuaternion(JointType.HandRight, JointType.WristRight, body);
+            this.dicoOr[JointType.WristRight] = ChangeQuaternion(JointType.WristRight, JointType.ElbowRight, body);
+            this.dicoOr[JointType.ElbowRight] = ChangeQuaternion(JointType.ElbowRight, JointType.ShoulderRight, body);
+            this.dicoOr[JointType.ShoulderRight] = ChangeQuaternion(JointType.ShoulderRight, JointType.SpineShoulder, body);
+            this.dicoOr[JointType.HandLeft] = ChangeQuaternion(JointType.HandLeft, JointType.WristLeft, body);
+            this.dicoOr[JointType.WristLeft] = ChangeQuaternion(JointType.WristLeft, JointType.ElbowLeft, body);
+            this.dicoOr[JointType.ElbowLeft] = ChangeQuaternion(JointType.ElbowLeft, JointType.ShoulderLeft, body);
+            this.dicoOr[JointType.ShoulderLeft] = ChangeQuaternion(JointType.ShoulderLeft, JointType.SpineShoulder, body);
+            this.dicoOr[JointType.AnkleRight] = ChangeQuaternion(JointType.AnkleRight, JointType.KneeRight, body);
+            this.dicoOr[JointType.KneeRight] = ChangeQuaternion(JointType.KneeRight, JointType.HipRight, body);
+            this.dicoOr[JointType.HipRight] = ChangeQuaternion(JointType.HipRight, JointType.SpineBase, body);
+            this.dicoOr[JointType.AnkleLeft] = ChangeQuaternion(JointType.AnkleLeft, JointType.KneeLeft, body);
+            this.dicoOr[JointType.KneeLeft] = ChangeQuaternion(JointType.KneeLeft, JointType.HipLeft, body);
+            this.dicoOr[JointType.HipLeft] = ChangeQuaternion(JointType.HipLeft, JointType.SpineBase, body);
             this.dicoOr[JointType.HandTipRight] = this.dicoOr[JointType.HandRight];
             this.dicoOr[JointType.ThumbRight] = this.dicoOr[JointType.WristRight];
             this.dicoOr[JointType.HandTipLeft] = this.dicoOr[JointType.HandLeft];
@@ -226,7 +229,14 @@ namespace Kinect2Server
             
         }
 
-        private Vector4 changeQuaternion(JointType jChild, JointType jParent, Body body)
+        /// <summary>
+        /// Changes the orientation of a joint beside his parent joint
+        /// </summary>
+        /// <param name="jChild">Joint that will be changed</param>
+        /// <param name="jParent">Parent of the joint</param>
+        /// <param name="body">Body that contains joints</param>
+        /// <returns></returns>
+        private Vector4 ChangeQuaternion(JointType jChild, JointType jParent, Body body)
         {
             Vector4 orientation = body.JointOrientations[jChild].Orientation;
             this.qChild.X = orientation.X;
@@ -249,9 +259,15 @@ namespace Kinect2Server
             return orientation;
         }
 
-        public Dictionary<JointType, Point> frameTreatement(IReadOnlyDictionary<JointType, Joint> joints, Body body)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="joints"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        public Dictionary<JointType, Point> FrameTreatement(IReadOnlyDictionary<JointType, Joint> joints, Body body)
         {
-            this.chainQuat(body);
+            this.ChainQuat(body);
 
             foreach (JointType jointType in joints.Keys)
             {
@@ -307,6 +323,11 @@ namespace Kinect2Server
             return false;
         }
 
+        /// <summary>
+        /// Gets the index of the face frame source
+        /// </summary>
+        /// <param name="faceFrameSource">The face frame source</param>
+        /// <returns>The index of the face source in the face source array</returns>
         public int GetFaceSourceIndex(FaceFrameSource faceFrameSource)
         {
             int index = -1;
@@ -322,6 +343,11 @@ namespace Kinect2Server
             return index;
         }
 
+        /// <summary>
+        /// Validates face bounding box and face points to be within screen space
+        /// </summary>
+        /// <param name="faceResult">The face frame result containing face box and points</param>
+        /// <returns>Success or failure</returns>
         public bool ValidateFaceBoxAndPoints(FaceFrameResult faceResult)
         {
             bool isFaceValid = faceResult != null;
