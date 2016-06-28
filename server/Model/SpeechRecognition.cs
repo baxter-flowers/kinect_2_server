@@ -34,8 +34,13 @@ namespace Kinect2Server
             this.convertStream = convertStream;
         }
 
-
-        public Boolean isFileNew(String newFile)
+        /// <summary>
+        /// Check if the new file is different from the current one.
+        /// </summary>
+        /// <param name="newFile">Full path of the new file</param>
+        /// <returns></returns>
+ 
+        public Boolean IsFileNew(String newFile)
         {
             if (this.fileLocation == null)
                 return true;
@@ -43,7 +48,11 @@ namespace Kinect2Server
                 return !this.fileLocation.Equals(newFile);
         }
 
-        public Boolean isSpeechEngineSet()
+        /// <summary>
+        /// Check if the speech engine is already set.
+        /// </summary>
+        /// <returns></returns>
+        public Boolean IsSpeechEngineSet()
         {
             return this.speechEngine != null;
         }
@@ -60,19 +69,29 @@ namespace Kinect2Server
             }
         }
 
-        public void unloadGrammars()
+        /// <summary>
+        /// Unload all grammar files from the current speech engine.
+        /// </summary>
+        public void UnloadGrammars()
         {
             if (this.speechEngine != null)
                 this.speechEngine.UnloadAllGrammars();
         }
 
-        public void loadGrammar()
+        /// <summary>
+        /// Load the actual grammar file.
+        /// </summary>
+        public void LoadGrammar()
         {
             if (this.grammar != null && this.speechEngine != null)
                 this.speechEngine.LoadGrammar(this.grammar);
         }
 
-        public Boolean anyGrammarLoaded()
+        /// <summary>
+        /// Check if there is alread a grammar file loaded.
+        /// </summary>
+        /// <returns></returns>
+        public Boolean AnyGrammarLoaded()
         {
             if (this.speechEngine != null)
                 return this.speechEngine.Grammars.Count != 0;
@@ -153,6 +172,11 @@ namespace Kinect2Server
             }
         }
 
+        /// <summary>
+        /// Generate a new MemoryStream from a string.
+        /// </summary>
+        /// <param name="s">String used to generate the stream</param>
+        /// <returns>A new MemoryStream</returns>
         public Stream GenerateStreamFromString(string s)
         {
             MemoryStream stream = new MemoryStream();
@@ -163,8 +187,14 @@ namespace Kinect2Server
             return stream;
         }
 
-        
-        public String createGrammar(String fileLocation, String fileName, String raw_grammar = null)
+        /// <summary>
+        /// Create a new grammar file from a grammar file selected on the server or send by the client.
+        /// </summary>
+        /// <param name="fileLocation">Full path of the file</param>
+        /// <param name="fileName">File name</param>
+        /// <param name="raw_grammar">Grammar send by the client</param>
+        /// <returns>A string that contains information about raised exceptions</returns>
+        public String CreateGrammar(String fileLocation, String fileName, String raw_grammar = null)
         {
             this.fileLocation = fileLocation;
             this.fileName = fileName;
@@ -236,10 +266,10 @@ namespace Kinect2Server
             }
 
             if (raw_grammar == null)
-                setGrammarText(fileLocation);
+                SetGrammarText(fileLocation);
             else
                 this.grammarText = raw_grammar;
-            setCurrentLanguage(grammarText);
+            SetCurrentLanguage(grammarText);
             if (this.currentLanguage != null)
             {
                 foreach (RecognizerInfo recognizer in recognizers)
@@ -269,7 +299,12 @@ namespace Kinect2Server
             }
         }
 
-        public String setCurrentLanguage(string grammarText)
+        /// <summary>
+        /// Detect the language of the grammar file.
+        /// </summary>
+        /// <param name="grammarText">Grammar file as string</param>
+        /// <returns>A string that contains information about raised exceptions</returns>
+        public String SetCurrentLanguage(string grammarText)
         {
             //Create the XmlNamespaceManager.
             NameTable nt = new NameTable();
@@ -298,7 +333,11 @@ namespace Kinect2Server
             return "";
         }
 
-        public void setGrammarText(string fileLocation)
+        /// <summary>
+        /// Transform a grammar file into a string.
+        /// </summary>
+        /// <param name="fileLocation">Full path of the grammar file</param>
+        public void SetGrammarText(string fileLocation)
         {
             //Load the xml file 
             XmlDocument grammar = new XmlDocument();
@@ -317,6 +356,12 @@ namespace Kinect2Server
             this.grammarText = sw.ToString();
         }
 
+        /// <summary>
+        /// Getting and sending both full sentence and semantics from a recognized speech.
+        /// </summary>
+        /// <param name="semantics">Semantics from the recognized speech</param>
+        /// <param name="sentence">Sentence from the recognized speech</param>
+        /// <returns>A list that contains semantics</returns>
         public List<String> SpeechRecognized(SemanticValue semantics, string sentence)
         {
             List<String> contentSentence = new List<string>();

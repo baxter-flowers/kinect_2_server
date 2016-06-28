@@ -105,6 +105,10 @@ namespace Kinect2Server
             }
         }
 
+        /// <summary>
+        /// Change the current tab.
+        /// </summary>
+        /// <param name="index"> Index of the tab to display</param>
         public void ChangeTabDisplay(int index)
         {
             this.Dispatcher.Invoke((Action)(() =>

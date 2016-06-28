@@ -10,7 +10,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="200" />
@@ -34,13 +33,6 @@
             <Label Content="Currently spoken text" Grid.Row="1" Grid.Column="0"/>
             <TextBlock Name="text" Width="Auto" Grid.Row="1" Grid.Column="1"
                    HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,5.2,0,0"/>
-            
-            <Label Content="Queued messages" Grid.Row="2" Grid.Column="0" />
-            <Button Click="switchQueue" Height="32" Width="81" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" BorderThickness="0">
-                <StackPanel Name="stackQueue">
-                    <Image Source="..\Images\switch_off.png"/>
-                </StackPanel>
-            </Button>
         </Grid>
     </Grid>
 </UserControl>

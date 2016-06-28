@@ -16,7 +16,6 @@ namespace Kinect2Server
         private CultureInfo culture;
         private Thread speakThread;
         private String spokenText;
-        //private Mutex mutexGrammar = new Mutex();
         private Boolean blocking = true;
 
         public TextToSpeech(SpeechRecognition sr)
@@ -74,8 +73,10 @@ namespace Kinect2Server
             
         }
 
-
-        public void addTTSListener(EventHandler<SpeakProgressEventArgs> f)
+        /// <summary>
+        /// Add a new EventHandler of type SpeakProgressEventArgs to the synthesizer.
+        /// </summary>
+        public void AddTTSListener(EventHandler<SpeakProgressEventArgs> f)
         {
             this.synthesizer.SpeakProgress += new EventHandler<SpeakProgressEventArgs>(f);
         }

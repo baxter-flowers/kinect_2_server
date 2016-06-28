@@ -24,39 +24,46 @@ namespace Kinect2Server.View
             InitializeComponent();
         }
 
-        // Turn off or on the speech recognition 
-        private void switchSR(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Turns off or on the speech engine.
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">State information</param>
+        private void SwitchSR(object sender, RoutedEventArgs e)
         {
-            clearRecognitionText();
+            ClearRecognitionText();
 
-            if (!sr.isSpeechEngineSet() || !sr.anyGrammarLoaded())
+            if (!sr.IsSpeechEngineSet() || !sr.AnyGrammarLoaded())
             {
-                setButtonOn(this.stackSR);
+                SetButtonOn(this.stackSR);
                 LoadGrammarFile(sender, e);
             }
-            else if (sr.anyGrammarLoaded())
+            else if (sr.AnyGrammarLoaded())
             {
-                setButtonOff(this.stackSR);
+                SetButtonOff(this.stackSR);
                 this.status.Text = Properties.Resources.ZzZz;
-                sr.unloadGrammars();
+                sr.UnloadGrammars();
                 this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
             }
             else
             {
-                setButtonOn(this.stackSR);
+                SetButtonOn(this.stackSR);
                 this.status.Text = Properties.Resources.GoOn;
-                sr.loadGrammar();
+                sr.LoadGrammar();
                 this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
             }
         }
 
-        public void clearRecognitionText()
+        /// <summary>
+        /// Clearing the sentence and semantics fields.
+        /// </summary>
+        public void ClearRecognitionText()
         {
             this.lastSemantics.Text = "";
             this.lastSentence.Text = "";
         }
 
-        public void setButtonOff(StackPanel stack)
+        public void SetButtonOff(StackPanel stack)
         {
             Dispatcher.Invoke(() =>
             {
@@ -68,7 +75,7 @@ namespace Kinect2Server.View
             
         }
 
-        public void setButtonOn(StackPanel stack)
+        public void SetButtonOn(StackPanel stack)
         {
             Dispatcher.Invoke(() =>
             {
@@ -81,6 +88,11 @@ namespace Kinect2Server.View
             
         }
 
+        /// <summary>
+        /// Event handler for recognized speech.
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">Data from the recognized speech</param>
         private void SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
             // HACK : do not allow speech to be recognized one second after last tts
@@ -109,6 +121,11 @@ namespace Kinect2Server.View
             }
         }
 
+        /// <summary>
+        /// Event handler for rejected speech.
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">Data from the rejected speech</param>
         private void SpeechRejected(object sender, SpeechRecognitionRejectedEventArgs e)
         {
             this.Dispatcher.Invoke(() =>
@@ -119,7 +136,11 @@ namespace Kinect2Server.View
         }
 
 
-        // Update the XML file when the user opens a file
+        /// <summary>
+        /// Update the XML file when the user opens a file
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">State information</param>
         private void LoadGrammarFile(object sender, RoutedEventArgs e)
         {
             // Create OpenFileDialog
@@ -135,36 +156,39 @@ namespace Kinect2Server.View
             String message = "";
 
             // Get the selected file path and set it in location if it is different from the actual file
-            if (result == true && this.sr.isFileNew(dlg.FileName))
+            if (result == true && this.sr.IsFileNew(dlg.FileName))
             {
-                clearRecognitionText();
+                ClearRecognitionText();
 
                 // Create a new grammar from the file loaded
-                message = this.sr.createGrammar(dlg.FileName, dlg.SafeFileName);
+                message = this.sr.CreateGrammar(dlg.FileName, dlg.SafeFileName);
 
                 this.sr.FileName = dlg.SafeFileName;
                 this.RefreshGrammarFile();
-                setButtonOn(this.stackSR);
+                SetButtonOn(this.stackSR);
 
             }
             // Turn the button off if the FileDialog is closed and the SpeechEngine doesn't have any grammar loaded
-            else if (result == false && !this.sr.anyGrammarLoaded())
-                setButtonOff(this.stackSR);
+            else if (result == false && !this.sr.AnyGrammarLoaded())
+                SetButtonOff(this.stackSR);
 
             // If there is an error while creating the grammar, a message is written and the button is turned off
-            if (!this.sr.anyGrammarLoaded() || this.sr.CurrentLanguage.Equals(""))
+            if (!this.sr.AnyGrammarLoaded() || this.sr.CurrentLanguage.Equals(""))
             {
-                setButtonOff(this.stackSR);
+                SetButtonOff(this.stackSR);
                 this.status.Text = message;
                 return;
             }
             else
                 this.status.Text = Properties.Resources.GoOn;
             
-            if (this.sr.isSpeechEngineSet())
+            if (this.sr.IsSpeechEngineSet())
                 this.addlist();
         }
 
+        /// <summary>
+        /// Changing the name and the language fields from the view.
+        /// </summary>
         public void RefreshGrammarFile()
         {
             Dispatcher.Invoke(() =>
@@ -180,9 +204,9 @@ namespace Kinect2Server.View
                         this.currentLanguage.Text = Properties.Resources.French;
                         break;
 
-                    //Add as much languages as you want provided that the recognized is installed on the PC
-                    //You also have to add a Ressource in the file Ressources.resx for exemple :
-                    //        - Call your ressource German and fill it with "Current language : German"
+                    // Add as much languages as you want provided that the recognized is installed on the PC
+                    // You also have to add a Ressource in the file Ressources.resx for exemple :
+                    //      Call your ressource German and fill it with "Current language : German"
                 }
             });
         }
@@ -192,6 +216,11 @@ namespace Kinect2Server.View
             this.sr.addSRListener(this.SpeechRecognized, this.SpeechRejected);
         }
 
+        /// <summary>
+        /// Updating the confidence threshold.
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">State information</param>
         private void SubmitConfidence(object sender, RoutedEventArgs e)
         {
             if (this.confidenceSelector.Value == null)
@@ -201,26 +230,19 @@ namespace Kinect2Server.View
             else
             {
                 sr.ConfidenceThreshold = (float)this.confidenceSelector.Value;
-                this.clearRecognitionText();
+                this.ClearRecognitionText();
             }
         }
 
+        /// <summary>
+        /// Changing the confidence selector's value.
+        /// </summary>
         public void RefreshConfidenceSelectorValue()
         {
             Dispatcher.Invoke(() =>
             {
                 this.confidenceSelector.Value = (double)Math.Round(sr.ConfidenceThreshold,1);
             });
-        }
-
-        private void submitListeningPort(object sender, RoutedEventArgs e)
-        {
-            if (this.listeningPortSelector.Value == null)
-                this.listeningPortSelector.Value = 33405;
-            else
-            {
-                sr.ListeningPort = ((int)this.listeningPortSelector.Value);
-            }
         }
     }
 }

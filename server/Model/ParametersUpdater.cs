@@ -78,9 +78,9 @@ namespace Kinect2Server
                 String grammar = (String)json_params["speech_recognition"]["grammar"];
                 if (grammar != null)
                 {
-                    reply += this.sr.createGrammar(null, grammarFile, grammar);
+                    reply += this.sr.CreateGrammar(null, grammarFile, grammar);
                     this.srv.RefreshGrammarFile();
-                    if (!this.sr.isSpeechEngineSet())
+                    if (!this.sr.IsSpeechEngineSet())
                     {
                         this.responder.Reply(reply);
                         return;
@@ -94,7 +94,7 @@ namespace Kinect2Server
                 }
                 if (srOn != null)
                 {
-                    if (this.sr.isSpeechEngineSet())
+                    if (this.sr.IsSpeechEngineSet())
                     {
                         if ((Boolean)srOn && !this.isOn)
                         {
@@ -254,9 +254,9 @@ namespace Kinect2Server
             if (feature.Equals("speech"))
             {
                 if (state)
-                    this.srv.setButtonOn(this.srv.stackSR);
+                    this.srv.SetButtonOn(this.srv.stackSR);
                 else
-                    this.srv.setButtonOff(this.srv.stackSR);
+                    this.srv.SetButtonOff(this.srv.stackSR);
             }
             else if (feature.Equals("skeleton"))
             {
@@ -264,13 +264,6 @@ namespace Kinect2Server
                     this.stv.setButtonOn(this.stv.stackGR);
                 else
                     this.stv.setButtonOff(this.stv.stackGR);
-            }
-            else if (feature.Equals("tts"))
-            {
-                if (state)
-                    this.ttsv.setButtonOn(this.ttsv.stackQueue);
-                else
-                    this.ttsv.setButtonOff(this.ttsv.stackQueue);
             }
             else if (feature.Equals("rgbd"))
             {

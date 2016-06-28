@@ -21,10 +21,15 @@ namespace Kinect2Server.View
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.tts = mw.TextToSpeech;
             InitializeComponent();
-            this.tts.addTTSListener(updateText);
+            this.tts.AddTTSListener(UpdateText);
         }
 
-        private void updateText(object sender, SpeakProgressEventArgs e)
+        /// <summary>
+        /// Updating the text when it's spoken
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">Data from the SpeakProgressEventArgs</param>
+        private void UpdateText(object sender, SpeakProgressEventArgs e)
         {
             this.text.Text = this.tts.SpokenText;
         }
@@ -34,6 +39,9 @@ namespace Kinect2Server.View
             this.Male_C();
         }
 
+        /// <summary>
+        /// Checking the "male" box and setting the VoiceGender to Male. Also unchecking the "female" box.
+        /// </summary>
         public void Male_C()
         {
             Dispatcher.Invoke(() =>
@@ -49,6 +57,9 @@ namespace Kinect2Server.View
             this.Female_C();
         }
 
+        /// <summary>
+        /// Checking the "female" box and setting the VoiceGender to Female. Also unchecking the "male" box.
+        /// </summary>
         public void Female_C()
         {
             Dispatcher.Invoke(() =>
@@ -65,6 +76,9 @@ namespace Kinect2Server.View
             this.enUS_C();
         }
 
+        /// <summary>
+        /// Checking the "american English" box and setting the Culture to en-US. Also unchecking the "French" box.
+        /// </summary>
         public void enUS_C()
         {
             Dispatcher.Invoke(() =>
@@ -81,6 +95,9 @@ namespace Kinect2Server.View
             this.frFR_C();
         }
 
+        /// <summary>
+        /// Checking the "French" box and setting the Culture to fr-FR and forces the VoiceGender to Female. Also unchecking the "american English" box.
+        /// </summary>
         public void frFR_C()
         {
             Dispatcher.Invoke(() =>
@@ -93,21 +110,7 @@ namespace Kinect2Server.View
             });
         }
 
-        private void switchQueue(object sender, RoutedEventArgs e)
-        {
-            /*if (this.tts.QueuedMessages)
-            {
-                this.tts.QueuedMessages = false;
-                this.setButtonOff(this.stackQueue);
-            }
-            else
-            {
-                this.tts.QueuedMessages = true;
-                this.setButtonOn(this.stackQueue);
-            }*/
-        }
-
-        public void setButtonOff(StackPanel stack)
+        public void SetButtonOff(StackPanel stack)
         {
             Dispatcher.Invoke(() =>
             {
