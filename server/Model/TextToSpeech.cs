@@ -16,7 +16,7 @@ namespace Kinect2Server
         private CultureInfo culture;
         private Thread speakThread;
         private String spokenText;
-        private Mutex mutexGrammar = new Mutex();
+        //private Mutex mutexGrammar = new Mutex();
         private Boolean blocking = true;
 
         public TextToSpeech(SpeechRecognition sr)
@@ -37,7 +37,6 @@ namespace Kinect2Server
             this.speakThread.Start();
         }
 
-
         public void Speak()
         {
             while (this.speakThread.IsAlive)
@@ -48,6 +47,7 @@ namespace Kinect2Server
                 {
                     this.blocking = false;
                     this.responder.Reply("non-blocking");
+                    this.synthesizer.SpeakAsyncCancelAll();
                 }
                 else
                 {
@@ -55,26 +55,23 @@ namespace Kinect2Server
                 }
                 this.spokenText = this.spokenText.Substring(1);
     
-                lock (this.mutexGrammar)
-                {
-                    this.sr.unloadGrammars();
-                }
+                
 
-                this.synthesizer.SpeakAsyncCancelAll();
                 this.synthesizer.SpeakAsync(this.spokenText);
             }
         }
 
         private void UnpauseSR(object sender, SpeakCompletedEventArgs e)
         {
-            lock (this.mutexGrammar)
+            lock (this)
             {
-                this.sr.loadGrammar();
+                this.sr.LastTTS = DateTime.Now;
             }
             if (this.blocking)
             {
                 this.responder.Reply("blocking");
             }
+            
         }
 
 
