@@ -120,6 +120,11 @@ namespace Kinect2Server
             this.multiSourceFrameReader.MultiSourceFrameArrived += f;
         }
 
+        /// <summary>
+        /// Processes and sends data
+        /// </summary>
+        /// <param name="colorFrame">Color frame</param>
+        /// <param name="depthFrame">Depth frame</param>
         private void FindAName(ColorFrame colorFrame, DepthFrame depthFrame)
         {
             // Arrays initialization & copy data, then dispose frames
@@ -147,7 +152,7 @@ namespace Kinect2Server
             this.depthPixelData = new ushort[depthWidth * depthHeight];
             depthFrame.CopyFrameDataToArray(this.depthPixelData);
             depthFrame.Dispose();
-            this.DepthTreatment(minDepth, maxDepth);
+            this.ProcessDepthFrameData(minDepth, maxDepth);
 
             // Mapping
             float factor = 0.2547f;
@@ -158,18 +163,25 @@ namespace Kinect2Server
             this.mask = Enumerable.Repeat((Byte)1, smallWidth * smallHeight).ToArray();
             this.colorPoints = new ColorSpacePoint[depthWidth * depthHeight];
             // Mapping both rgb & depth and then sending this mapping & the corresponding mask
-            this.Mapping(factor, smallWidth, smallHeight);
+            this.ProcessMapping(factor, smallWidth, smallHeight);
             this.SendingMapping();
 
         }
 
+        /// <summary>
+        /// Sends color data
+        /// </summary>
         private void SendingColorData()
         {
             this.colorPublisher.SendByteArray(this.colorPixelsSending);
         }
 
-
-        private void DepthTreatment(ushort minDepth, ushort maxDepth)
+        /// <summary>
+        /// Creates a displayable bitmap
+        /// </summary>
+        /// <param name="minDepth">The minimum reliable depth value for the frame</param>
+        /// <param name="maxDepth">The maximum reliable depth value for the frame</param>
+        private void ProcessDepthFrameData(ushort minDepth, ushort maxDepth)
         {
             for (int i = 0; i < this.depthPixelData.Length; i++)
             {
@@ -178,8 +190,13 @@ namespace Kinect2Server
             }
         }
 
-
-        private void Mapping(float factor, int smallWidth, int smallHeight)
+        /// <summary>
+        /// Creates a displayable bitmap
+        /// </summary>
+        /// <param name="factor">The factor used to reduce the image's size</param>
+        /// <param name="smallWidth"></param>
+        /// <param name="smallHeight"></param>
+        private void ProcessMapping(float factor, int smallWidth, int smallHeight)
         {
             this.coordinateMapper.MapDepthFrameToColorSpace(this.depthPixelData, this.colorPoints);
             for (int index = 0; index < this.colorPoints.Length; index++)
@@ -198,45 +215,18 @@ namespace Kinect2Server
                     }
                 }
             }
-            /*for (int i = 0; i < this.mask.Length; ++i)
-            {
-                if (this.mask[i] != 255)
-                    this.mask[i] = 1;
-            }
-
-                ColorSpacePoint[] noNegativeInfinityArray = new ColorSpacePoint[this.colorPoints.Length];
-                int newindex = 0;
-                for (int index = 0; index < this.colorPoints.Length; index++)
-                {
-                    if (!float.IsNegativeInfinity(this.colorPoints[index].X) && !float.IsNegativeInfinity(this.colorPoints[index].Y))
-                    {
-                        noNegativeInfinityArray[newindex] = this.colorPoints[index];
-                        ++newindex;
-                    }
-                }
-                Array.Resize(ref noNegativeInfinityArray, newindex+1);
-
-                byte[] byteArray = new byte[this.colorPoints.Length * sizeof(ColorSpacePoint)];
-
-                fixed (ColorSpacePoint* src = this.colorPoints)
-                fixed (byte* dest = byteArray)
-                {
-                    ColorSpacePoint* typedDest = (ColorSpacePoint*)dest;
-                    for (int i = 0; i < this.colorPoints.Length; ++i)
-                    {
-                        typedDest[i] = src[i];
-                    }
-                }*/
         }
 
-
+        /// <summary>
+        /// Send mapping data
+        /// </summary>
         private void SendingMapping()
         {
             this.mappingPublisher.SendByteArray(this.mappedPixels);
             this.maskPublisher.SendByteArray(this.mask);
         }
 
-        public ImageSource FrameTreatment(ColorFrame colorFrame, DepthFrame depthFrame, String mode)
+        public ImageSource ProcessFramesData(ColorFrame colorFrame, DepthFrame depthFrame, String mode)
         {
             this.FindAName(colorFrame, depthFrame);
 

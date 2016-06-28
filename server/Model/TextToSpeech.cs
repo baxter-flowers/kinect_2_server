@@ -54,8 +54,6 @@ namespace Kinect2Server
                 }
                 this.spokenText = this.spokenText.Substring(1);
     
-                
-
                 this.synthesizer.SpeakAsync(this.spokenText);
             }
         }

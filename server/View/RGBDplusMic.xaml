@@ -70,14 +70,14 @@
 
                 <Button Grid.Row="0" Grid.Column="4" Style="{StaticResource ScreenshotButton}" Content="Screenshot" Height="Auto" HorizontalAlignment="Right" Click="ScreenshotButton_Click" />
                 <Label Grid.Row="0" Grid.Column="0" Content="RGB-D" VerticalAlignment="Center"/>
-                <Button Click="switchDisplay" Height="32" Width="81" Grid.Row="0" Grid.Column="1" BorderThickness="0">
+                <Button Click="SwitchDisplay" Height="32" Width="81" Grid.Row="0" Grid.Column="1" BorderThickness="0">
                     <StackPanel Name="stackDisplay">
                         <Image Source="..\Images\switch_off.png"/>
                     </StackPanel>
                 </Button>
                 
                 <Label Grid.Row="1" Grid.Column="0" Content="Microphone" VerticalAlignment="Center"/>
-                <Button Click="switchMic" Height="32" Width="81" Grid.Row="1" Grid.Column="1" BorderThickness="0">
+                <Button Click="SwitchMic" Height="32" Width="81" Grid.Row="1" Grid.Column="1" BorderThickness="0">
                     <StackPanel Name="stackMic">
                         <Image Source="..\Images\switch_off.png"/>
                     </StackPanel>
@@ -89,7 +89,7 @@
                 </StatusBar>
                 
                 <Label Grid.Row="0" Grid.Column="2" Content="Continuous stream" VerticalAlignment="Center"/>
-                <Button Click="switchSending" Height="32" Width="81" Grid.Row="0" Grid.Column="3" BorderThickness="0">
+                <Button Click="SwitchSending" Height="32" Width="81" Grid.Row="0" Grid.Column="3" BorderThickness="0">
                     <StackPanel Name="stackSending">
                         <Image Source="..\Images\switch_off.png"/>
                     </StackPanel>

@@ -268,23 +268,23 @@ namespace Kinect2Server
             else if (feature.Equals("rgbd"))
             {
                 if (state)
-                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackDisplay, "rgbd");
+                    this.rgbdmicv.SetButtonOn(this.rgbdmicv.stackDisplay, "rgbd");
                 else
-                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackDisplay, "rgbd");
+                    this.rgbdmicv.SetButtonOff(this.rgbdmicv.stackDisplay, "rgbd");
             }
             else if (feature.Equals("mic"))
             {
                 if (state)
-                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackMic, "mic");
+                    this.rgbdmicv.SetButtonOn(this.rgbdmicv.stackMic, "mic");
                 else
-                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackMic, "mic");
+                    this.rgbdmicv.SetButtonOff(this.rgbdmicv.stackMic, "mic");
             }
             else if (feature.Equals("continuousStream"))
             {
                 if (state)
-                    this.rgbdmicv.setButtonOn(this.rgbdmicv.stackSending, "sending");
+                    this.rgbdmicv.SetButtonOn(this.rgbdmicv.stackSending, "sending");
                 else
-                    this.rgbdmicv.setButtonOff(this.rgbdmicv.stackSending, "sending");
+                    this.rgbdmicv.SetButtonOff(this.rgbdmicv.stackSending, "sending");
             }
 
         }

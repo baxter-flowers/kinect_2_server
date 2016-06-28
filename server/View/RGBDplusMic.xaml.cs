@@ -45,11 +45,16 @@ namespace Kinect2Server.View
             this.statusBarItem.Content = "Streaming & recording off";
         }
 
-        private void switchDisplay(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender">Objec that sent the event</param>
+        /// <param name="e">State information</param>
+        private void SwitchDisplay(object sender, RoutedEventArgs e)
         {
             if (this.display)
             {
-                this.setButtonOff(this.stackDisplay, "rgbd");
+                this.SetButtonOff(this.stackDisplay, "rgbd");
                 if(this.mic)
                     this.statusBarItem.Content = "Streaming off. Recording on";
                 else
@@ -57,7 +62,7 @@ namespace Kinect2Server.View
             }
             else
             {
-                this.setButtonOn(this.stackDisplay, "rgbd");
+                this.SetButtonOn(this.stackDisplay, "rgbd");
                 this.frameCount = 0;
                 this.t0_seconds = DateTime.Now.Second;
                 if (this.mic)
@@ -67,11 +72,16 @@ namespace Kinect2Server.View
             }
         }
 
-        private void switchMic(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender">Objec that sent the event</param>
+        /// <param name="e">State information</param>
+        private void SwitchMic(object sender, RoutedEventArgs e)
         {
             if (this.mic)
             {
-                this.setButtonOff(this.stackMic, "mic");
+                this.SetButtonOff(this.stackMic, "mic");
                 if (this.display)
                     this.statusBarItem.Content = "Streaming RGB-D images. Recording off";
                 else
@@ -79,7 +89,7 @@ namespace Kinect2Server.View
             }
             else
             {
-                this.setButtonOn(this.stackMic, "mic");
+                this.SetButtonOn(this.stackMic, "mic");
                 if (this.display)
                     this.statusBarItem.Content = "Streaming RGB-D images & recording";
                 else
@@ -88,12 +98,17 @@ namespace Kinect2Server.View
             }
         }
 
-        private void switchSending(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender">Objec that sent the event</param>
+        /// <param name="e">State information</param>
+        private void SwitchSending(object sender, RoutedEventArgs e)
         {
             if (this.continousStream)
-                this.setButtonOff(this.stackSending, "sending");
+                this.SetButtonOff(this.stackSending, "sending");
             else
-                this.setButtonOn(this.stackSending, "sending");
+                this.SetButtonOn(this.stackSending, "sending");
         }
 
         private void Color_Click(object sender, RoutedEventArgs e)
@@ -111,7 +126,7 @@ namespace Kinect2Server.View
             this.mode = Mode.Mapped;
         }
 
-        public void setButtonOff(StackPanel stack, String param)
+        public void SetButtonOff(StackPanel stack, String param)
         {
             Dispatcher.Invoke(() =>
             {
@@ -139,7 +154,7 @@ namespace Kinect2Server.View
             });
         }
 
-        public void setButtonOn(StackPanel stack, String param)
+        public void SetButtonOn(StackPanel stack, String param)
         {
             Dispatcher.Invoke(() =>
             {
@@ -167,6 +182,11 @@ namespace Kinect2Server.View
             });
         }
 
+        /// <summary>
+        /// Handles the user clicking on the screenshot button
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">State information</param>
         private void ScreenshotButton_Click(object sender, RoutedEventArgs e)
         {
             // create jpeg encoder
@@ -200,6 +220,11 @@ namespace Kinect2Server.View
             }
         }
 
+        /// <summary>
+        /// Handles the depth and color frames data arriving from the sensor
+        /// </summary>
+        /// <param name="sender">Object that sent the event</param>
+        /// <param name="e">Event arguments</param>
         private void Reader_MultiSourceFrameArrived(object sender, MultiSourceFrameArrivedEventArgs e)
         {
             if ((!this.continousStream && !this.msi.RepColorDelivered && !this.msi.RepMappingDelivered && !this.msi.RepMaskDelivered)||this.continousStream)
@@ -227,7 +252,7 @@ namespace Kinect2Server.View
                 if (colorFrame == null | depthFrame == null)
                     return;
 
-                this.camera.Source = this.msi.FrameTreatment(colorFrame, depthFrame, this.mode.ToString());
+                this.camera.Source = this.msi.ProcessFramesData(colorFrame, depthFrame, this.mode.ToString());
             }
         }
     }
