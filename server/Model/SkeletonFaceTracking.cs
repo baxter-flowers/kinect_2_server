@@ -16,6 +16,8 @@ namespace Kinect2Server
         private Dictionary<JointType, object> dicoPos;
         private Dictionary<JointType, Vector4> dicoOr;
         private Dictionary<ulong, Dictionary<JointType, object>> dicoBodies;
+        private Dictionary<ulong, Dictionary<String,String>> dicoFaces;
+        private Dictionary<String, String> dicoFeatures;
         private Dictionary<JointType, Point> jointPoints;
         private Quaternion qChild;
         private Quaternion qParent;
@@ -53,6 +55,8 @@ namespace Kinect2Server
             this.dicoPos = new Dictionary<JointType, object>(25);
             this.jointPoints = new Dictionary<JointType, Point>(25);
             this.dicoBodies = new Dictionary<ulong, Dictionary<JointType, object>>(25);
+            this.dicoFaces = new Dictionary<ulong, Dictionary<String, String>>(11);
+            this.dicoFeatures = new Dictionary<string, string>(11);
             this.dicoOr = new Dictionary<JointType, Vector4>(25);
             this.qChild = new Quaternion();
             this.qParent = new Quaternion();
@@ -81,6 +85,9 @@ namespace Kinect2Server
 
                 // open the corresponding reader
                 this.faceFrameReaders[i] = this.faceFrameSources[i].OpenReader();
+
+                // pausing the reader to prevent getting frames before we need them
+                this.faceFrameReaders[i].IsPaused = true;
             }
 
             // allocate storage to store face frame results for each face in the FOV
@@ -112,7 +119,7 @@ namespace Kinect2Server
             }
         }
 
-        public FaceFrameReader[] FaceFrameReader
+        public FaceFrameReader[] FaceFrameReaders
         {
             get
             {
@@ -301,10 +308,30 @@ namespace Kinect2Server
                 this.dicoBodies[body.TrackingId] = this.dicoPos;
                 
             }
+            
             string json = JsonConvert.SerializeObject(this.dicoBodies);
             this.NetworkPublisher.SendString(json, "skeleton");
             return this.jointPoints;
         }
+
+        public void GetFaceFrameResult(int index)
+        {
+            if (this.faceFrameResults[index].FaceProperties != null)
+            {
+                foreach (var item in this.faceFrameResults[index].FaceProperties)
+                {
+                    if (item.Value == DetectionResult.Maybe)
+                        this.dicoFeatures[item.Key.ToString()] = DetectionResult.No.ToString();
+                    else
+                        this.dicoFeatures[item.Key.ToString()] = item.Value.ToString();
+
+                    this.dicoFaces[this.faceFrameResults[index].TrackingId] = this.dicoFeatures;
+                }
+            }
+            string json = JsonConvert.SerializeObject(this.dicoFaces);
+            this.NetworkPublisher.SendString(json, "faces");
+        }
+
 
         public bool RefreshBodyData(BodyFrame bodyFrame)
         {

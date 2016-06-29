@@ -25,7 +25,7 @@
                 <ColumnDefinition Width="82" />
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" Grid.Row="0" Content="Skeleton tracking" />
-            <Button Click="SwitchST" Height="32" Width="81" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" BorderThickness="0">
+            <Button Click="SwitchSFT" Height="32" Width="81" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" BorderThickness="0">
                 <StackPanel Name="stackGR">
                     <Image Source="..\Images\switch_off.png"/>
                 </StackPanel>

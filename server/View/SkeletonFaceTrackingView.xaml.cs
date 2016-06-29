@@ -111,21 +111,29 @@ namespace Kinect2Server.View
         }
 
         /// <summary>
-        /// Turns on or off the BodyFrameReader.
+        /// Turns on or off the BodyFrameReader and FaceFrameReaders.
         /// </summary>
         /// <param name="sender">Object that sent the event</param>
         /// <param name="e">State information</param>
-        private void SwitchST(object sender, RoutedEventArgs e)
+        private void SwitchSFT(object sender, RoutedEventArgs e)
         {
             if (!grStatus)
             {
                 this.st.BodyFrameReader.IsPaused = false;
+                for (int i = 0; i < 6; i++)
+                {
+                    this.st.FaceFrameReaders[i].IsPaused = false;
+                }
                 SetButtonOn(this.stackGR);
                 this.grStatus = true;
             }
             else
             {
                 this.st.BodyFrameReader.IsPaused = true;
+                for (int i = 0; i < 6; i++)
+                {
+                    this.st.FaceFrameReaders[i].IsPaused = true;
+                }
                 SetButtonOff(this.stackGR);
                 this.grStatus = false;
             }
@@ -268,7 +276,15 @@ namespace Kinect2Server.View
                     {
                         if (body.IsTracked)
                         {
-                            this.st.FaceFrameSources[penIndex].TrackingId = body.TrackingId;
+                            if (this.st.FaceFrameSources[penIndex].IsTrackingIdValid)
+                            {
+                                if (this.st.FaceFrameResults[penIndex] != null)
+                                {
+                                    this.st.GetFaceFrameResult(penIndex);
+                                }
+                            }
+                            else
+                                this.st.FaceFrameSources[penIndex].TrackingId = body.TrackingId;
 
                             Pen drawPen = this.bodyColors[penIndex++];
 
