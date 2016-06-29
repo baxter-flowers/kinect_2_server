@@ -98,11 +98,13 @@ namespace Kinect2Server
             }
         }
 
-        //--------------------------------------------------------------------------------------
-        // Implementation of a Holt Double Exponential Smoothing filter. The double exponential
-        // smooths the curve and predicts.  There is also noise jitter removal. And maximum
-        // prediction bounds.  The paramaters are commented in the init function.
-        //--------------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Implementation of a Holt Double Exponential Smoothing filter. The double exponential
+        /// smooths the curve and predicts.  There is also noise jitter removal. And maximum
+        /// prediction bounds.  The paramaters are commented in the init function.
+        /// </summary>
+        /// <param name="pBody"></param>
         public void UpdateFilter(Body pBody)
         {
             if (pBody == null)
@@ -135,9 +137,11 @@ namespace Kinect2Server
             }
         }
 
-        //--------------------------------------------------------------------------------------
-        // if joint is 0 it is not valid.
-        //--------------------------------------------------------------------------------------
+        /// <summary>
+        /// If joint is 0 it is not valid.
+        /// </summary>
+        /// <param name="vJointPosition"></param>
+        /// <returns></returns>
         bool JointPositionIsValid(CameraSpacePoint vJointPosition)
         {
             return (vJointPosition.X != 0.0f ||
