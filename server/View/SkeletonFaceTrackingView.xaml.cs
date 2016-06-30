@@ -125,7 +125,6 @@ namespace Kinect2Server.View
                     this.st.FaceFrameReaders[i].IsPaused = false;
                 }
                 SetButtonOn(this.stackGR);
-                this.grStatus = true;
             }
             else
             {
@@ -135,7 +134,6 @@ namespace Kinect2Server.View
                     this.st.FaceFrameReaders[i].IsPaused = true;
                 }
                 SetButtonOff(this.stackGR);
-                this.grStatus = false;
             }
         }
 
@@ -175,6 +173,7 @@ namespace Kinect2Server.View
                 stack.Children.Clear();
                 img.Source = new BitmapImage(new Uri(@"../Images/switch_off.png", UriKind.Relative));
                 stack.Children.Add(img);
+                this.grStatus = false;
             });
         }
 
@@ -186,6 +185,7 @@ namespace Kinect2Server.View
                 stack.Children.Clear();
                 img.Source = new BitmapImage(new Uri(@"../Images/switch_on.png", UriKind.Relative));
                 stack.Children.Add(img);
+                this.grStatus = true;
             });
         }
 
