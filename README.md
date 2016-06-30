@@ -143,7 +143,18 @@ This feature allows to get:
 * a mapping between both RGB and IR images that gives every pixel's coordinates of the IR image in the RGB frame
 * a mask that represent every missing pixels (-infinity, -infinity) of the mapping used for the inpaint function of OpenCV to smooth the mapping
 
-The server sends uncompressed data (byte arrays) so it might overload the network.
+The server sends uncompressed data (byte arrays) so it might overload the network. It's possible to grab frame by frame instead of using a continuous stream.
+From the client, we can get a set of image (frame grabbing) and then show it such as :
+```Python
+from kinect2.client import Kinect2Client
+kinect = Kinect2Client("yourIP")
+kinect.rgbd.start()
+kinect.rgbd.enable_frame_grabbing()
+rgb, mapping, mask = kinect.rgbd.grab_frame()
+cv2.imshow("rgb", rgb)
+cv2.imshow("mapping", mapping)
+cv2.imshow("mask", mask)
+```
 The client uses data sent by the server to reconstruct images using openCV.
 
 For example, let's get a set of image :
