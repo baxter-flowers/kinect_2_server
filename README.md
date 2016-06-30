@@ -58,6 +58,7 @@ Example of grammar rules:
 Here there is two rules, one that defines the play action and the other that defines the word following this action. If we say “play the song” or “start the tune” or “begin the item” the recognized text will be different but the semantic will be the same “play/song”.
 
 How to use client for speech recognition:
+* With a copied/pasted grammar file :
 ```Python
 from kinect2.client import Kinect2Client
 kinect = Kinect2Client("yourIP")
@@ -74,9 +75,21 @@ grammar = '''<grammar version="1.0" xml:lang="en-US" root="rootRule"
                 </rule>
              </grammar>'''
 kinect.speech.params.set_grammar(grammar, "hello_grammar")
-kinect.speech.params.sentence_on()
 kinect.speech.start()
 ```
+* With a list or a dictionary:
+```Python
+from kinect2.client import Kinect2Client
+kinect = Kinect2Client("yourIP")
+def callback_speech(msg):
+    print msg
+kinect.speech.set_callback(callback_speech)
+dict = {"hello everyone" : "hello", "good bye" : "bye"}
+kinect.speech.params.set_vocabulary(dict, "en-US")
+kinect.speech.start()
+```
+Note : Don't use both set_vocabulary and set_grammar for the grammar, just use one. 
+
 The confidence threshold can be changed (from 0.1 to 1.0).
 
 #### Skeleton tracking + gesture recognition
