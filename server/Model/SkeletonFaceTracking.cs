@@ -2,6 +2,7 @@
 using Microsoft.Kinect.Face;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media.Media3D;
@@ -310,26 +311,44 @@ namespace Kinect2Server
             }
             
             string json = JsonConvert.SerializeObject(this.dicoBodies);
-            this.NetworkPublisher.SendString(json, "skeleton");
+            this.skeletonPublisher.SendString(json, "skeleton");
             return this.jointPoints;
         }
 
+        /// <summary>
+        /// Get and send data about one face
+        /// </summary>
+        /// <param name="index">Index of the FaceFrameResult</param>
         public void GetFaceFrameResult(int index)
         {
+            // Extract each face property information and store it in dicoFaces
             if (this.faceFrameResults[index].FaceProperties != null)
             {
                 foreach (var item in this.faceFrameResults[index].FaceProperties)
                 {
+                    // Consider a "maybe" as a "no" to restrict 
+                    // the detection result refresh rate
                     if (item.Value == DetectionResult.Maybe)
-                        this.dicoFeatures[item.Key.ToString()] = DetectionResult.No.ToString();
+                        this.dicoFeatures[item.Key.ToString().ToLower()] = DetectionResult.No.ToString().ToLower();
                     else
-                        this.dicoFeatures[item.Key.ToString()] = item.Value.ToString();
+                        this.dicoFeatures[item.Key.ToString().ToLower()] = item.Value.ToString().ToLower();
 
                     this.dicoFaces[this.faceFrameResults[index].TrackingId] = this.dicoFeatures;
                 }
             }
+            if (this.faceFrameResults[index].FaceRotationQuaternion != null)
+            {
+                Vector4 faceRotationQuaternion = this.faceFrameResults[index].FaceRotationQuaternion;
+                this.dicoFeatures["X"] = faceRotationQuaternion.X.ToString();
+                this.dicoFeatures["Y"] = faceRotationQuaternion.Y.ToString();
+                this.dicoFeatures["Z"] = faceRotationQuaternion.Z.ToString();
+                this.dicoFeatures["W"] = faceRotationQuaternion.W.ToString();
+
+                this.dicoFaces[this.faceFrameResults[index].TrackingId].Concat(this.dicoFeatures);
+            }
+
             string json = JsonConvert.SerializeObject(this.dicoFaces);
-            this.NetworkPublisher.SendString(json, "faces");
+            this.NetworkPublisher.SendString(json, "face");
         }
 
 
