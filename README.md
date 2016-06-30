@@ -141,12 +141,12 @@ This feature allows to get:
 * RGB image of size 1920 * 1080 using the HD camera of the sensor
 * IR image of size 424 * 515 with the infrared camera of the sensor that is used to create a mapping
 * a mapping between both RGB and IR images that gives every pixel's coordinates of the IR image in the RGB frame
-* a mask that represent every missing pixels (-infinity, -infinity) of the mapping used for the inpaint function of OpenCV
+* a mask that represent every missing pixels (-infinity, -infinity) of the mapping used for the inpaint function of OpenCV to smooth the mapping
 
 The server sends uncompressed data (byte arrays) so it might overload the network.
 The client uses data sent by the server to reconstruct images using openCV.
 
-For example, let's get the images from the skeleton previously tracked (cf. Top of README):
+For example, let's get a set of image :
 
 **Color image (1920 * 1080)**
 
@@ -156,9 +156,17 @@ For example, let's get the images from the skeleton previously tracked (cf. Top 
 
 ![Screenshot raw depth image](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/KinectScreenshot-31-May-11-26-21.jpeg "Screenshot raw depth image")
 
-**Mapped image (Work In Progress, 1920 * 1080)**
+**Mapped image (489 * 275)**
 
-![Screenshot mapped depth image](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/KinectScreenshot-31-May-11-26-25.jpeg "Screenshot mapped depth image")
+![Screenshot mapped depth image](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/mapping.jpeg "Screenshot mapped depth image")
+
+**Mask (489 * 275)**
+
+![Screenshot mask](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/mask.jpeg "Screenshot mask")
+
+**Smoothing (489 * 275)**
+
+![Smoothing](https://raw.githubusercontent.com/baxter-flowers/kinect_2_server/master/misc/smoothing.jpeg "Smoothing")
 
 This feature also permits to send the audio beam of the Kinect sensor as byte array. So the client receives chunks of sound and treat them as wished.
 
