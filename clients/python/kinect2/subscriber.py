@@ -43,9 +43,24 @@ class StreamSubscriber(object):
             subscriber = Thread(target=self._threaded_subscriber)
             subscriber.setDaemon(True)
             subscriber.start()
+
+    def start(self):
+        """
+        Take into account the parameters and start the feature. Returns an empty string if the parameters have been set successfully on the server or an error string otherwise
+        """
+        # Trigger the server
+        self.params.on()
+        msg = self.params.send_params()
+        # Start the client
+        self._start_client()
+        return msg
    
     def stop(self):
         self.running = False
+        # Stop the feature
+        self.params.off()
+        msg = self.params.send_params()
+        return msg
     
     def _threaded_subscriber(self):
         while self.running:
@@ -53,6 +68,85 @@ class StreamSubscriber(object):
             if callable(self._cb) and msg is not None:
                 self._cb(msg)
 
+
+class SkeletonSubscriber(object):
+    def __init__(self, context, ip, port, config_port):
+        self._context = context
+        self.params = SkeletonParams(context, ip, config_port)
+        self._cb = None
+        self.running = False 
+        
+        self._socket_skel = self._context.socket(SUB)
+        self._socket_face = self._context.socket(SUB)
+
+        self._socket_face.setsockopt(SUBSCRIBE, "face")
+        self._socket_skel.setsockopt(SUBSCRIBE, "skeleton")
+
+        self._socket_face.setsockopt(CONFLATE, 1)
+        self._socket_skel.setsockopt(CONFLATE, 1)
+
+        self._socket_face.connect('tcp://{}:{}'.format(ip, port))
+        self._socket_skel.connect('tcp://{}:{}'.format(ip, port))
+
+    def _get_skel(self):
+        try:
+            msg = self._socket_skel.recv()
+        except ZMQError as e:
+            if e.errno == EAGAIN:
+                return None
+        else:
+            str_msg = " ".join(msg.split(' ')[1:])
+            return json.loads(str_msg)
+
+    def _get_face(self):
+            try:
+                msg = self._socket_face.recv()
+            except ZMQError as e:
+                if e.errno == EAGAIN:
+                    return None
+            else:
+                str_msg = " ".join(msg.split(' ')[1:])
+                return json.loads(str_msg)     
+
+    def set_callback(self, callback_func):
+        self._cb = callback_func
+
+    def _start_client(self):
+        self.running = True
+        subscriber = Thread(target=self._threaded_subscriber)
+        subscriber.setDaemon(True)
+        subscriber.start()
+
+    def stop(self):
+        """
+        Pause the feature and the incoming data
+        """
+        self.running = False
+        # Stop the feature
+        self.params.off()
+        msg = self.params.send_params()
+        return msg
+
+    def _threaded_subscriber(self):
+        while self.running:
+            msg_skel = self._get_skel()
+            msg_face = self._get_face()
+            
+            if callable(self._cb) and msg_skel is not None and msg_face is not None:
+                self._cb({msg_skel, msg_face})
+
+    def start(self):
+        """
+        Take into account the parameters and start the RGBD Streaming.The default streaming mode is frame by frame.
+        Returns an empty string if the parameters have been set successfully on the server or an error string otherwise.
+        """
+        # Trigger the server
+        self.params.on()
+        msg = self.params.send_params()
+        # Start the client
+        self._start_client()
+        return msg
+                
 
 class RGBDSubscriber(object):
     def __init__(self, context, ip, color_port, mapping_port, mask_port, config_port):
@@ -131,6 +225,10 @@ class RGBDSubscriber(object):
 
     def stop(self):
         self.running = False
+        # Stop the feature
+        self.params.off()
+        msg = self.params.send_params()
+        return msg
 
     def enable_continuous_stream(self):
         """
@@ -187,55 +285,14 @@ class RGBDSubscriber(object):
         self._start_client()
         return msg
                
-                
-class SkeletonSubscriber(StreamSubscriber):
-    def __init__(self, context, ip, port, config_port):
-        StreamSubscriber.__init__(self, context, 'skeleton', ip, port, conflate = True)
-        self.params = SkeletonParams(context, ip, config_port)
-    
-    def start(self):
-        """
-        Take into account the parameters and start the Skeleton publisher
-        Returns an empty string if the parameters have been set successfully on the server or an error string otherwise
-        """
-        # Trigger the server
-        self.params.on()
-        msg = self.params.send_params()
-        # Start the client
-        self._start_client()
-        return msg
 
 class SpeechSubscriber(StreamSubscriber):
     def __init__(self, context, ip, port, config_port):
         StreamSubscriber.__init__(self, context, 'recognized_speech', ip, port)
         self.params = SpeechParams(context, ip, config_port)
    
-    def start(self):
-        """
-        Take into account the parameters (grammar, semantics, sentence, ...) and start the Speech Recognizer
-        Returns an empty string if the parameters have been set successfully on the server or an error string otherwise
-        """
-        # Trigger the server
-        self.params.on()
-        msg = self.params.send_params()
-        # Start the client
-        self._start_client()
-        return msg
 
 class MicrophoneSubscriber(StreamSubscriber):
     def __init__(self, context, ip, port, config_port):
         StreamSubscriber.__init__(self, context, '', ip, port, conflate = False)
         self.params = MicParams(context, ip, config_port)
-
-    def start(self):
-        """
-        Take into account the parameters and start the Microphone
-        Returns an empty string if the parameters have been set successfully on the server or an error string otherwise
-        """
-        # Trigger the server
-        self.params.on()
-        msg = self.params.send_params()
-        # Start the client
-        self._start_client()
-        return msg
-
