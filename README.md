@@ -58,6 +58,7 @@ Example of grammar rules:
 Here there is two rules, one that defines the play action and the other that defines the word following this action. If we say “play the song” or “start the tune” or “begin the item” the recognized text will be different but the semantic will be the same “play/song”.
 
 How to use client for speech recognition:
+* With a copied/pasted grammar file :
 ```Python
 from kinect2.client import Kinect2Client
 kinect = Kinect2Client("yourIP")
@@ -74,12 +75,24 @@ grammar = '''<grammar version="1.0" xml:lang="en-US" root="rootRule"
                 </rule>
              </grammar>'''
 kinect.speech.params.set_grammar(grammar, "hello_grammar")
-kinect.speech.params.sentence_on()
 kinect.speech.start()
 ```
+* With a list or a dictionary:
+```Python
+from kinect2.client import Kinect2Client
+kinect = Kinect2Client("yourIP")
+def callback_speech(msg):
+    print msg
+kinect.speech.set_callback(callback_speech)
+dict = {"hello everyone" : "hello", "good bye" : "bye"}
+kinect.speech.params.set_vocabulary(dict, "en-US")
+kinect.speech.start()
+```
+Note : Don't use both set_vocabulary and set_grammar for the grammar, just use one. 
+
 The confidence threshold can be changed (from 0.1 to 1.0).
 
-#### Skeleton tracking + gesture recognition
+#### Skeleton tracking + gesture recognition + face tracking
 
 This feature can track 6 bodies at the same time. Each body is composed of 25 joints and has a unique ID. However, if a person leaves the area and then comes back in, his/her ID won't be the same. The state of the hand is also recognized. There is 5 different cases for the hand state:
 
@@ -89,6 +102,14 @@ This feature can track 6 bodies at the same time. Each body is composed of 25 jo
 * Unknown
 * Not tracked
 It is also possible to apply smoothing (from 0.0 to 0.9).
+
+The face tracking allows to get emotions and status of a given face such as:
+
+* Happy
+* Looking away
+* Mouth opened
+* Wearing glasses
+The faces are not linked to a particular body.
 
 How to use client for skeleton tracking + gesture recognition	:
 ```Python
@@ -112,17 +133,18 @@ kinect.tts.params.queue_off()
 kinect.tts.start()
 kinect.tts.say("Hello everyone")
 ```
+Note : The speech recognition is disabled when a text is synthesized to avoid the speech engine to recognize some words said by the text-to-speech.
 
 #### RGBD Image + Microphone
 This feature allows to get:
 
 * RGB image of size 1920 * 1080 using the HD camera of the sensor
-* IR image of size 424 * 515 using the infrared camera of the sensor
-* mapping between both RGB and IR images that gives every pixel's coordinates of the IR image in the RGB frame
+* IR image of size 424 * 515 with the infrared camera of the sensor that is used to create a mapping
+* a mapping between both RGB and IR images that gives every pixel's coordinates of the IR image in the RGB frame
+* a mask that represent every missing pixels (-infinity, -infinity) of the mapping used for the inpaint function of OpenCV
 
-The server sends uncompressed data (byte arrays for RGB and IR images, JSON for the mapping) so it might overload the network.
-The client is in progress. Currently, it uses data sent by the server to reconstruct images using openCV.
-A feature of the client will allow to combine the IR image and the mapping to get a pixel-to-pixel mapping with RGB image.
+The server sends uncompressed data (byte arrays) so it might overload the network.
+The client uses data sent by the server to reconstruct images using openCV.
 
 For example, let's get the images from the skeleton previously tracked (cf. Top of README):
 
