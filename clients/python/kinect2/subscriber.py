@@ -202,7 +202,7 @@ class RGBDSubscriber(object):
         else:
             return msg
 
-    def _transform_msg_into_cv2images(self, msg_color, msg_mapping, msg_mask):
+    def _transform_msg_into_cv2images(self, msg_color, msg_mapping, msg_mask, inpaint):
 
         rgb_frame_numpy = numpy.fromstring(msg_color, numpy.uint8).reshape(1080, 1920,2)
         frame_rgb = cv2.cvtColor(rgb_frame_numpy, cv2.COLOR_YUV2BGR_YUY2)  # YUY2 to BGR
@@ -210,6 +210,9 @@ class RGBDSubscriber(object):
         mapped_image = numpy.uint8(cv2.normalize(mapped_frame_numpy, None, 0, 255, cv2.NORM_MINMAX))
         mask_numpy = numpy.fromstring(msg_mask, numpy.uint8).reshape(1080*self._factor, 1920*self._factor)
         mask = numpy.uint8(cv2.normalize(mask_numpy, None, 0, 255, cv2.NORM_MINMAX))
+        if inpaint is True:
+            smoothing = cv2.inpaint(mapped_image, mask, 3, cv2.INPAINT_TELEA)
+            
 
         return frame_rgb, mapped_image, mask
         
@@ -246,7 +249,7 @@ class RGBDSubscriber(object):
         self.params.continuous_stream_off()
         self.params.send_params()
 
-    def grab_frame(self):
+    def grab_frame(self, inpaint = False):
         """
         Get a set of frame that contains rgb image, mapped image between depth & rgb and a mask. Rgb: 1920 * 1080, pixel format is Bgr32 (32 bits-per-pixel, each color channel (blue, green, red) is allocated 8 bits-per-pixels). Mapping & mask: 489 * 275, pixel format is Gray8 (8 bits-per-pixels, 256 shades of gray).
         Returns in order rgb image, mapped image and mask in openCV image format.
@@ -259,7 +262,7 @@ class RGBDSubscriber(object):
         msg_mapping = self._get_mapping()
         msg_mask = self._get_mask()
 
-        return self._transform_msg_into_cv2images(msg_color, msg_mapping, msg_mask)
+        return self._transform_msg_into_cv2images(msg_color, msg_mapping, msg_mask, inpaint)
         
 
     def _threaded_subscriber(self):
