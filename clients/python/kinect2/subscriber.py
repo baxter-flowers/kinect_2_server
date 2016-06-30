@@ -99,14 +99,14 @@ class SkeletonSubscriber(object):
             return json.loads(str_msg)
 
     def _get_face(self):
-            try:
-                msg = self._socket_face.recv()
-            except ZMQError as e:
-                if e.errno == EAGAIN:
-                    return None
-            else:
-                str_msg = " ".join(msg.split(' ')[1:])
-                return json.loads(str_msg)     
+        try:
+            msg = self._socket_face.recv()
+        except ZMQError as e:
+            if e.errno == EAGAIN:
+                return None
+        else:
+            str_msg = " ".join(msg.split(' ')[1:])
+            return json.loads(str_msg)     
 
     def set_callback(self, callback_func):
         self._cb = callback_func
