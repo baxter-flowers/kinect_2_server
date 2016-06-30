@@ -3,7 +3,15 @@
 
 C# server streaming features of the Kinect 2 such as speech &amp; gesture recognition, skeleton tracking and original images
 
-First, be sure that you have Windows 8 or later versions otherwise you won't be able to install the SDK of Kinect2.
+## Documentation
+
+### Presentation
+The server written in C# uses the Kinect SDK v2 to get the RGBD raw image, skeleton tracking information, recognized speech. It also uses the text-to-speech from Microsoft.
+Then it streams JSON data over the network using the Publisher/Subscriber pattern from the ZeroMQ network library.
+A Linux client has been written in Python but it can be written in any other language that is compatible with ZeroMQ. Features are controllable through a Graphical User Interface on Windows, or through the code from any Linux/Windows client. The clients can for instance enable features (speech recognition on, skeleton tracking off, …) and parameters (set new speech to recognize, change language, …) from remote.
+
+### Necessary tools
+Be sure that you have Windows 8 or later versions otherwise you won't be able to install the SDK of Kinect2.
 
 You have to download and install these following features and SDKs :
 
@@ -26,13 +34,6 @@ https://www.microsoft.com/en-us/download/details.aspx?id=30685
 
 Media feature pack for N and KN version of Windows 10 :
 https://www.microsoft.com/en-us/download/details.aspx?id=48231
-
-## Documentation
-
-### Presentation
-The server written in C# uses the Kinect SDK v2 to get the RGBD raw image, skeleton tracking information, recognized speech. It also uses the text-to-speech from Microsoft.
-Then it streams JSON data over the network using the Publisher/Subscriber pattern from the ZeroMQ network library.
-A Linux client has been written in Python but it can be written in any other language that is compatible with ZeroMQ. Features are controllable through a Graphical User Interface on Windows, or through the code from any Linux/Windows client. The clients can for instance enable features (speech recognition on, skeleton tracking off, …) and parameters (set new speech to recognize, change language, …) from remote.
 
 ### Features
 #### Speech recognition
@@ -78,14 +79,14 @@ kinect.speech.params.set_grammar(grammar, "hello_grammar")
 kinect.speech.start()
 ```
 * With a list or a dictionary:
+
+Use a list to use only words without semantics and use a dictionary if you want to associate a semantic to words.
 ```Python
-from kinect2.client import Kinect2Client
-kinect = Kinect2Client("yourIP")
 def callback_speech(msg):
     print msg
 kinect.speech.set_callback(callback_speech)
-dict = {"hello everyone" : "hello", "good bye" : "bye"}
-kinect.speech.params.set_vocabulary(dict, "en-US")
+dictionary = {"hello everyone" : "hello", "good bye" : "bye"}
+kinect.speech.params.set_vocabulary(dictionary, "en-US")
 kinect.speech.start()
 ```
 Note : Don't use both set_vocabulary and set_grammar for the grammar, just use one. 
@@ -109,16 +110,32 @@ The face tracking allows to get emotions and status of a given face such as:
 * Looking away
 * Mouth opened
 * Wearing glasses
+
 The faces are not linked to a particular body.
 
 How to use client for skeleton tracking + gesture recognition	:
 ```Python
-from kinect2.client import Kinect2Client
-kinect = Kinect2Client("yourIP")
 def callback_skeleton(msg):
     print msg
 kinect.skeleton.set_callback(callback_skeleton)
 kinect.skeleton.start()
+```
+
+The callback message is a dictionary that contains position and orientation of each joints of bodies. Each body is represented by his unique ID.
+
+Here is a part of the message:
+```json
+{"72057594037936411":
+    {"SpineBase":
+        {"Position":
+            {"X":0.127514437,"Y":-0.424461663,"Z":1.16753507},
+        "Orientation":
+            {"X":0.0213763285,"Y":0.9140423,"Z":0.0726106241,"W":0.398494}},
+    "SpineMid":
+        {"Position":
+            {"X":0.119915694,"Y":-0.139736772,"Z":1.21115172},
+        "Orientation":
+            {"X":0.009492177,"Y":0.5913789,"Z":0.0322428234,"W":-0.8056931}}}}
 ```
 
 #### Text to speech
@@ -127,8 +144,6 @@ Those sentences are sent by the client. It possible to change the gender and the
 
 From the client, we can send text-to-speech request such as:
 ```Python
-from kinect2.client import Kinect2Client
-kinect = Kinect2Client("yourIP")
 kinect.tts.params.set_language('english')
 kinect.tts.params.queue_off()
 kinect.tts.start()
@@ -145,16 +160,16 @@ This feature allows to get:
 * a mask that represent every missing pixels (-infinity, -infinity) of the mapping used for the inpaint function of OpenCV to smooth the mapping
 
 The server sends uncompressed data (byte arrays) so it might overload the network. It's possible to grab frame by frame instead of using a continuous stream.
+
 From the client, we can get a set of image (frame grabbing) and then show it such as :
 ```Python
-from kinect2.client import Kinect2Client
-kinect = Kinect2Client("yourIP")
 kinect.rgbd.start()
 kinect.rgbd.enable_frame_grabbing()
 rgb, mapping, mask = kinect.rgbd.grab_frame()
 cv2.imshow("rgb", rgb)
 cv2.imshow("mapping", mapping)
 cv2.imshow("mask", mask)
+cv2.waitKey(100)
 ```
 The client uses data sent by the server to reconstruct images using openCV.
 
