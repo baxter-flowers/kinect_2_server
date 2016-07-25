@@ -61,15 +61,6 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to american English.
-        /// </summary>
-        internal static string AmericanEnglish {
-            get {
-                return ResourceManager.GetString("AmericanEnglish", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Your gramar file is not valid.
         /// </summary>
         internal static string BadFile {
@@ -84,15 +75,6 @@ namespace Kinect2Server.Properties {
         internal static string FailedScreenshotStatusTextFormat {
             get {
                 return ResourceManager.GetString("FailedScreenshotStatusTextFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to French.
-        /// </summary>
-        internal static string French {
-            get {
-                return ResourceManager.GetString("French", resourceCulture);
             }
         }
         

@@ -194,20 +194,7 @@ namespace Kinect2Server.View
             Dispatcher.Invoke(() =>
             {
                 this.currentFile.Text = this.sr.FileName;
-                switch (sr.CurrentLanguage)
-                {
-                    case "en-US":
-                        this.currentLanguage.Text = Properties.Resources.AmericanEnglish;
-                        break;
-
-                    case "fr-FR":
-                        this.currentLanguage.Text = Properties.Resources.French;
-                        break;
-
-                    // Add as much languages as you want provided that the recognized is installed on the PC
-                    // You also have to add a Ressource in the file Ressources.resx for exemple :
-                    //      Call your ressource German and fill it with "Current language : German"
-                }
+                this.currentLanguage.Text = sr.CurrentLanguage;
             });
         }
 
