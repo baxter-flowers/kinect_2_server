@@ -44,7 +44,13 @@ class SpeechParams(Params):
     def set_confidence(self, value):
         if float(value)>=0.0 and float(value)<=1.0:
             self._params['confidence'] = value
-    
+            
+    def use_system_mic(self):
+        self._params['systemMic'] = True
+
+    def use_kinect_mic(self):
+        self._params['systemMic'] = False
+
     def set_grammar(self, grammar, grammar_file = None):
         """
         Setting a new grammar from a full copy/past grammar file.
