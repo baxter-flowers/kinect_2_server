@@ -76,6 +76,18 @@ namespace Kinect2Server
                 Nullable<Boolean> srOn = (Nullable<Boolean>)json_params["speech_recognition"]["on"];
                 String grammarFile = (String)json_params["speech_recognition"]["fileName"];
                 String grammar = (String)json_params["speech_recognition"]["grammar"];
+                Boolean systemMic = (Boolean)json_params["speech_recognition"]["systemMic"];
+                if (systemMic)
+                {
+                    this.sr.IsSystemMicSet = true;
+                    this.RefreshStatus("systemMic", true);
+                }
+                else
+                {
+                    this.sr.IsSystemMicSet = false;
+                    this.RefreshStatus("systemMic", false);
+                }
+
                 if (grammar != null)
                 {
                     reply += this.sr.CreateGrammar(null, grammarFile, grammar);
@@ -278,6 +290,13 @@ namespace Kinect2Server
                     this.rgbdmicv.SetButtonOn(this.rgbdmicv.stackMic, "mic");
                 else
                     this.rgbdmicv.SetButtonOff(this.rgbdmicv.stackMic, "mic");
+            }
+            else if (feature.Equals("systemMic"))
+            {
+                if (state)
+                    this.srv.SetButtonOn(this.srv.stackMic);
+                else
+                    this.srv.SetButtonOff(this.srv.stackMic);
             }
             else if (feature.Equals("continuousStream"))
             {
