@@ -3,6 +3,7 @@ using Microsoft.Speech.AudioFormat;
 using Microsoft.Speech.Recognition;
 using Newtonsoft.Json;
 using System;
+using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -25,10 +26,12 @@ namespace Kinect2Server
         private float confidenceThreshold = 0.3f;
         private Boolean semanticsStatus;
         private Boolean sentenceStatus;
+        private Boolean useSystemMic;
 
         public SpeechRecognition(KinectSensor kinect, KinectAudioStream convertStream)
         {
             this.kinectSensor = kinect;
+            this.useSystemMic = true;
             this.speechPublisher = new NetworkPublisher();
             this.speechPublisher.Bind("33405");
             this.convertStream = convertStream;
@@ -173,129 +176,80 @@ namespace Kinect2Server
         }
 
         /// <summary>
-        /// Generate a new MemoryStream from a string.
-        /// </summary>
-        /// <param name="s">String used to generate the stream</param>
-        /// <returns>A new MemoryStream</returns>
-        public Stream GenerateStreamFromString(string s)
-        {
-            MemoryStream stream = new MemoryStream();
-            StreamWriter writer = new StreamWriter(stream);
-            writer.Write(s);
-            writer.Flush();
-            stream.Position = 0;
-            return stream;
-        }
-
-        /// <summary>
         /// Create a new grammar file from a grammar file selected on the server or send by the client.
         /// </summary>
         /// <param name="fileLocation">Full path of the file</param>
         /// <param name="fileName">File name</param>
         /// <param name="raw_grammar">Grammar send by the client</param>
         /// <returns>A string that contains information about raised exceptions</returns>
-        public String CreateGrammarF(String fileLocation, String fileName, String raw_grammar = null)
-        {
-            this.fileLocation = fileLocation;
-            this.fileName = fileName;
-            RecognizerInfo ri = TryGetKinectRecognizer(raw_grammar);
-
-            if (null != ri)
-            {
-                this.speechEngine = new SpeechRecognitionEngine(ri.Id);
-
-                // Create a grammar from grammar definition XML file.
-                if (raw_grammar != null)
-                {
-                    using (var memoryStream = this.GenerateStreamFromString(raw_grammar))
-                    {
-                        try
-                        {
-                            this.grammar = new Grammar(memoryStream);
-                        }
-                        catch (FormatException e)
-                        {
-                            return  "Corrupted grammar file :" + e.Message;
-                        }
-                    }
-                }
-                else
-                {
-                    using (var memoryStream = File.OpenRead(fileLocation))
-                    {
-                        try
-                        {
-                            this.grammar = new Grammar(memoryStream);
-                        }
-                        catch (FormatException e)
-                        {
-                            return "Corrupted grammar file :" + e.Message;
-                        }
-                    }
-                }
-                this.speechEngine.LoadGrammar(this.grammar);
-
-                // let the convertStream know speech is going active
-                this.convertStream.SpeechActive = true;
-                this.speechEngine.UpdateRecognizerSetting("AdaptationOn", 0);
-
-                this.speechEngine.SetInputToAudioStream(
-                    this.convertStream, new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
-                this.speechEngine.RecognizeAsync(RecognizeMode.Multiple);
-                return "";
-            }
-            else
-            {
-                return "The language of the file is not installed or unknown";
-            }
-        }
-
         public String CreateGrammar(String fileLocation, String fileName, String raw_grammar = null)
         {
             this.fileLocation = fileLocation;
             this.fileName = fileName;
 
-            this.speechEngine = new SpeechRecognitionEngine(new System.Globalization.CultureInfo("en-US"));
-            this.speechEngine.SetInputToDefaultAudioDevice();
+            Stream grammar;
 
             // Create a grammar from grammar definition XML file.
-            if (raw_grammar != null)
+            if (raw_grammar == null)
             {
-                using (var memoryStream = this.GenerateStreamFromString(raw_grammar))
-                {
-                    try
-                    {
-                        this.grammar = new Grammar(memoryStream);
-                    }
-                    catch (FormatException e)
-                    {
-                        return "Corrupted grammar file :" + e.Message;
-                    }
-                }
+               grammar = File.OpenRead(fileLocation);
             }
             else
             {
-                using (var memoryStream = File.OpenRead(fileLocation))
+                grammar = new MemoryStream(Encoding.UTF8.GetBytes(raw_grammar));
+            }
+                
+            using (grammar)
+            {
+                try
                 {
-                    try
-                    {
-                        this.grammar = new Grammar(memoryStream);
-                    }
-                    catch (FormatException e)
-                    {
-                        return "Corrupted grammar file :" + e.Message;
-                    }
+
+                    this.grammar = new Grammar(grammar);
+                    SetGrammarText(grammar);
+                }
+                catch (FormatException e)
+                {
+                    return  "Corrupted grammar file :" + e.Message;
                 }
             }
+            
+            this.SetCurrentLanguage(this.grammarText);
+            if (this.useSystemMic)
+            {
+                this.InitSystemSound();
+            }
+            else
+            {
+                this.InitKinectSound();
+            }
             this.speechEngine.LoadGrammar(this.grammar);
+            this.speechEngine.RecognizeAsync(RecognizeMode.Multiple);
+            return "";
+        }
+
+        public String InitKinectSound(String raw_grammar = null)
+        {
+            RecognizerInfo ri = TryGetKinectRecognizer(this.grammarText);
+            if (null == ri)
+            {
+                return "Cannot find a connected Kinect able to recognize this language " + this.currentLanguage;
+            }
+
+            this.speechEngine = new SpeechRecognitionEngine(ri.Culture);
 
             // let the convertStream know speech is going active
-            //this.convertStream.SpeechActive = true;
-            //this.speechEngine.UpdateRecognizerSetting("AdaptationOn", 0);
+            this.convertStream.SpeechActive = true;
+            this.speechEngine.UpdateRecognizerSetting("AdaptationOn", 0);
 
-            //this.speechEngine.SetInputToAudioStream(
-            //    this.convertStream, new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
-            this.speechEngine.RecognizeAsync(RecognizeMode.Multiple);
+            this.speechEngine.SetInputToAudioStream(
+                this.convertStream, new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
+            return "";
+        }
+
+        public String InitSystemSound()
+        {
+            this.speechEngine = new SpeechRecognitionEngine(new System.Globalization.CultureInfo(this.currentLanguage));
+            this.speechEngine.SetInputToDefaultAudioDevice();
             return "";
         }
 
@@ -314,11 +268,6 @@ namespace Kinect2Server
                 return null;
             }
 
-            if (raw_grammar == null)
-                SetGrammarText(fileLocation);
-            else
-                this.grammarText = raw_grammar;
-            SetCurrentLanguage(grammarText);
             if (this.currentLanguage != null)
             {
                 foreach (RecognizerInfo recognizer in recognizers)
@@ -370,7 +319,7 @@ namespace Kinect2Server
             try
             {
                 reader.Read();
-                currentLanguage = reader.XmlLang;
+                this.currentLanguage = reader.XmlLang;
                 reader.Close();
             }
             catch (XmlException e)
@@ -386,13 +335,14 @@ namespace Kinect2Server
         /// Transform a grammar file into a string.
         /// </summary>
         /// <param name="fileLocation">Full path of the grammar file</param>
-        public void SetGrammarText(string fileLocation)
+        public void SetGrammarText(Stream file)
         {
+            file.Seek(0, SeekOrigin.Begin);
             //Load the xml file 
             XmlDocument grammar = new XmlDocument();
             try
             {
-                grammar.Load(fileLocation);
+                grammar.Load(file);
             }
             catch (System.Xml.XmlException)
             {
