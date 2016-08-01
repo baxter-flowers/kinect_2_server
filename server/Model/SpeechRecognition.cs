@@ -194,7 +194,7 @@ namespace Kinect2Server
         /// <param name="fileName">File name</param>
         /// <param name="raw_grammar">Grammar send by the client</param>
         /// <returns>A string that contains information about raised exceptions</returns>
-        public String CreateGrammar(String fileLocation, String fileName, String raw_grammar = null)
+        public String CreateGrammarF(String fileLocation, String fileName, String raw_grammar = null)
         {
             this.fileLocation = fileLocation;
             this.fileName = fileName;
@@ -248,6 +248,55 @@ namespace Kinect2Server
             {
                 return "The language of the file is not installed or unknown";
             }
+        }
+
+        public String CreateGrammar(String fileLocation, String fileName, String raw_grammar = null)
+        {
+            this.fileLocation = fileLocation;
+            this.fileName = fileName;
+
+            this.speechEngine = new SpeechRecognitionEngine(new System.Globalization.CultureInfo("en-US"));
+            this.speechEngine.SetInputToDefaultAudioDevice();
+
+            // Create a grammar from grammar definition XML file.
+            if (raw_grammar != null)
+            {
+                using (var memoryStream = this.GenerateStreamFromString(raw_grammar))
+                {
+                    try
+                    {
+                        this.grammar = new Grammar(memoryStream);
+                    }
+                    catch (FormatException e)
+                    {
+                        return "Corrupted grammar file :" + e.Message;
+                    }
+                }
+            }
+            else
+            {
+                using (var memoryStream = File.OpenRead(fileLocation))
+                {
+                    try
+                    {
+                        this.grammar = new Grammar(memoryStream);
+                    }
+                    catch (FormatException e)
+                    {
+                        return "Corrupted grammar file :" + e.Message;
+                    }
+                }
+            }
+            this.speechEngine.LoadGrammar(this.grammar);
+
+            // let the convertStream know speech is going active
+            //this.convertStream.SpeechActive = true;
+            //this.speechEngine.UpdateRecognizerSetting("AdaptationOn", 0);
+
+            //this.speechEngine.SetInputToAudioStream(
+            //    this.convertStream, new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
+            this.speechEngine.RecognizeAsync(RecognizeMode.Multiple);
+            return "";
         }
 
         private RecognizerInfo TryGetKinectRecognizer(String raw_grammar = null)

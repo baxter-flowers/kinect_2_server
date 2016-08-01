@@ -173,7 +173,7 @@ namespace Kinect2Server.View
                 SetButtonOff(this.stackSR);
 
             // If there is an error while creating the grammar, a message is written and the button is turned off
-            if (!this.sr.AnyGrammarLoaded() || this.sr.CurrentLanguage.Equals(""))
+            if (!this.sr.AnyGrammarLoaded() || this.sr.CurrentLanguage != null && this.sr.CurrentLanguage.Equals(""))
             {
                 SetButtonOff(this.stackSR);
                 this.status.Text = message;
