@@ -131,6 +131,26 @@ namespace Kinect2Server
             }
         }
 
+        public Boolean IsSystemMicSet
+        {
+            get
+            {
+                return this.useSystemMic;
+            }
+            set
+            {
+                this.useSystemMic = value;
+            }
+        }
+
+        public String GrammarText
+        {
+            get
+            {
+                return this.grammarText;
+            }
+        }
+
         public Boolean SemanticsStatus
         {
             get
@@ -172,6 +192,14 @@ namespace Kinect2Server
             set
             {
                 this.fileName = value;
+            }
+        }
+
+        public String FileLocation
+        {
+            get
+            {
+                return this.fileLocation;
             }
         }
 

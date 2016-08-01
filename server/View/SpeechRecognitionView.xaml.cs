@@ -231,5 +231,49 @@ namespace Kinect2Server.View
                 this.confidenceSelector.Value = (double)Math.Round(sr.ConfidenceThreshold,1);
             });
         }
+
+        private void SwitchMicSource(object sender, RoutedEventArgs e)
+        {
+            this.sr.UnloadGrammars();
+            if (this.sr.IsSystemMicSet)
+            {
+                SetButtonOff(this.stackMic);
+                this.sr.IsSystemMicSet = false;
+                if (this.sr.IsSpeechEngineSet())
+                {
+                    this.sr.CreateGrammar(this.sr.FileLocation, this.sr.FileName, this.sr.GrammarText);
+                    this.addlist();
+                }
+            }
+            else
+            {
+                SetButtonOn(this.stackMic);
+                this.sr.IsSystemMicSet = true;
+                if (this.sr.IsSpeechEngineSet())
+                {
+                    this.sr.CreateGrammar(this.sr.FileLocation, this.sr.FileName, this.sr.GrammarText);
+                    this.addlist();
+                }/*
+                if (!sr.IsSpeechEngineSet() || !sr.AnyGrammarLoaded())
+                {
+                    SetButtonOn(this.stackSR);
+                    LoadGrammarFile(sender, e);
+                }
+                else if (sr.AnyGrammarLoaded())
+                {
+                    SetButtonOff(this.stackSR);
+                    this.status.Text = Properties.Resources.ZzZz;
+                    sr.UnloadGrammars();
+                    this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
+                }
+                else
+                {
+                    SetButtonOn(this.stackSR);
+                    this.status.Text = Properties.Resources.GoOn;
+                    sr.LoadGrammar();
+                    this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
+                }*/
+            }
+        }
     }
 }
