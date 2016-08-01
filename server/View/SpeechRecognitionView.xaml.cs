@@ -232,15 +232,20 @@ namespace Kinect2Server.View
             });
         }
 
+        /// <summary>
+        /// Switch the microphone source (system mic and Kinect mic array)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SwitchMicSource(object sender, RoutedEventArgs e)
         {
-            this.sr.UnloadGrammars();
             if (this.sr.IsSystemMicSet)
             {
                 SetButtonOff(this.stackMic);
                 this.sr.IsSystemMicSet = false;
-                if (this.sr.IsSpeechEngineSet())
+                if (sr.AnyGrammarLoaded())
                 {
+                    this.sr.UnloadGrammars();
                     this.sr.CreateGrammar(this.sr.FileLocation, this.sr.FileName, this.sr.GrammarText);
                     this.addlist();
                 }
@@ -249,30 +254,12 @@ namespace Kinect2Server.View
             {
                 SetButtonOn(this.stackMic);
                 this.sr.IsSystemMicSet = true;
-                if (this.sr.IsSpeechEngineSet())
+                if (this.sr.AnyGrammarLoaded())
                 {
+                    this.sr.UnloadGrammars();
                     this.sr.CreateGrammar(this.sr.FileLocation, this.sr.FileName, this.sr.GrammarText);
                     this.addlist();
-                }/*
-                if (!sr.IsSpeechEngineSet() || !sr.AnyGrammarLoaded())
-                {
-                    SetButtonOn(this.stackSR);
-                    LoadGrammarFile(sender, e);
                 }
-                else if (sr.AnyGrammarLoaded())
-                {
-                    SetButtonOff(this.stackSR);
-                    this.status.Text = Properties.Resources.ZzZz;
-                    sr.UnloadGrammars();
-                    this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
-                }
-                else
-                {
-                    SetButtonOn(this.stackSR);
-                    this.status.Text = Properties.Resources.GoOn;
-                    sr.LoadGrammar();
-                    this.sr.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
-                }*/
             }
         }
     }
