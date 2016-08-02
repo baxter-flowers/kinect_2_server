@@ -76,8 +76,8 @@ namespace Kinect2Server
                 Nullable<Boolean> srOn = (Nullable<Boolean>)json_params["speech_recognition"]["on"];
                 String grammarFile = (String)json_params["speech_recognition"]["fileName"];
                 String grammar = (String)json_params["speech_recognition"]["grammar"];
-                Boolean systemMic = (Boolean)json_params["speech_recognition"]["systemMic"];
-                if (systemMic)
+                Nullable<Boolean> systemMic = (Nullable<Boolean>)json_params["speech_recognition"]["systemMic"];
+                if (systemMic != null && (Boolean)systemMic)
                 {
                     this.sr.IsSystemMicSet = true;
                     this.RefreshStatus("systemMic", true);
