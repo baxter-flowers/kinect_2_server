@@ -32,25 +32,28 @@ namespace Kinect2Server
 
         public void SendString(String message, String topic)
         {
-            String status = null;
-            if (this.binded)
+            lock (this.socket)
             {
-                ZFrame frame = new ZFrame(string.Format(topic + " {0}",message));
-                try
+                String status = null;
+                if (this.binded)
                 {
-                    this.socket.Send(frame);
+                    ZFrame frame = new ZFrame(string.Format(topic + " {0}", message));
+                    try
+                    {
+                        this.socket.Send(frame);
+                    }
+                    catch (ZException e)
+                    {
+                        status = "Cannot publish message: " + e.Message;
+                    }
                 }
-                catch (ZException e)
+                else
                 {
-                    status = "Cannot publish message: " + e.Message;
+                    status = ("Cannot publish message: Not binded");
                 }
-
-            }
-            else
-            {
-                status = ("Cannot publish message: Not binded");
             }
         }
+
 
         public void SetConflate()
         {
@@ -60,22 +63,25 @@ namespace Kinect2Server
         public void SendByteArray(Byte[] byteArray)
         {
             String status = null;
-            if (this.binded)
+            lock (this.socket)
             {
-                ZFrame frame = new ZFrame(byteArray);
-                try
+                if (this.binded)
                 {
-                    this.socket.Send(frame);
-                }
-                catch (ZException e)
-                {
-                    status = "Cannot publish message: " + e.Message;
-                }
+                    ZFrame frame = new ZFrame(byteArray);
+                    try
+                    {
+                        this.socket.Send(frame);
+                    }
+                    catch (ZException e)
+                    {
+                        status = "Cannot publish message: " + e.Message;
+                    }
 
-            }
-            else
-            {
-                status = ("Cannot publish message: Not binded");
+                }
+                else
+                {
+                    status = ("Cannot publish message: Not binded");
+                }
             }
         }
 
