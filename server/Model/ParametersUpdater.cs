@@ -90,6 +90,7 @@ namespace Kinect2Server
 
                 if (grammar != null)
                 {
+                    this.sr.UnloadGrammars();
                     reply += this.sr.CreateGrammar(null, grammarFile, grammar);
                     this.srv.RefreshGrammarFile();
                     if (!this.sr.IsSpeechEngineSet())

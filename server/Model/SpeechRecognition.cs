@@ -86,6 +86,7 @@ namespace Kinect2Server
         /// </summary>
         public void LoadGrammar()
         {
+            this.UnloadGrammars();
             if (this.grammar != null && this.speechEngine != null)
                 this.speechEngine.LoadGrammar(this.grammar);
         }
