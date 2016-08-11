@@ -17,6 +17,8 @@ namespace Kinect2Server
         private Thread speakThread;
         private String spokenText;
         private Boolean blocking = true;
+        private int numSpeakings;
+        private Object numSpeakingsLock;
 
         public TextToSpeech(SpeechRecognition sr)
         {
@@ -27,8 +29,9 @@ namespace Kinect2Server
             // Configure the audio output to default settings
             this.synthesizer.SetOutputToDefaultAudioDevice();
 
-            this.synthesizer.SpeakCompleted += this.UnpauseSR;
-
+            this.synthesizer.SpeakCompleted += this.TTSCompleted;
+            this.numSpeakings = 0;
+            this.numSpeakingsLock = new Object();
 
             this.speakThread = new Thread(new ThreadStart(this.Speak));
             this.speakThread.SetApartmentState(ApartmentState.STA);
@@ -53,22 +56,32 @@ namespace Kinect2Server
                     this.blocking = true;
                 }
                 this.spokenText = this.spokenText.Substring(1);
-    
+                lock(this.numSpeakingsLock)
+                {
+                    if (this.numSpeakings == 0)
+                    {
+                        this.sr.pause();
+                    }
+                    this.numSpeakings += 1;
+                }
                 this.synthesizer.SpeakAsync(this.spokenText);
             }
         }
 
-        private void UnpauseSR(object sender, SpeakCompletedEventArgs e)
+        private void TTSCompleted(object sender, SpeakCompletedEventArgs e)
         {
-            lock (this)
+            lock (this.numSpeakingsLock)
             {
-                this.sr.LastTTS = DateTime.Now;
+                if (this.numSpeakings == 1)
+                {
+                    this.sr.unpause();
+                }
+                this.numSpeakings -= 1;
             }
             if (this.blocking)
             {
                 this.responder.Reply("blocking");
             }
-            
         }
 
         /// <summary>

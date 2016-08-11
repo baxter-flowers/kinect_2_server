@@ -22,7 +22,6 @@ namespace Kinect2Server
         private String fileLocation;
         private String fileName;
         private String currentLanguage;
-        private DateTime lastTTS;
         private float confidenceThreshold = 0.3f;
         private Boolean semanticsStatus;
         private Boolean sentenceStatus;
@@ -58,18 +57,6 @@ namespace Kinect2Server
         public Boolean IsSpeechEngineSet()
         {
             return this.speechEngine != null;
-        }
-
-        public DateTime LastTTS
-        {
-            get
-            {
-                return this.lastTTS;
-            }
-            set
-            {
-                this.lastTTS = value;
-            }
         }
 
         /// <summary>
@@ -204,6 +191,19 @@ namespace Kinect2Server
             }
         }
 
+        public void pause()
+        {
+            this.SpeechRecognitionEngine.RecognizeAsyncStop();
+        }
+
+        public void unpause()
+        {
+            if (this.AnyGrammarLoaded())
+            {
+                this.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
+            }
+        }
+
         /// <summary>
         /// Create a new grammar file from a grammar file selected on the server or send by the client.
         /// </summary>
@@ -253,6 +253,7 @@ namespace Kinect2Server
             }
             this.speechEngine.LoadGrammar(this.grammar);
             this.speechEngine.RecognizeAsync(RecognizeMode.Multiple);
+
             return "";
         }
 

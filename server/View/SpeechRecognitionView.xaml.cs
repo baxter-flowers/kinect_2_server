@@ -95,29 +95,23 @@ namespace Kinect2Server.View
         /// <param name="e">Data from the recognized speech</param>
         private void SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            // HACK : do not allow speech to be recognized one second after last tts
-            TimeSpan ts = new TimeSpan(0,0,1);
-            if (this.sr.LastTTS.Add(ts).CompareTo(DateTime.Now) < 0)
+            if (e.Result.Confidence >= this.sr.ConfidenceThreshold)
             {
-                if (e.Result.Confidence >= this.sr.ConfidenceThreshold)
+                List<String> contentSemantic = this.sr.SpeechRecognized(e.Result.Semantics, e.Result.Text);
+                //Update the text
+                this.Dispatcher.Invoke(() =>
                 {
-                    List<String> contentSemantic = this.sr.SpeechRecognized(e.Result.Semantics, e.Result.Text);
-                    //Update the text
-                    this.Dispatcher.Invoke(() =>
+                    this.lastSemantics.Text = "";
+                    this.lastSentence.Text = e.Result.Text;
+                    this.lastSemantics.Text = "";
+                    if (contentSemantic != null)
                     {
-                        this.lastSemantics.Text = "";
-                        this.lastSentence.Text = e.Result.Text;
-                        this.lastSemantics.Text = "";
-                        if (contentSemantic != null)
+                        for (int i = 0; i < contentSemantic.Count; i++)
                         {
-                            for (int i = 0; i < contentSemantic.Count; i++)
-                            {
-                                this.lastSemantics.Text += contentSemantic[i];
-                            }
+                            this.lastSemantics.Text += contentSemantic[i];
                         }
-                    });
-                }
-
+                    }
+                });
             }
         }
 
