@@ -21,7 +21,25 @@ namespace Kinect2Server.View
         {
             this.mw = (MainWindow)Application.Current.MainWindow;
             this.sr = this.mw.SpeechRecogniton;
+            this.sr.srPaused += pauseSRView;
+            this.sr.srResumed += unpauseSRView;
             InitializeComponent();
+        }
+
+        void pauseSRView(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                this.status.Text = Properties.Resources.Paused;
+            });
+        }
+
+        void unpauseSRView(object sender, EventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+            this.status.Text = Properties.Resources.GoOn;
+            });
         }
 
         /// <summary>
@@ -35,13 +53,14 @@ namespace Kinect2Server.View
 
             if (!sr.IsSpeechEngineSet() || !sr.AnyGrammarLoaded())
             {
+                this.status.Text = Properties.Resources.GoOn;
                 SetButtonOn(this.stackSR);
                 LoadGrammarFile(sender, e);
             }
             else if (sr.AnyGrammarLoaded())
             {
                 SetButtonOff(this.stackSR);
-                this.status.Text = Properties.Resources.ZzZz;
+                this.status.Text = "";
                 sr.UnloadGrammars();
                 this.sr.SpeechRecognitionEngine.RecognizeAsyncStop();
             }

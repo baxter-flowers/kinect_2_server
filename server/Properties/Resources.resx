@@ -124,7 +124,7 @@
     <value>Failed to write screenshots to {0}</value>
   </data>
   <data name="GoOn" xml:space="preserve">
-    <value>Everything is fine, you can go on :)</value>
+    <value>Ready to recognize speech</value>
   </data>
   <data name="NoKinectReady" xml:space="preserve">
     <value>I can't find any Kinect connected through USB :( Closing in 10 sec...</value>
@@ -135,6 +135,9 @@
   <data name="NoWordsRecognized" xml:space="preserve">
     <value>Can you repeat ? I don't get it...</value>
   </data>
+  <data name="Paused" xml:space="preserve">
+    <value>Paused</value>
+  </data>
   <data name="RunningStatusText" xml:space="preserve">
     <value>Running</value>
   </data>
@@ -143,8 +146,5 @@
   </data>
   <data name="SensorNotAvailableStatusText" xml:space="preserve">
     <value>Kinect not available!</value>
-  </data>
-  <data name="ZzZz" xml:space="preserve">
-    <value>ZzZzZzZzZz.....</value>
   </data>
 </root>

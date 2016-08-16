@@ -26,6 +26,21 @@ namespace Kinect2Server
         private Boolean semanticsStatus;
         private Boolean sentenceStatus;
         private Boolean useSystemMic;
+        private long sentenceId;
+        public event EventHandler srPaused;
+        public event EventHandler srResumed;
+
+        protected virtual void OnSRPaused(EventArgs e)
+        {
+            EventHandler handler = srPaused;
+            handler(this, e);
+        }
+
+        protected virtual void OnSRResumed(EventArgs e)
+        {
+            EventHandler handler = srResumed;
+            handler(this, e);
+        }
 
         public SpeechRecognition(KinectSensor kinect, KinectAudioStream convertStream)
         {
@@ -34,6 +49,7 @@ namespace Kinect2Server
             this.speechPublisher = new NetworkPublisher();
             this.speechPublisher.Bind("33405");
             this.convertStream = convertStream;
+            this.sentenceId = 0;
         }
 
         /// <summary>
@@ -194,6 +210,7 @@ namespace Kinect2Server
         public void pause()
         {
             this.SpeechRecognitionEngine.RecognizeAsyncStop();
+            OnSRPaused(EventArgs.Empty);
         }
 
         public void unpause()
@@ -201,6 +218,7 @@ namespace Kinect2Server
             if (this.AnyGrammarLoaded())
             {
                 this.SpeechRecognitionEngine.RecognizeAsync(RecognizeMode.Multiple);
+                OnSRResumed(EventArgs.Empty);
             }
         }
 
@@ -395,6 +413,7 @@ namespace Kinect2Server
         {
             List<String> contentSentence = new List<string>();
             List<String> contentSemantic = new List<string>();
+            List<String> contentID = new List<String>();
             Dictionary<String, List<String>> dico = new Dictionary<string, List<String>>();
             //Fill the dictionary
             contentSentence.Add(sentence);
@@ -402,8 +421,11 @@ namespace Kinect2Server
             foreach (KeyValuePair<String, SemanticValue> child in semantics)
             {
                 contentSemantic.Add(semantics[child.Key].Value.ToString());
+                contentID.Add(this.sentenceId.ToString());
+                this.sentenceId++;
             }
             dico.Add("semantics", contentSemantic);
+            dico.Add("id", contentID);
             if (dico.Count != 0)
             {
                 string json = JsonConvert.SerializeObject(dico);

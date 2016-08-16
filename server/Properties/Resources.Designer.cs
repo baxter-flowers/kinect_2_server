@@ -79,7 +79,7 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Everything is fine, you can go on :).
+        ///   Looks up a localized string similar to Ready to recognize speech.
         /// </summary>
         internal static string GoOn {
             get {
@@ -115,6 +115,15 @@ namespace Kinect2Server.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Paused.
+        /// </summary>
+        internal static string Paused {
+            get {
+                return ResourceManager.GetString("Paused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Running.
         /// </summary>
         internal static string RunningStatusText {
@@ -138,15 +147,6 @@ namespace Kinect2Server.Properties {
         internal static string SensorNotAvailableStatusText {
             get {
                 return ResourceManager.GetString("SensorNotAvailableStatusText", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ZzZzZzZzZz......
-        /// </summary>
-        internal static string ZzZz {
-            get {
-                return ResourceManager.GetString("ZzZz", resourceCulture);
             }
         }
     }
