@@ -209,8 +209,11 @@ namespace Kinect2Server
 
         public void pause()
         {
-            this.SpeechRecognitionEngine.RecognizeAsyncStop();
-            OnSRPaused(EventArgs.Empty);
+            if (this.AnyGrammarLoaded())
+            {
+                this.SpeechRecognitionEngine.RecognizeAsyncStop();
+                OnSRPaused(EventArgs.Empty);
+            }
         }
 
         public void unpause()

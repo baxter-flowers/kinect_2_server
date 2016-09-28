@@ -4,6 +4,7 @@ using System.Collections;
 using System.Globalization;
 using System.Speech.Synthesis;
 using System.Threading;
+using Newtonsoft.Json.Linq;
 
 namespace Kinect2Server
 {
@@ -15,10 +16,10 @@ namespace Kinect2Server
         private VoiceGender voiceGender;
         private CultureInfo culture;
         private Thread speakThread;
-        private String spokenText;
-        private Boolean blocking = true;
-        private int numSpeakings;
-        private Object numSpeakingsLock;
+        //private String spokenText;
+        private Queue queue = new Queue();
+        private String last_text;
+        private Boolean processing_blocking_speech = false;
 
         public TextToSpeech(SpeechRecognition sr)
         {
@@ -30,8 +31,6 @@ namespace Kinect2Server
             this.synthesizer.SetOutputToDefaultAudioDevice();
 
             this.synthesizer.SpeakCompleted += this.TTSCompleted;
-            this.numSpeakings = 0;
-            this.numSpeakingsLock = new Object();
 
             this.speakThread = new Thread(new ThreadStart(this.Speak));
             this.speakThread.SetApartmentState(ApartmentState.STA);
@@ -39,46 +38,62 @@ namespace Kinect2Server
             this.speakThread.Start();
         }
 
+        public void Say(Int32 id, String speech, Boolean blocking)
+        {
+            this.synthesizer.SpeakAsyncCancelAll();
+            this.synthesizer.SpeakAsync(speech);
+            if (!blocking)
+            {
+                this.responder.Reply("non-blocking");
+            }
+        }
+
         public void Speak()
         {
             while (this.speakThread.IsAlive)
             {
-                this.spokenText = this.responder.Receive();
-                this.spokenText = this.responder.Receive();
-                if (this.spokenText[0].Equals('f'))
+                String json_message = this.responder.Receive();
+                json_message = this.responder.Receive();
+                JObject message = JObject.Parse(json_message);
+                Boolean blocking = (Boolean)message["blocking"];
+                Int32 id = (Int32)message["id"];
+                String speech = (String)message["sentence"];
+
+                if (!this.processing_blocking_speech)
                 {
-                    this.blocking = false;
-                    this.responder.Reply("non-blocking");
-                    this.synthesizer.SpeakAsyncCancelAll();
-                }
-                else
-                {
-                    this.blocking = true;
-                }
-                this.spokenText = this.spokenText.Substring(1);
-                lock(this.numSpeakingsLock)
-                {
-                    if (this.numSpeakings == 0)
+                    lock (this.queue)
                     {
-                        this.sr.pause();
+                        if (this.queue.Count == 0)
+                        {
+                            this.sr.pause();
+                        }
+                        this.queue.Enqueue(json_message);
+                        this.last_text = speech;
                     }
-                    this.numSpeakings += 1;
+                    this.Say(id, speech, blocking);
                 }
-                this.synthesizer.SpeakAsync(this.spokenText);
             }
         }
 
         private void TTSCompleted(object sender, SpeakCompletedEventArgs e)
         {
-            lock (this.numSpeakingsLock)
+            Boolean blocking;
+
+            lock (this.queue)
             {
-                if (this.numSpeakings == 1)
+                if (this.queue.Count == 1)
                 {
                     this.sr.unpause();
                 }
-                this.numSpeakings -= 1;
+
+            String json_message = (String)this.queue.Dequeue();
+            JObject message = JObject.Parse(json_message);
+            blocking = (Boolean)message["blocking"];
+            Int32 id = (Int32)message["id"];
+            String speech = (String)message["sentence"];
             }
-            if (this.blocking)
+
+            if (blocking)
             {
                 this.responder.Reply("blocking");
             }
@@ -122,7 +137,7 @@ namespace Kinect2Server
         {
             get
             {
-                return this.spokenText;
+                return this.last_text;
             }
         }
 
