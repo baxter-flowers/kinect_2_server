@@ -10,20 +10,17 @@ class TTSRequester(object):
         self._socket = self._context.socket(DEALER)
         self._socket.identity = "client"
         self._socket.connect('tcp://{}:{}'.format(ip, port))
+        self._msg_id = 0
         self.params = TextToSpeechParams(context, ip, config_port)
 
     def say(self, sentence, blocking = True):
-        if blocking is True:
-            final = "t"
-        else:
-            final = "f"
         #HACK : adding a space for each non ascii character
-        final += sentence
         for i in range(len(sentence)):
             if ord(sentence[i])<128:
                 sentence+= ' '
-        self._socket.send_multipart([final])
-        message = self._socket.recv_multipart()
+        self._socket.send_json({"id": self._msg_id, "blocking": blocking, "sentence": sentence})
+        self._msg_id += 1
+        message = self._socket.recv()#_multipart()
         return None
 
     def start(self):
